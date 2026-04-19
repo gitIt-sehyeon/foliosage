@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { isLoggedIn, removeToken } from '@/lib/auth'
@@ -7,7 +7,14 @@ import { Button } from '@/components/ui/button'
 
 export default function DashboardPage() {
   const router = useRouter()
-  useEffect(() => { if (!isLoggedIn()) router.push('/login') }, [router])
+  const [checked, setChecked] = useState(false)
+
+  useEffect(() => {
+    if (!isLoggedIn()) { router.push('/login'); return }
+    setChecked(true)
+  }, [router])
+
+  if (!checked) return null
 
   return (
     <div className="min-h-screen bg-slate-50">

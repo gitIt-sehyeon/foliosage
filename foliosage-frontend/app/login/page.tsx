@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { isAxiosError } from 'axios'
 import api from '@/lib/api'
 import { setToken } from '@/lib/auth'
 
@@ -22,8 +23,8 @@ export default function LoginPage() {
       const { data } = await api.post('/api/auth/login', form)
       setToken(data.token)
       router.push('/dashboard')
-    } catch (err: any) {
-      setError(err.response?.data?.error ?? 'Login failed.')
+    } catch (err) {
+      setError(isAxiosError(err) ? (err.response?.data?.error ?? 'Login failed.') : 'An unexpected error occurred.')
     } finally { setLoading(false) }
   }
 
@@ -33,8 +34,14 @@ export default function LoginPage() {
         <CardHeader><CardTitle className="text-2xl text-center">Welcome back</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div><Label>Email</Label><Input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required /></div>
-            <div><Label>Password</Label><Input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required /></div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" value={form.email} onChange={e => setForm(prev => ({...prev, email: e.target.value}))} required />
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" value={form.password} onChange={e => setForm(prev => ({...prev, password: e.target.value}))} required />
+            </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}
