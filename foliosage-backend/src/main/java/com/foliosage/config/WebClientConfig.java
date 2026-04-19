@@ -11,6 +11,8 @@ public class WebClientConfig {
 
     @Bean
     public WebClient vaultSageClient() {
+        if (!org.springframework.util.StringUtils.hasText(apiKey))
+            throw new IllegalStateException("vaultsage.api-key must be configured");
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("Authorization", "Bearer " + apiKey)

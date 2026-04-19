@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -15,7 +16,7 @@ import java.io.IOException;
 @Component @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res,
@@ -23,14 +24,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = req.getHeader("Authorization");
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            if (jwtTokenProvider.validateToken(token)) {
-                UserDetails ud = userDetailsService.loadUserByUsername(
-                        jwtTokenProvider.getEmailFromToken(token));
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            }
+            jwtTokenProvider.parseClaims(token).ifPresent(claims -> {
+                try {
+                    UserDetails ud = userDetailsService.loadUserByUsername(claims.getSubject());
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                } catch (org.springframework.security.core.userdetails.UsernameNotFoundException ignored) {
+                    // user deleted after token issued — leave SecurityContext empty
+                }
+            });
         }
         chain.doFilter(req, res);
     }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 public class JwtTokenProvider {
@@ -15,8 +16,19 @@ public class JwtTokenProvider {
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secret,
                             @Value("${jwt.expiration-ms}") long expirationMs) {
+        if (secret.getBytes(StandardCharsets.UTF_8).length < 32)
+            throw new IllegalArgumentException("jwt.secret must be at least 32 bytes (256 bits)");
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
+    }
+
+    public Optional<Claims> parseClaims(String token) {
+        try {
+            return Optional.of(Jwts.parser().verifyWith(key).build()
+                    .parseSignedClaims(token).getPayload());
+        } catch (JwtException | IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     public String generateToken(String email) {
@@ -24,15 +36,5 @@ public class JwtTokenProvider {
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key).compact();
-    }
-
-    public String getEmailFromToken(String token) {
-        return Jwts.parser().verifyWith(key).build()
-                .parseSignedClaims(token).getPayload().getSubject();
-    }
-
-    public boolean validateToken(String token) {
-        try { Jwts.parser().verifyWith(key).build().parseSignedClaims(token); return true; }
-        catch (JwtException | IllegalArgumentException e) { return false; }
     }
 }
