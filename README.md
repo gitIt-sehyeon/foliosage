@@ -12,7 +12,7 @@
 
 ---
 
-## 📌 About
+## About
 
 **FolioSage** is an AI-powered portfolio platform for creators — designers, developers, and artists.
 
@@ -22,18 +22,18 @@ Upload your work and VaultSage AI automatically organizes files by project. Shar
 
 * * *
 
-## ✨ Features
+## Features
 
-- 🤖 **AI Auto-Organization** — VaultSage Smart Organizer automatically categorizes uploaded files by project
-- 💬 **Portfolio AI Chat** — Visitors browse your gallery and ask questions ("What was the hardest part of this project?")
-- 🔗 **Public Portfolio Link** — Shareable gallery + chat page accessible without login
-- 📜 **Creation Certificates** — Per-file SHA-256 hash + timestamp PDF issued automatically
-- 📊 **Visitor Analytics** — See who visited your portfolio, when, and how many times
-- 🌐 **Korean / English** support
+- **AI Auto-Organization** — VaultSage Smart Organizer automatically categorizes uploaded files by project
+- **Portfolio AI Chat** — Visitors browse your gallery and ask questions ("What was the hardest part of this project?")
+- **Public Portfolio Link** — Shareable gallery + chat page accessible without login
+- **Creation Certificates** — Per-file SHA-256 hash + timestamp PDF issued automatically
+- **Visitor Analytics** — See who visited your portfolio, when, and how many times
+- **Korean / English** support
 
 * * *
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -61,40 +61,59 @@ Upload your work and VaultSage AI automatically organizes files by project. Shar
 
 * * *
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Backend
-| Category | Technology |
-|----------|------------|
-| Language | Java 17 |
-| Framework | Spring Boot 3.x |
-| Security | Spring Security + JWT |
-| ORM | Spring Data JPA + Hibernate |
-| DB Migration | Flyway |
-| HTTP Client | Spring WebClient |
-| PDF | Apache PDFBox |
-| Build | Maven |
-
-### Frontend
-| Category | Technology |
-|----------|------------|
-| Framework | Next.js 14 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS + shadcn/ui |
-| HTTP Client | Axios |
-| State | Zustand |
-
-### Infrastructure
-| Category | Technology |
-|----------|------------|
-| Backend Deployment | AWS Elastic Beanstalk |
-| Database | AWS RDS (PostgreSQL 16) |
-| Frontend Deployment | Vercel |
-| External API | VaultSage API |
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <b>Backend Language & Framework</b><br><br>
+      <img src="https://img.shields.io/badge/Java_17-007396?style=for-the-badge&logo=java&logoColor=white" />
+      <img src="https://img.shields.io/badge/Spring_Boot_3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
+      <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white" />
+      <img src="https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white" />
+      <img src="https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white" />
+      <img src="https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
+    </td>
+    <td width="50%" valign="top">
+      <b>Frontend</b><br><br>
+      <img src="https://img.shields.io/badge/Next.js_14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
+      <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+      <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
+      <img src="https://img.shields.io/badge/shadcn/ui-000000?style=for-the-badge&logo=shadcnui&logoColor=white" />
+      <img src="https://img.shields.io/badge/Zustand-433E38?style=for-the-badge&logo=react&logoColor=white" />
+      <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <b>Database & Migration</b><br><br>
+      <img src="https://img.shields.io/badge/PostgreSQL_16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+      <img src="https://img.shields.io/badge/Flyway-CC0200?style=for-the-badge&logo=flyway&logoColor=white" />
+    </td>
+    <td width="50%" valign="top">
+      <b>Build & Utilities</b><br><br>
+      <img src="https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" />
+      <img src="https://img.shields.io/badge/Apache_PDFBox-D22128?style=for-the-badge&logo=apache&logoColor=white" />
+      <img src="https://img.shields.io/badge/WebClient-6DB33F?style=for-the-badge&logo=spring&logoColor=white" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <b>Infrastructure & Deployment</b><br><br>
+      <img src="https://img.shields.io/badge/AWS_Elastic_Beanstalk-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white" />
+      <img src="https://img.shields.io/badge/AWS_RDS-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white" />
+      <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" />
+    </td>
+    <td width="50%" valign="top">
+      <b>External API</b><br><br>
+      <img src="https://img.shields.io/badge/VaultSage_API-6366F1?style=for-the-badge&logoColor=white" />
+    </td>
+  </tr>
+</table>
 
 * * *
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -134,7 +153,7 @@ npm run dev
 
 * * *
 
-## 🔐 Environment Variables
+## Environment Variables
 
 ### Backend (`application.yml` / Elastic Beanstalk environment properties)
 
@@ -165,7 +184,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 
 * * *
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 foliosage/
@@ -210,7 +229,7 @@ foliosage/
 
 * * *
 
-## 📡 API Reference
+## API Reference
 
 ### Authentication
 
@@ -244,7 +263,7 @@ foliosage/
 
 * * *
 
-## 🌿 Git Convention
+## Git Convention
 
 ### Branch Strategy
 
@@ -277,7 +296,7 @@ git commit -m "docs: update API reference in README"
 
 * * *
 
-## 🏆 Competition
+## Competition
 
 This project is an entry for the **NURIE.AI Visionary AI 2026 Cross-Platform Innovation Awards**.
 
@@ -287,6 +306,6 @@ This project is an entry for the **NURIE.AI Visionary AI 2026 Cross-Platform Inn
 
 * * *
 
-## 📄 License
+## License
 
 MIT License © 2026 FolioSage
