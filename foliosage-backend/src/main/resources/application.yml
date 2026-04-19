@@ -23,7 +23,7 @@ jwt:
   expiration-ms: 86400000
 
 vaultsage:
-  api-key: ${VAULTSAGE_API_KEY:dummy}
+  api-key: ${VAULTSAGE_API_KEY}
   base-url: ${VAULTSAGE_BASE_URL:https://api.vaultsage.ai}
 
 cors:
