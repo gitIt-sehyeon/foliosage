@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/foliosage
+    username: foliosage
+    password: foliosage
+jwt:
+  secret: test-secret-key-minimum-256-bit-length-padding-ok
+  expiration-ms: 86400000
+vaultsage:
+  api-key: test-key
+  base-url: http://localhost:9999
+cors:
+  allowed-origins: http://localhost:3000
+app:
+  base-url: http://localhost:3000
