@@ -19,7 +19,7 @@ server:
   port: 8080
 
 jwt:
-  secret: ${JWT_SECRET:foliosage-default-secret-key-minimum-256-bits-long}
+  secret: ${JWT_SECRET}
   expiration-ms: 86400000
 
 vaultsage:

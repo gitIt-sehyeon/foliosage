@@ -2,6 +2,7 @@ package com.foliosage.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ public class Certificate {
     @Column(name = "pdf_path")
     private String pdfPath;
 
-    @Column(name = "issued_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "issued_at", nullable = false, updatable = false)
     private OffsetDateTime issuedAt;
 }
