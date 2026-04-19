@@ -27,7 +27,7 @@ FolioSage is a web-based AI portfolio platform for creators (designers, develope
 | Layer | Technology |
 |---|---|
 | Frontend | Next.js 14 (App Router, TypeScript) → Vercel |
-| Backend | Spring Boot 3 (Java 17) → AWS Elastic Beanstalk |
+| Backend | Spring Boot 3 (Java 21) → AWS Elastic Beanstalk |
 | Database | PostgreSQL (AWS RDS) |
 | File Storage & AI | VaultSage API (files, smart-organizers, chat, share) |
 | Authentication | Spring Security + JWT |
