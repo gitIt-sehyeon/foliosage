@@ -2,7 +2,7 @@
 
 > The AI-powered portfolio platform where your work speaks for itself
 
-[![Java](https://img.shields.io/badge/Java-17-007396?style=flat-square&logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Java](https://img.shields.io/badge/Java-21-007396?style=flat-square&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -46,7 +46,7 @@ Upload your work and VaultSage AI automatically organizes files by project. Shar
           └────────┬────────┘   └────────┬────────┘
                    │                     │
           ┌────────▼─────────────────────▼────────┐
-          │         Spring Boot (Java 17)          │
+          │         Spring Boot (Java 21)          │
           │         AWS Elastic Beanstalk          │
           └──────┬──────────────────┬─────────────┘
                  │                  │
@@ -67,7 +67,7 @@ Upload your work and VaultSage AI automatically organizes files by project. Shar
   <tr>
     <td width="50%" valign="top">
       <b>Backend Language & Framework</b><br><br>
-      <img src="https://img.shields.io/badge/Java_17-007396?style=for-the-badge&logo=java&logoColor=white" />
+      <img src="https://img.shields.io/badge/Java_21-007396?style=for-the-badge&logo=java&logoColor=white" />
       <img src="https://img.shields.io/badge/Spring_Boot_3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
       <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white" />
       <img src="https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white" />
@@ -92,7 +92,7 @@ Upload your work and VaultSage AI automatically organizes files by project. Shar
     </td>
     <td width="50%" valign="top">
       <b>Build & Utilities</b><br><br>
-      <img src="https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" />
+      <img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white" />
       <img src="https://img.shields.io/badge/Apache_PDFBox-D22128?style=for-the-badge&logo=apache&logoColor=white" />
       <img src="https://img.shields.io/badge/WebClient-6DB33F?style=for-the-badge&logo=spring&logoColor=white" />
     </td>
@@ -117,7 +117,7 @@ Upload your work and VaultSage AI automatically organizes files by project. Shar
 
 ### Prerequisites
 
-- Java 17+
+- Java 21+
 - Node.js 20+
 - Docker (for local PostgreSQL)
 - VaultSage API Key (get one at [vaultsage.ai](https://vaultsage.ai))
@@ -138,7 +138,7 @@ docker run -d \
 
 # 3. Run
 cd foliosage-backend
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
 ### Run Frontend Locally
