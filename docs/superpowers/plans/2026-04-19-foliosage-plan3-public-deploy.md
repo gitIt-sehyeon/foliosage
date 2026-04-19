@@ -70,7 +70,7 @@ class PublishServiceTest {
 - [ ] **Step 2: Run test to confirm failure**
 
 ```bash
-./mvnw test -Dtest=PublishServiceTest
+./gradlew test --tests "*.PublishServiceTest"
 ```
 
 Expected: FAIL — `PublishService` not found
@@ -192,10 +192,10 @@ public String visitors(@AuthenticationPrincipal UserDetails user, @PathVariable 
 - [ ] **Step 6: Run test**
 
 ```bash
-./mvnw test -Dtest=PublishServiceTest
+./gradlew test --tests "*.PublishServiceTest"
 ```
 
-Expected: `Tests run: 1, Failures: 0`
+Expected: `1 test completed, 0 failures`
 
 - [ ] **Step 7: Commit**
 
@@ -243,7 +243,7 @@ class CertificateServiceTest {
 - [ ] **Step 2: Run test to confirm failure**
 
 ```bash
-./mvnw test -Dtest=CertificateServiceTest
+./gradlew test --tests "*.CertificateServiceTest"
 ```
 
 Expected: FAIL — `CertificateService` not found
@@ -415,10 +415,10 @@ public ResponseEntity<byte[]> downloadCertificate(
 - [ ] **Step 5: Run test**
 
 ```bash
-./mvnw test -Dtest=CertificateServiceTest
+./gradlew test --tests "*.CertificateServiceTest"
 ```
 
-Expected: `Tests run: 1, Failures: 0`
+Expected: `1 test completed, 0 failures`
 
 - [ ] **Step 6: Commit**
 
@@ -535,10 +535,10 @@ public class PublicController {
 - [ ] **Step 3: Compile**
 
 ```bash
-./mvnw compile
+./gradlew compileJava
 ```
 
-Expected: `BUILD SUCCESS`
+Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 4: Commit**
 
@@ -825,7 +825,7 @@ export default function PublicPortfolioPage() {
 
 ```bash
 # Terminal 1
-cd foliosage-backend && VAULTSAGE_API_KEY=your-key ./mvnw spring-boot:run
+cd foliosage-backend && VAULTSAGE_API_KEY=your-key ./gradlew bootRun
 
 # Terminal 2
 cd foliosage-frontend && npm run dev
@@ -854,10 +854,10 @@ git commit -m "feat: public portfolio page with gallery and AI chat"
 
 ```bash
 cd foliosage-backend
-./mvnw clean package -DskipTests
+./gradlew clean build -x test
 ```
 
-Expected: `target/foliosage-backend-0.0.1-SNAPSHOT.jar` created
+Expected: `build/libs/foliosage-backend-0.0.1-SNAPSHOT.jar` created
 
 - [ ] **Step 2: Create RDS PostgreSQL instance**
 
@@ -873,8 +873,8 @@ Expected: `target/foliosage-backend-0.0.1-SNAPSHOT.jar` created
 
 1. AWS Console → Elastic Beanstalk → Create Application
 2. Application name: `foliosage-backend`
-3. Platform: Java 17
-4. Upload: `target/foliosage-backend-0.0.1-SNAPSHOT.jar`
+3. Platform: Java 21 (Corretto 21)
+4. Upload: `build/libs/foliosage-backend-0.0.1-SNAPSHOT.jar`
 
 - [ ] **Step 4: Set Elastic Beanstalk environment variables**
 

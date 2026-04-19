@@ -90,10 +90,10 @@ class VaultSageServiceTest {
 - [ ] **Step 2: Run test to confirm failure**
 
 ```bash
-./mvnw test -Dtest=VaultSageServiceTest
+./gradlew test --tests "*.VaultSageServiceTest"
 ```
 
-Expected: FAIL — `VaultSageService` not found
+Expected: FAIL — `VaultSageService` not found (compilation error)
 
 - [ ] **Step 3: Create `VaultSageService.java`**
 
@@ -316,10 +316,10 @@ public class VaultSageService {
 - [ ] **Step 4: Run tests**
 
 ```bash
-./mvnw test -Dtest=VaultSageServiceTest
+./gradlew test --tests "*.VaultSageServiceTest"
 ```
 
-Expected: `Tests run: 2, Failures: 0`
+Expected: `2 tests completed, 0 failures`
 
 - [ ] **Step 5: Commit**
 
@@ -636,10 +636,10 @@ public class PortfolioController {
 - [ ] **Step 5: Compile**
 
 ```bash
-./mvnw compile
+./gradlew compileJava
 ```
 
-Expected: `BUILD SUCCESS` (OrganizeService missing — OK, next task)
+Expected: `BUILD SUCCESSFUL` (OrganizeService missing — OK, next task)
 
 - [ ] **Step 6: Commit**
 
@@ -759,10 +759,10 @@ public class OrganizeService {
 - [ ] **Step 2: Compile**
 
 ```bash
-./mvnw compile
+./gradlew compileJava
 ```
 
-Expected: `BUILD SUCCESS`
+Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 3: Commit**
 
@@ -1273,7 +1273,7 @@ private final VaultSageService vaultSageService;
 
 ```bash
 # Terminal 1
-cd foliosage-backend && VAULTSAGE_API_KEY=your-key ./mvnw spring-boot:run
+cd foliosage-backend && VAULTSAGE_API_KEY=your-key ./gradlew bootRun
 
 # Terminal 2
 cd foliosage-frontend && npm run dev
@@ -1294,6 +1294,198 @@ cd foliosage-backend && git add . && git commit -m "feat: file upload and organi
 
 ---
 
+## Task 5: Google OAuth Login
+
+**Context:** 기존 이메일/비밀번호 JWT 인증에 Google OAuth2 로그인을 추가한다. 백엔드에서 Google 콜백 처리 후 기존 JWT를 발급하고, 프론트엔드 로그인 페이지에 Google 로그인 버튼을 추가한다.
+
+**Files:**
+- Modify: `foliosage-backend/build.gradle` — OAuth2 client dependency 추가
+- Modify: `foliosage-backend/src/main/resources/application.yml` — Google OAuth2 설정
+- Create: `foliosage-backend/src/main/java/com/foliosage/security/OAuth2SuccessHandler.java`
+- Modify: `foliosage-backend/src/main/java/com/foliosage/config/SecurityConfig.java` — OAuth2 로그인 활성화
+- Modify: `foliosage-backend/src/main/java/com/foliosage/service/UserService.java` — Google 계정 자동 가입 처리
+- Modify: `foliosage-frontend/app/login/page.tsx` — Google 로그인 버튼 추가
+- Modify: `foliosage-frontend/app/register/page.tsx` — Google 로그인 버튼 추가
+
+**Architecture:**
+- 백엔드: `spring-boot-starter-oauth2-client`로 Google 콜백 수신 → `OAuth2SuccessHandler`에서 DB에 유저 upsert → 기존 `JwtService`로 JWT 발급 → 프론트엔드로 redirect (쿼리스트링에 token 포함)
+- 프론트엔드: `/oauth2/authorization/google` 로 리다이렉트 → 백엔드 콜백 완료 후 `/oauth-callback?token=...` 수신 → `setToken()` 저장 → `/dashboard`로 이동
+
+- [ ] **Step 1: build.gradle — OAuth2 dependency 추가**
+
+```groovy
+implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+```
+
+- [ ] **Step 2: application.yml — Google OAuth2 설정**
+
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+```
+
+환경 변수 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`은 Google Cloud Console에서 발급받아 설정한다.
+
+- [ ] **Step 3: `OAuth2SuccessHandler.java` 작성**
+
+```java
+package com.foliosage.security;
+
+import com.foliosage.entity.User;
+import com.foliosage.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
+
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException {
+        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oauth2User.getAttribute("email");
+        String name  = oauth2User.getAttribute("name");
+
+        User user = userRepository.findByEmail(email).orElseGet(() ->
+                userRepository.save(User.builder()
+                        .email(email)
+                        .name(name)
+                        .password("")   // OAuth 유저는 비밀번호 없음
+                        .build())
+        );
+
+        String token = jwtService.generateToken(user.getEmail());
+        getRedirectStrategy().sendRedirect(request, response,
+                frontendUrl + "/oauth-callback?token=" + token);
+    }
+}
+```
+
+- [ ] **Step 4: `SecurityConfig.java` 수정 — OAuth2 로그인 활성화**
+
+기존 `SecurityConfig`에 아래 내용을 추가한다:
+
+```java
+// import 추가
+import com.foliosage.security.OAuth2SuccessHandler;
+
+// 필드 추가
+private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
+// http 설정 체인에 추가 (.formLogin().disable() 이후)
+.oauth2Login(oauth2 -> oauth2
+    .successHandler(oAuth2SuccessHandler)
+)
+```
+
+- [ ] **Step 5: 프론트엔드 — `/oauth-callback` 페이지 생성**
+
+`foliosage-frontend/app/oauth-callback/page.tsx`:
+
+```typescript
+'use client'
+import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { setToken } from '@/lib/auth'
+
+export default function OAuthCallbackPage() {
+  const router = useRouter()
+  const params = useSearchParams()
+
+  useEffect(() => {
+    const token = params.get('token')
+    if (token) {
+      setToken(token)
+      router.replace('/dashboard')
+    } else {
+      router.replace('/login?error=oauth_failed')
+    }
+  }, [params, router])
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-slate-500">로그인 처리 중...</p>
+    </div>
+  )
+}
+```
+
+- [ ] **Step 6: 로그인/회원가입 페이지에 Google 버튼 추가**
+
+`app/login/page.tsx`와 `app/register/page.tsx`의 폼 하단에 추가:
+
+```typescript
+<div className="relative my-4">
+  <div className="absolute inset-0 flex items-center">
+    <div className="w-full border-t border-slate-200" />
+  </div>
+  <div className="relative flex justify-center text-xs text-slate-400">
+    <span className="bg-white px-2">또는</span>
+  </div>
+</div>
+<Button
+  type="button"
+  variant="outline"
+  className="w-full flex items-center gap-2"
+  onClick={() => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'}/oauth2/authorization/google`
+  }}
+>
+  <svg className="w-4 h-4" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+  </svg>
+  Google로 계속하기
+</Button>
+```
+
+- [ ] **Step 7: 환경 변수 확인 및 통합 테스트**
+
+1. Google Cloud Console에서 OAuth2 클라이언트 ID/Secret 발급
+2. 승인된 리다이렉트 URI에 `http://localhost:8080/login/oauth2/code/google` 추가
+3. 백엔드 실행 시 환경변수 설정:
+   ```bash
+   GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... ./gradlew bootRun
+   ```
+4. 로그인 페이지 → "Google로 계속하기" 클릭 → Google 계정 선택 → 대시보드 진입 확인
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add .
+git commit -m "feat: Google OAuth2 login with JWT handoff"
+```
+
+---
+
 ## Plan 2 Complete
 
 - ✅ VaultSageService — all API calls wrapped (files, organizers, share, chat)
@@ -1302,5 +1494,6 @@ cd foliosage-backend && git add . && git commit -m "feat: file upload and organi
 - ✅ PNG preview proxy endpoint
 - ✅ Async Smart Organizer pipeline (generate → apply → materialize)
 - ✅ Frontend: portfolio creation, file upload zone, gallery, organize status
+- ✅ Google OAuth2 로그인 (Google → JWT → 기존 인증 흐름 통합)
 
 **Next:** Plan 3 — Public portfolio page (gallery + chat), certificates PDF, publish flow, visitor analytics, deployment.

@@ -4,9 +4,9 @@
 
 **Goal:** Set up Spring Boot backend with JWT auth and Flyway schema, and a Next.js frontend with auth pages wired to the backend.
 
-**Architecture:** Spring Boot (Java 17) serves a REST API secured with JWT. PostgreSQL is managed via Spring Data JPA and Flyway. Next.js App Router communicates through a typed Axios client. VaultSage WebClient is configured but not yet called.
+**Architecture:** Spring Boot (Java 21) serves a REST API secured with JWT. PostgreSQL is managed via Spring Data JPA and Flyway. Next.js App Router communicates through a typed Axios client. VaultSage WebClient is configured but not yet called.
 
-**Tech Stack:** Java 17, Spring Boot 3.2, Spring Security, JJWT 0.12, Spring Data JPA, Flyway, PostgreSQL, Spring WebFlux (WebClient), Next.js 14, TypeScript, Tailwind CSS, shadcn/ui, Axios
+**Tech Stack:** Java 21, Spring Boot 3.4, Spring Security, JJWT 0.12, Spring Data JPA, Flyway, PostgreSQL, Spring WebFlux (WebClient), Next.js 14, TypeScript, Tailwind CSS, shadcn/ui, Axios
 
 ---
 
@@ -14,7 +14,8 @@
 
 ### Backend: `foliosage-backend/`
 ```
-pom.xml
+build.gradle.kts
+settings.gradle.kts
 src/main/java/com/foliosage/
   FoliosageApplication.java
   config/
@@ -69,7 +70,8 @@ lib/auth.ts
 ## Task 1: Spring Boot Project Setup
 
 **Files:**
-- Create: `foliosage-backend/pom.xml`
+- Create: `foliosage-backend/settings.gradle.kts`
+- Create: `foliosage-backend/build.gradle.kts`
 - Create: `foliosage-backend/src/main/java/com/foliosage/FoliosageApplication.java`
 - Create: `foliosage-backend/src/main/resources/application.yml`
 
@@ -82,52 +84,67 @@ mkdir -p foliosage-backend/src/test/java/com/foliosage/controller
 mkdir -p foliosage-backend/src/test/resources
 ```
 
-- [ ] **Step 2: Create `pom.xml`**
+- [ ] **Step 2: Create `settings.gradle.kts` and `build.gradle.kts`**
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.4</version>
-    </parent>
-    <groupId>com.foliosage</groupId>
-    <artifactId>foliosage-backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <properties><java.version>17</java.version></properties>
-    <dependencies>
-        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
-        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-security</artifactId></dependency>
-        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-jpa</artifactId></dependency>
-        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-validation</artifactId></dependency>
-        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-webflux</artifactId></dependency>
-        <dependency><groupId>org.flywaydb</groupId><artifactId>flyway-core</artifactId></dependency>
-        <dependency><groupId>org.flywaydb</groupId><artifactId>flyway-database-postgresql</artifactId></dependency>
-        <dependency><groupId>org.postgresql</groupId><artifactId>postgresql</artifactId><scope>runtime</scope></dependency>
-        <dependency><groupId>io.jsonwebtoken</groupId><artifactId>jjwt-api</artifactId><version>0.12.5</version></dependency>
-        <dependency><groupId>io.jsonwebtoken</groupId><artifactId>jjwt-impl</artifactId><version>0.12.5</version><scope>runtime</scope></dependency>
-        <dependency><groupId>io.jsonwebtoken</groupId><artifactId>jjwt-jackson</artifactId><version>0.12.5</version><scope>runtime</scope></dependency>
-        <dependency><groupId>org.apache.pdfbox</groupId><artifactId>pdfbox</artifactId><version>3.0.2</version></dependency>
-        <dependency><groupId>org.projectlombok</groupId><artifactId>lombok</artifactId><optional>true</optional></dependency>
-        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
-        <dependency><groupId>org.springframework.security</groupId><artifactId>spring-security-test</artifactId><scope>test</scope></dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes><exclude><groupId>org.projectlombok</groupId><artifactId>lombok</artifactId></exclude></excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+```kotlin
+// settings.gradle.kts
+rootProject.name = "foliosage-backend"
+```
+
+```kotlin
+// build.gradle.kts
+plugins {
+    java
+    id("org.springframework.boot") version "3.4.4"
+    id("io.spring.dependency-management") version "1.1.7"
+}
+
+group = "com.foliosage"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
+    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+    implementation("org.apache.pdfbox:pdfbox:3.0.2")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+```
+
+```bash
+# Gradle wrapper 생성 (최초 1회)
+gradle wrapper
 ```
 
 - [ ] **Step 3: Create `FoliosageApplication.java`**
@@ -198,10 +215,10 @@ docker run -d \
   postgres:16
 
 cd foliosage-backend
-./mvnw compile
+./gradlew compileJava
 ```
 
-Expected: `BUILD SUCCESS`
+Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 6: Commit**
 
@@ -270,7 +287,7 @@ CREATE INDEX idx_certificates_file   ON certificates(file_id);
 - [ ] **Step 2: Run and verify migration**
 
 ```bash
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
 Expected in logs: `Successfully applied 1 migration to schema "public"`
@@ -451,10 +468,10 @@ public class Certificate {
 - [ ] **Step 5: Verify compilation**
 
 ```bash
-./mvnw compile
+./gradlew compileJava
 ```
 
-Expected: `BUILD SUCCESS`
+Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 6: Commit**
 
@@ -689,10 +706,10 @@ public class WebClientConfig {
 - [ ] **Step 7: Verify compilation**
 
 ```bash
-./mvnw compile
+./gradlew compileJava
 ```
 
-Expected: `BUILD SUCCESS`
+Expected: `BUILD SUCCESSFUL`
 
 - [ ] **Step 8: Commit**
 
@@ -795,7 +812,7 @@ app:
 - [ ] **Step 3: Run test to confirm failure**
 
 ```bash
-./mvnw test -Dtest=AuthControllerTest
+./gradlew test --tests "*.AuthControllerTest"
 ```
 
 Expected: FAIL — `SignupRequest` not found
@@ -922,10 +939,10 @@ public class GlobalExceptionHandler {
 - [ ] **Step 8: Run tests**
 
 ```bash
-./mvnw test -Dtest=AuthControllerTest
+./gradlew test --tests "*.AuthControllerTest"
 ```
 
-Expected: `Tests run: 3, Failures: 0, Errors: 0`
+Expected: `3 tests completed, 0 failures`
 
 - [ ] **Step 9: Commit**
 
@@ -1192,7 +1209,7 @@ export default function DashboardPage() {
 
 ```bash
 # Terminal 1
-cd foliosage-backend && ./mvnw spring-boot:run
+cd foliosage-backend && ./gradlew bootRun
 
 # Terminal 2
 cd foliosage-frontend && npm run dev
@@ -1210,7 +1227,7 @@ git add . && git commit -m "feat: next.js frontend with auth pages"
 
 ## Plan 1 Complete
 
-- ✅ Spring Boot with all dependencies (pom.xml)
+- ✅ Spring Boot with all dependencies (build.gradle.kts, Java 21)
 - ✅ PostgreSQL schema via Flyway
 - ✅ JPA entities: User, Portfolio, PortfolioFile, Certificate
 - ✅ JWT auth — 3 tests passing
