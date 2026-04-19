@@ -20,12 +20,12 @@ class AuthControllerTest {
     @Autowired ObjectMapper objectMapper;
 
     @Test
-    void signup_withValidData_returns200AndToken() throws Exception {
+    void signup_withValidData_returns201AndToken() throws Exception {
         var req = new SignupRequest("test@example.com", "password123", "Tester");
         mockMvc.perform(post("/api/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.token").isNotEmpty())
                 .andExpect(jsonPath("$.email").value("test@example.com"));
     }
@@ -34,7 +34,8 @@ class AuthControllerTest {
     void signup_withDuplicateEmail_returns409() throws Exception {
         var req = new SignupRequest("dup@example.com", "password123", "Dup");
         mockMvc.perform(post("/api/auth/signup").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req))).andReturn();
+                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated());
         mockMvc.perform(post("/api/auth/signup").contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isConflict());
