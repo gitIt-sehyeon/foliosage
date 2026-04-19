@@ -7,7 +7,7 @@ CREATE TABLE users (
     name          VARCHAR(100) NOT NULL,
     bio           TEXT,
     vaultsage_token VARCHAR(500),
-    created_at    TIMESTAMP NOT NULL DEFAULT NOW()
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE portfolios (
@@ -19,7 +19,7 @@ CREATE TABLE portfolios (
     share_code         VARCHAR(100) UNIQUE,
     vaultsage_share_id VARCHAR(100),
     is_published       BOOLEAN NOT NULL DEFAULT false,
-    created_at         TIMESTAMP NOT NULL DEFAULT NOW()
+    created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE portfolio_files (
@@ -30,17 +30,16 @@ CREATE TABLE portfolio_files (
     file_hash         VARCHAR(64) NOT NULL,
     file_size         BIGINT,
     mime_type         VARCHAR(100),
-    certified_at      TIMESTAMP NOT NULL DEFAULT NOW(),
-    created_at        TIMESTAMP NOT NULL DEFAULT NOW()
+    certified_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE certificates (
     id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     file_id   UUID NOT NULL UNIQUE REFERENCES portfolio_files(id) ON DELETE CASCADE,
     pdf_path  VARCHAR(500),
-    issued_at TIMESTAMP NOT NULL DEFAULT NOW()
+    issued_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_portfolios_user     ON portfolios(user_id);
 CREATE INDEX idx_portfolio_files_pid ON portfolio_files(portfolio_id);
-CREATE INDEX idx_certificates_file   ON certificates(file_id);
