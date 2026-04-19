@@ -31,7 +31,8 @@ public class PortfolioFile {
     @Column(name = "mime_type")
     private String mimeType;
 
-    @Column(name = "certified_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "certified_at", nullable = false, updatable = false)
     private OffsetDateTime certifiedAt;
 
     @CreationTimestamp
