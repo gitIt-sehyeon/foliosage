@@ -17,7 +17,7 @@ import java.util.Map;
 public class VaultSageService {
 
     private final WebClient vaultSageClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // ── Files ──────────────────────────────────────────────────────────
 
@@ -34,6 +34,7 @@ public class VaultSageService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+        if (response == null) throw new RuntimeException("Empty response from VaultSage");
         return extractFileId(response);
     }
 
@@ -52,7 +53,7 @@ public class VaultSageService {
                     return item.path("status").asText("processing");
             }
             return "processing";
-        } catch (Exception e) { return "processing"; }
+        } catch (Exception e) { log.error("Failed to parse processing status", e); return "processing"; }
     }
 
     public void requestPngPreview(String fileId) {
@@ -80,6 +81,7 @@ public class VaultSageService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+        if (response == null) throw new RuntimeException("Empty response from VaultSage");
         return extractId(response);
     }
 
@@ -157,7 +159,7 @@ public class VaultSageService {
                 "shareId",   root.path("id").asText(""),
                 "shareCode", root.path("code").asText(root.path("share_code").asText(""))
             );
-        } catch (Exception e) { return Map.of("shareId", "", "shareCode", ""); }
+        } catch (Exception e) { log.error("Failed to parse share response", e); return Map.of("shareId", "", "shareCode", ""); }
     }
 
     public String getAccessLogs(String shareId) {
@@ -208,6 +210,6 @@ public class VaultSageService {
 
     private String extractStatus(String json) {
         try { return objectMapper.readTree(json).path("status").asText("pending"); }
-        catch (Exception e) { return "pending"; }
+        catch (Exception e) { log.warn("Failed to parse status from: {}", json, e); return "pending"; }
     }
 }
