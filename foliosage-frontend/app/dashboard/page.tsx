@@ -10,10 +10,13 @@ import api from '@/lib/api'
 export default function DashboardPage() {
   const router = useRouter()
   const [portfolios, setPortfolios] = useState<any[]>([])
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!isLoggedIn()) { router.push('/login'); return }
-    api.get('/api/portfolios').then(r => setPortfolios(r.data))
+    api.get('/api/portfolios')
+      .then(r => setPortfolios(r.data))
+      .catch(() => setError('Failed to load portfolios.'))
   }, [router])
 
   return (
@@ -29,6 +32,7 @@ export default function DashboardPage() {
       </nav>
       <div className="max-w-5xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold mb-6">My Portfolios</h1>
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         {portfolios.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-4xl mb-4">🎨</p>

@@ -15,6 +15,8 @@ export default function PortfolioPage() {
   const router = useRouter()
   const [portfolio, setPortfolio] = useState<any>(null)
   const [organizeStatus, setOrganizeStatus] = useState({ status: 'idle', message: 'Not started' })
+  const [isOrganizing, setIsOrganizing] = useState(false)
+  const [publishError, setPublishError] = useState('')
 
   const loadPortfolio = useCallback(async () => {
     try {
@@ -28,6 +30,8 @@ export default function PortfolioPage() {
     setOrganizeStatus(data)
     if (['generating','applying','materializing'].includes(data.status)) {
       setTimeout(pollOrganizeStatus, 3000)
+    } else {
+      setIsOrganizing(false)
     }
   }, [id])
 
@@ -37,15 +41,19 @@ export default function PortfolioPage() {
   }, [loadPortfolio, router])
 
   const startOrganize = async () => {
-    await api.post(`/api/portfolios/${id}/organize`)
-    pollOrganizeStatus()
+    if (isOrganizing) return
+    setIsOrganizing(true)
+    try {
+      await api.post(`/api/portfolios/${id}/organize`)
+      pollOrganizeStatus()
+    } catch (e) { setIsOrganizing(false) }
   }
 
   const publish = async () => {
     try {
       await api.post(`/api/portfolios/${id}/publish`)
       loadPortfolio()
-    } catch (e) { /* Plan 3 */ }
+    } catch { setPublishError('Publish failed. This feature is coming soon.') }
   }
 
   if (!portfolio) return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -85,8 +93,8 @@ export default function PortfolioPage() {
             <div className="flex justify-between items-center mb-3">
               <h2 className="font-semibold text-lg">AI Organization</h2>
               {(organizeStatus.status === 'idle' || organizeStatus.status === 'failed') && (
-                <Button size="sm" className="bg-purple-600 hover:bg-purple-700" onClick={startOrganize}>
-                  🤖 Start AI Organize
+                <Button size="sm" className="bg-purple-600 hover:bg-purple-700" onClick={startOrganize} disabled={isOrganizing}>
+                  {isOrganizing ? '⏳ Organizing...' : '🤖 Start AI Organize'}
                 </Button>
               )}
             </div>
@@ -113,6 +121,7 @@ export default function PortfolioPage() {
         {portfolio.files?.length > 0 && (
           <section className="bg-white rounded-xl border p-6">
             <h2 className="font-semibold text-lg mb-2">Share Your Portfolio</h2>
+            {publishError && <p className="text-red-500 text-sm mb-4">{publishError}</p>}
             {portfolio.shareCode ? (
               <div>
                 <p className="text-sm text-slate-500 mb-2">Public link:</p>
