@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface PortfolioFileRepository extends JpaRepository<PortfolioFile, UUID> {
     List<PortfolioFile> findByPortfolioOrderByCreatedAtAsc(Portfolio portfolio);
+    long countByPortfolio(Portfolio portfolio);
 }

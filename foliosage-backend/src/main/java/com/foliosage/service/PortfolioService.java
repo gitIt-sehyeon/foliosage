@@ -4,6 +4,7 @@ import com.foliosage.dto.portfolio.*;
 import com.foliosage.entity.*;
 import com.foliosage.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 
-@Service @RequiredArgsConstructor
+@Slf4j @Service @RequiredArgsConstructor
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
@@ -39,7 +40,7 @@ public class PortfolioService {
         User user = getUser(userEmail);
         return portfolioRepository.findByUserOrderByCreatedAtDesc(user).stream()
                 .map(p -> new PortfolioListItem(p.getId(), p.getTitle(),
-                        fileRepository.findByPortfolioOrderByCreatedAtAsc(p).size(),
+                        (int) fileRepository.countByPortfolio(p),
                         p.isPublished(), p.getCreatedAt()))
                 .toList();
     }
@@ -57,16 +58,22 @@ public class PortfolioService {
     }
 
     @Transactional
-    public FileUploadResponse uploadFile(String userEmail, UUID portfolioId, MultipartFile file) throws Exception {
+    public FileUploadResponse uploadFile(String userEmail, UUID portfolioId, MultipartFile file) throws RuntimeException {
         Portfolio portfolio = getPortfolioForUser(userEmail, portfolioId);
+        log.info("Uploading file '{}' to portfolio {}", file.getOriginalFilename(), portfolioId);
         byte[] bytes = file.getBytes();
         String hash = sha256(bytes);
-        String vaultsageFileId = vaultSageService.uploadFile(
-                bytes,
-                file.getOriginalFilename(),
-                file.getContentType() != null ? file.getContentType() : "application/octet-stream");
 
-        vaultSageService.requestPngPreview(vaultsageFileId);
+        String vaultsageFileId;
+        try {
+            vaultsageFileId = vaultSageService.uploadFile(
+                    bytes,
+                    file.getOriginalFilename(),
+                    file.getContentType() != null ? file.getContentType() : "application/octet-stream");
+            vaultSageService.requestPngPreview(vaultsageFileId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "File upload to VaultSage failed", e);
+        }
 
         PortfolioFile pf = fileRepository.save(PortfolioFile.builder()
                 .portfolio(portfolio)
@@ -104,7 +111,7 @@ public class PortfolioService {
 
     private User getUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + email));
     }
 
     private PortfolioResponse toResponse(Portfolio p, List<PortfolioResponse.PortfolioFileDto> files) {
