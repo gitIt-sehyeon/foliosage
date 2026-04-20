@@ -64,10 +64,10 @@ public class VaultSageService {
                 .block();
         try {
             JsonNode root = objectMapper.readTree(response);
-            JsonNode items = root.isArray() ? root : root.path("items");
+            JsonNode items = root.path("result");
             for (JsonNode item : items) {
-                if (fileId.equals(item.path("id").asText()))
-                    return item.path("status").asText("processing");
+                if (fileId.equals(item.path("file_id").asText()))
+                    return item.path("task_summary_status").asText("processing");
             }
             return "processing";
         } catch (Exception e) { log.error("Failed to parse processing status", e); return "processing"; }
@@ -102,51 +102,60 @@ public class VaultSageService {
         return extractId(response);
     }
 
-    public void generateTree(String organizerId) {
-        vaultSageClient.post()
+    public String generateTree(String organizerId) {
+        String response = vaultSageClient.post()
                 .uri("/api/v1/smart-organizers/{id}/generate", organizerId)
+                .bodyValue(Map.of("replace", true))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+        return extractJobId(response);
     }
 
-    public String getGenerateStatus(String organizerId) {
+    public String getGenerateStatus(String organizerId, String jobId) {
         String response = vaultSageClient.get()
-                .uri("/api/v1/smart-organizers/{id}/generate/status", organizerId)
+                .uri(u -> u.path("/api/v1/smart-organizers/{id}/generate/status")
+                        .queryParam("job_id", jobId).build(organizerId))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
         return extractStatus(response);
     }
 
-    public void applyOrganizer(String organizerId) {
-        vaultSageClient.post()
+    public String applyOrganizer(String organizerId) {
+        String response = vaultSageClient.post()
                 .uri("/api/v1/smart-organizers/{id}/apply", organizerId)
+                .bodyValue(Map.of())
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+        return extractJobId(response);
     }
 
-    public String getApplyProgress(String organizerId) {
+    public String getApplyProgress(String organizerId, String jobId) {
         String response = vaultSageClient.get()
-                .uri("/api/v1/smart-organizers/{id}/apply/progress", organizerId)
+                .uri(u -> u.path("/api/v1/smart-organizers/{id}/apply/progress")
+                        .queryParam("job_id", jobId).build(organizerId))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
         return extractStatus(response);
     }
 
-    public void materialize(String organizerId) {
-        vaultSageClient.post()
+    public String materialize(String organizerId) {
+        String response = vaultSageClient.post()
                 .uri("/api/v1/smart-organizers/{id}/materialize", organizerId)
+                .bodyValue(Map.of())
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+        return extractJobId(response);
     }
 
-    public String getMaterializeStatus(String organizerId) {
+    public String getMaterializeStatus(String organizerId, String jobId) {
         String response = vaultSageClient.get()
-                .uri("/api/v1/smart-organizers/{id}/materialize/status", organizerId)
+                .uri(u -> u.path("/api/v1/smart-organizers/{id}/materialize/status")
+                        .queryParam("job_id", jobId).build(organizerId))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
@@ -186,20 +195,16 @@ public class VaultSageService {
 
     // ── Share ──────────────────────────────────────────────────────────
 
-    public Map<String, String> createShare(String[] fileIds) {
+    public String createShare(String[] fileIds) {
         String response = vaultSageClient.post()
                 .uri("/api/v1/share/")
                 .bodyValue(Map.of("file_ids", fileIds))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        try {
-            JsonNode root = objectMapper.readTree(response);
-            return Map.of(
-                "shareId",   root.path("id").asText(""),
-                "shareCode", root.path("code").asText(root.path("share_code").asText(""))
-            );
-        } catch (Exception e) { log.error("Failed to parse share response", e); return Map.of("shareId", "", "shareCode", ""); }
+        if (response == null) return "";
+        // Response is a plain string (share code), strip surrounding quotes if JSON-encoded
+        return response.replaceAll("^\"|\"$", "").trim();
     }
 
     public String getAccessLogs(String shareId) {
@@ -246,6 +251,11 @@ public class VaultSageService {
     public String extractId(String json) {
         try { return objectMapper.readTree(json).path("id").asText(); }
         catch (Exception e) { throw new RuntimeException("Failed to parse ID", e); }
+    }
+
+    private String extractJobId(String json) {
+        try { return objectMapper.readTree(json).path("job_id").asText(); }
+        catch (Exception e) { throw new RuntimeException("Failed to parse job_id", e); }
     }
 
     private String extractStatus(String json) {

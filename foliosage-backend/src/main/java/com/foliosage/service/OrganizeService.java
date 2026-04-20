@@ -53,16 +53,16 @@ public class OrganizeService {
             }
 
             // Step 1: generate
-            vaultSageService.generateTree(orgId);
-            pollUntilDone(() -> vaultSageService.getGenerateStatus(orgId), "generating", portfolioId);
+            String generateJobId = vaultSageService.generateTree(orgId);
+            pollUntilDone(() -> vaultSageService.getGenerateStatus(orgId, generateJobId), "generating", portfolioId);
 
             statusMap.put(portfolioId, "applying");
-            vaultSageService.applyOrganizer(orgId);
-            pollUntilDone(() -> vaultSageService.getApplyProgress(orgId), "applying", portfolioId);
+            String applyJobId = vaultSageService.applyOrganizer(orgId);
+            pollUntilDone(() -> vaultSageService.getApplyProgress(orgId, applyJobId), "applying", portfolioId);
 
             statusMap.put(portfolioId, "materializing");
-            vaultSageService.materialize(orgId);
-            pollUntilDone(() -> vaultSageService.getMaterializeStatus(orgId), "materializing", portfolioId);
+            String materializeJobId = vaultSageService.materialize(orgId);
+            pollUntilDone(() -> vaultSageService.getMaterializeStatus(orgId, materializeJobId), "materializing", portfolioId);
 
             statusMap.put(portfolioId, "done");
             log.info("Organize pipeline completed for portfolio={}", portfolioId);
