@@ -1,6 +1,7 @@
 package com.foliosage.config;
 
 import com.foliosage.security.JwtAuthenticationFilter;
+import com.foliosage.security.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 @Configuration @EnableWebSecurity @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Value("${cors.allowed-origins}") private String allowedOrigins;
 
@@ -29,8 +31,12 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(corsSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/public/**",
+                                "/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
                         .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
