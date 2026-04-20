@@ -4,17 +4,17 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { isLoggedIn, removeToken } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import api from '@/lib/api'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [checked, setChecked] = useState(false)
+  const [portfolios, setPortfolios] = useState<any[]>([])
 
   useEffect(() => {
     if (!isLoggedIn()) { router.push('/login'); return }
-    setChecked(true)
+    api.get('/api/portfolios').then(r => setPortfolios(r.data))
   }, [router])
-
-  if (!checked) return null
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -29,7 +29,34 @@ export default function DashboardPage() {
       </nav>
       <div className="max-w-5xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold mb-6">My Portfolios</h1>
-        <p className="text-slate-500">No portfolios yet. Create your first one!</p>
+        {portfolios.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-4xl mb-4">🎨</p>
+            <p className="text-slate-500 mb-4">No portfolios yet.</p>
+            <Link href="/portfolios/new">
+              <Button className="bg-purple-600 hover:bg-purple-700">Create your first portfolio</Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {portfolios.map((p: any) => (
+              <Link key={p.id} href={`/portfolios/${p.id}`}>
+                <div className="bg-white rounded-xl border p-5 hover:border-purple-300 hover:shadow-sm transition-all cursor-pointer">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-slate-800">{p.title}</h3>
+                    <Badge variant={p.published ? 'default' : 'secondary'}>
+                      {p.published ? 'Live' : 'Draft'}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-slate-400">{p.fileCount} files</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {new Date(p.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
