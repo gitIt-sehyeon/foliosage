@@ -61,8 +61,14 @@ public class PortfolioService {
     public FileUploadResponse uploadFile(String userEmail, UUID portfolioId, MultipartFile file) throws RuntimeException {
         Portfolio portfolio = getPortfolioForUser(userEmail, portfolioId);
         log.info("Uploading file '{}' to portfolio {}", file.getOriginalFilename(), portfolioId);
-        byte[] bytes = file.getBytes();
-        String hash = sha256(bytes);
+        byte[] bytes;
+        String hash;
+        try {
+            bytes = file.getBytes();
+            hash = sha256(bytes);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to read file bytes", e);
+        }
 
         String vaultsageFileId;
         try {
