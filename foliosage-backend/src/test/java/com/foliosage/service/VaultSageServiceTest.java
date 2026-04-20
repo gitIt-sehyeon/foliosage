@@ -8,7 +8,7 @@ class VaultSageServiceTest {
     @Test
     void parseFileId_extractsIdFromUploadResponse() {
         String json = """
-            {"id": "file-abc123", "name": "design.pdf", "size": 1024}
+            {"file_id": "file-abc123", "name": "design.pdf", "size": 1024}
             """;
         VaultSageService service = new VaultSageService(null);
         String fileId = service.extractFileId(json);

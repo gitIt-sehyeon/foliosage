@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
 import java.util.Map;
 
 @Service @Slf4j @RequiredArgsConstructor
@@ -21,14 +22,17 @@ public class VaultSageService {
 
     // ── Files ──────────────────────────────────────────────────────────
 
-    public String uploadFile(byte[] bytes, String filename, String contentType) {
+    public String uploadFile(byte[] bytes, String filename, String contentType, String directoryId) {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("file", new ByteArrayResource(bytes) {
+        builder.part("files", new ByteArrayResource(bytes) {
             @Override public String getFilename() { return filename; }
         }).contentType(MediaType.parseMediaType(contentType));
 
         String response = vaultSageClient.post()
-                .uri("/api/v1/files/")
+                .uri(u -> u.path("/api/v1/files/")
+                        .queryParam("conflict_resolution", "keep")
+                        .queryParam("directory_id", directoryId)
+                        .build())
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(builder.build()))
                 .retrieve()
@@ -36,6 +40,19 @@ public class VaultSageService {
                 .block();
         if (response == null) throw new RuntimeException("Empty response from VaultSage");
         return extractFileId(response);
+    }
+
+    public String createDirectory(String name) {
+        String response = vaultSageClient.post()
+                .uri("/api/v1/directories/")
+                .bodyValue(Map.of("directory_name", name))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        if (response == null) throw new RuntimeException("Empty response from VaultSage");
+        try {
+            return objectMapper.readTree(response).path("directory_id").asText();
+        } catch (Exception e) { throw new RuntimeException("Failed to parse directory ID", e); }
     }
 
     public String getProcessingStatus(String fileId) {
@@ -144,6 +161,29 @@ public class VaultSageService {
                 .block();
     }
 
+    public String createNode(String organizerId, String name) {
+        String response = vaultSageClient.post()
+                .uri("/api/v1/smart-organizers/{id}/nodes", organizerId)
+                .bodyValue(Map.of("name", name, "order_index", 0))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        if (response == null) throw new RuntimeException("Empty response from VaultSage");
+        try {
+            return objectMapper.readTree(response).path("id").asText();
+        } catch (Exception e) { throw new RuntimeException("Failed to parse node ID", e); }
+    }
+
+    public void assignFilesToNode(String organizerId, String nodeId, List<String> fileIds) {
+        vaultSageClient.post()
+                .uri("/api/v1/smart-organizers/{orgId}/nodes/{nodeId}/files:assign",
+                        organizerId, nodeId)
+                .bodyValue(Map.of("file_ids", fileIds))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+    }
+
     // ── Share ──────────────────────────────────────────────────────────
 
     public Map<String, String> createShare(String[] fileIds) {
@@ -198,8 +238,8 @@ public class VaultSageService {
     public String extractFileId(String json) {
         try {
             JsonNode root = objectMapper.readTree(json);
-            JsonNode items = root.isArray() ? root.get(0) : root;
-            return items.path("id").asText();
+            JsonNode item = root.isArray() ? root.get(0) : root;
+            return item.path("file_id").asText();
         } catch (Exception e) { throw new RuntimeException("Failed to parse file ID", e); }
     }
 

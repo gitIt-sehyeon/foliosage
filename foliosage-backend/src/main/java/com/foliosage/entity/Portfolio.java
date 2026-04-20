@@ -25,6 +25,9 @@ public class Portfolio {
     @Column(name = "organizer_id")
     private String organizerId;
 
+    @Column(name = "directory_id")
+    private String directoryId;
+
     @Column(name = "share_code", unique = true)
     private String shareCode;
 

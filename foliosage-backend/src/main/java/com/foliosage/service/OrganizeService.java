@@ -2,6 +2,7 @@ package com.foliosage.service;
 
 import com.foliosage.dto.portfolio.OrganizeStatusResponse;
 import com.foliosage.entity.Portfolio;
+import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
 import com.foliosage.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OrganizeService {
 
     private final PortfolioRepository portfolioRepository;
+    private final PortfolioFileRepository fileRepository;
     private final UserRepository userRepository;
     private final VaultSageService vaultSageService;
 
@@ -40,7 +43,16 @@ public class OrganizeService {
         Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow();
         String orgId = portfolio.getOrganizerId();
         try {
+            // Step 0: assign files to root node
             statusMap.put(portfolioId, "generating");
+            List<String> fileIds = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio)
+                    .stream().map(f -> f.getVaultsageFileId()).toList();
+            if (!fileIds.isEmpty()) {
+                String rootNodeId = vaultSageService.createNode(orgId, portfolio.getTitle());
+                vaultSageService.assignFilesToNode(orgId, rootNodeId, fileIds);
+            }
+
+            // Step 1: generate
             vaultSageService.generateTree(orgId);
             pollUntilDone(() -> vaultSageService.getGenerateStatus(orgId), "generating", portfolioId);
 

@@ -29,9 +29,10 @@ public class PortfolioService {
     public PortfolioResponse create(String userEmail, CreatePortfolioRequest req) {
         User user = getUser(userEmail);
         String organizerId = vaultSageService.createOrganizer(req.title());
+        String directoryId = vaultSageService.createDirectory(req.title());
         Portfolio portfolio = portfolioRepository.save(Portfolio.builder()
                 .user(user).title(req.title()).description(req.description())
-                .organizerId(organizerId).build());
+                .organizerId(organizerId).directoryId(directoryId).build());
         return toResponse(portfolio, List.of());
     }
 
@@ -75,7 +76,8 @@ public class PortfolioService {
             vaultsageFileId = vaultSageService.uploadFile(
                     bytes,
                     file.getOriginalFilename(),
-                    file.getContentType() != null ? file.getContentType() : "application/octet-stream");
+                    file.getContentType() != null ? file.getContentType() : "application/octet-stream",
+                    portfolio.getDirectoryId());
             vaultSageService.requestPngPreview(vaultsageFileId);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "File upload to VaultSage failed", e);
