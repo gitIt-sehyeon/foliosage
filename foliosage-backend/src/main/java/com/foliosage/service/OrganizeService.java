@@ -6,6 +6,8 @@ import com.foliosage.repository.PortfolioRepository;
 import com.foliosage.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -22,12 +24,15 @@ public class OrganizeService {
     private final UserRepository userRepository;
     private final VaultSageService vaultSageService;
 
+    @Lazy @Autowired
+    private OrganizeService self;
+
     private final Map<UUID, String> statusMap = new ConcurrentHashMap<>();
 
     public void startAsync(String userEmail, UUID portfolioId) {
         getPortfolioForUser(userEmail, portfolioId);
         statusMap.put(portfolioId, "generating");
-        runPipeline(portfolioId);
+        self.runPipeline(portfolioId);
     }
 
     @Async

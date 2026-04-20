@@ -1,17 +1,20 @@
 package com.foliosage.controller;
 
 import com.foliosage.dto.portfolio.*;
+import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.service.OrganizeService;
 import com.foliosage.service.PortfolioService;
 import com.foliosage.service.VaultSageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +25,7 @@ public class PortfolioController {
     private final PortfolioService portfolioService;
     private final OrganizeService organizeService;
     private final VaultSageService vaultSageService;
+    private final PortfolioFileRepository fileRepository;
 
     @PostMapping
     public PortfolioResponse create(@AuthenticationPrincipal UserDetails user,
@@ -66,7 +70,11 @@ public class PortfolioController {
     }
 
     @GetMapping("/preview/{vaultsageFileId}")
-    public ResponseEntity<byte[]> preview(@PathVariable String vaultsageFileId) {
+    public ResponseEntity<byte[]> preview(@AuthenticationPrincipal UserDetails user,
+                                          @PathVariable String vaultsageFileId) {
+        fileRepository.findByVaultsageFileId(vaultsageFileId)
+                .filter(f -> f.getPortfolio().getUser().getEmail().equals(user.getUsername()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied"));
         try {
             byte[] bytes = vaultSageService.downloadPngPreview(vaultsageFileId);
             return ResponseEntity.ok()
