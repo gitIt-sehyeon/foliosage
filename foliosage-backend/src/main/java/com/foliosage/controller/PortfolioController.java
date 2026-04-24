@@ -4,6 +4,7 @@ import com.foliosage.dto.portfolio.*;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.service.OrganizeService;
 import com.foliosage.service.PortfolioService;
+import com.foliosage.service.PublishService;
 import com.foliosage.service.VaultSageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class PortfolioController {
     private final OrganizeService organizeService;
     private final VaultSageService vaultSageService;
     private final PortfolioFileRepository fileRepository;
+    private final PublishService publishService;
 
     @PostMapping
     public PortfolioResponse create(@AuthenticationPrincipal UserDetails user,
@@ -67,6 +69,16 @@ public class PortfolioController {
     public OrganizeStatusResponse organizeStatus(@AuthenticationPrincipal UserDetails user,
                                                  @PathVariable UUID id) {
         return organizeService.getStatus(user.getUsername(), id);
+    }
+
+    @PostMapping("/{id}/publish")
+    public PublishResponse publish(@AuthenticationPrincipal UserDetails user, @PathVariable UUID id) {
+        return publishService.publish(user.getUsername(), id);
+    }
+
+    @GetMapping("/{id}/visitors")
+    public String visitors(@AuthenticationPrincipal UserDetails user, @PathVariable UUID id) {
+        return publishService.getVisitorLogs(user.getUsername(), id);
     }
 
     @GetMapping("/preview/{vaultsageFileId}")
