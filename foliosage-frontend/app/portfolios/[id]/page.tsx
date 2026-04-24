@@ -53,7 +53,10 @@ export default function PortfolioPage() {
     try {
       await api.post(`/api/portfolios/${id}/publish`)
       loadPortfolio()
-    } catch { setPublishError('Publish failed. This feature is coming soon.') }
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? e?.message ?? 'Unknown error'
+      setPublishError(`Publish failed: ${msg}`)
+    }
   }
 
   if (!portfolio) return <div className="min-h-screen flex items-center justify-center">Loading...</div>

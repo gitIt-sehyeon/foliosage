@@ -196,15 +196,25 @@ public class VaultSageService {
     // ── Share ──────────────────────────────────────────────────────────
 
     public String createShare(String[] fileIds) {
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("file_ids", java.util.Arrays.asList(fileIds));
+        body.put("directory_ids", null);
+        body.put("emails", null);
+        body.put("message", null);
+        body.put("password", null);
+        body.put("expire_at", null);
         String response = vaultSageClient.post()
                 .uri("/api/v1/share/")
-                .bodyValue(Map.of("file_ids", fileIds))
+                .bodyValue(body)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
         if (response == null) return "";
-        // Response is a plain string (share code), strip surrounding quotes if JSON-encoded
-        return response.replaceAll("^\"|\"$", "").trim();
+        String raw = response.replaceAll("^\"|\"$", "").trim();
+        // VaultSage returns full URL like https://vaultsage.ai/shares?code=Ibw8GP4y
+        int codeIdx = raw.indexOf("code=");
+        if (codeIdx >= 0) return raw.substring(codeIdx + 5);
+        return raw;
     }
 
     public String getAccessLogs(String shareId) {
