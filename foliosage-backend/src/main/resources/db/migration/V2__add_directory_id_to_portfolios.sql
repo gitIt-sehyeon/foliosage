@@ -1,0 +1,2 @@
+ALTER TABLE portfolios
+    ADD COLUMN IF NOT EXISTS directory_id VARCHAR(100);

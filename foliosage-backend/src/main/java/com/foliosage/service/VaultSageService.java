@@ -78,7 +78,7 @@ public class VaultSageService {
                 .uri("/api/v1/files/png-preview-reprocess/{id}", fileId)
                 .retrieve()
                 .bodyToMono(String.class)
-                .subscribe();
+                .subscribe(null, e -> log.debug("png-preview-reprocess ignored: {}", e.getMessage()));
     }
 
     public byte[] downloadPngPreview(String fileId) {

@@ -77,8 +77,11 @@ public class PortfolioController {
     }
 
     @GetMapping("/{id}/visitors")
-    public String visitors(@AuthenticationPrincipal UserDetails user, @PathVariable UUID id) {
-        return publishService.getVisitorLogs(user.getUsername(), id);
+    public ResponseEntity<String> visitors(@AuthenticationPrincipal UserDetails user, @PathVariable UUID id) {
+        String json = publishService.getVisitorLogs(user.getUsername(), id);
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(json);
     }
 
     @GetMapping("/preview/{vaultsageFileId}")

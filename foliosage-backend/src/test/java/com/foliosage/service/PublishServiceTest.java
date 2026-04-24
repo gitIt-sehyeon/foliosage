@@ -7,7 +7,7 @@ class PublishServiceTest {
 
     @Test
     void buildShareUrl_appendsShareCodeToBaseUrl() {
-        PublishService service = new PublishService(null, null, null, null, "https://foliosage.app");
+        PublishService service = new PublishService(null, null, null, "https://foliosage.app");
         String url = service.buildShareUrl("abc123");
         assertThat(url).isEqualTo("https://foliosage.app/p/abc123");
     }

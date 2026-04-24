@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   security:
     oauth2:
       client:
@@ -30,11 +32,11 @@ server:
   port: 8080
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:test-secret-key-minimum-256-bit-length-padding-ok}
   expiration-ms: 86400000
 
 vaultsage:
-  api-key: ${VAULTSAGE_API_KEY}
+  api-key: ${VAULTSAGE_API_KEY:test-key}
   base-url: ${VAULTSAGE_BASE_URL:https://api.vaultsage.ai}
 
 cors:

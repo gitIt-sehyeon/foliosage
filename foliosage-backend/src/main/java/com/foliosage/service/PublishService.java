@@ -5,7 +5,6 @@ import com.foliosage.entity.Portfolio;
 import com.foliosage.entity.PortfolioFile;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
-import com.foliosage.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,18 +20,15 @@ public class PublishService {
 
     private final PortfolioRepository portfolioRepository;
     private final PortfolioFileRepository fileRepository;
-    private final UserRepository userRepository;
     private final VaultSageService vaultSageService;
     private final String baseUrl;
 
     public PublishService(PortfolioRepository portfolioRepository,
                           PortfolioFileRepository fileRepository,
-                          UserRepository userRepository,
                           VaultSageService vaultSageService,
                           @Value("${app.base-url}") String baseUrl) {
         this.portfolioRepository = portfolioRepository;
         this.fileRepository = fileRepository;
-        this.userRepository = userRepository;
         this.vaultSageService = vaultSageService;
         this.baseUrl = baseUrl;
     }
@@ -50,6 +46,9 @@ public class PublishService {
 
         String[] fileIds = files.stream().map(PortfolioFile::getVaultsageFileId).toArray(String[]::new);
         String shareCode = vaultSageService.createShare(fileIds);
+        if (shareCode == null || shareCode.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "VaultSage share creation failed");
+        }
 
         portfolio.setShareCode(shareCode);
         portfolio.setVaultsageShareId(shareCode);
@@ -63,6 +62,7 @@ public class PublishService {
         return baseUrl + "/p/" + shareCode;
     }
 
+    @Transactional(readOnly = true)
     public String getVisitorLogs(String userEmail, UUID portfolioId) {
         Portfolio portfolio = getPortfolioForUser(userEmail, portfolioId);
         if (portfolio.getVaultsageShareId() == null)
