@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foliosage.dto.portfolio.*;
 import com.foliosage.entity.Portfolio;
-import com.foliosage.entity.PortfolioFile;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
 import com.foliosage.service.VaultSageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,7 +24,7 @@ public class PublicController {
     private final PortfolioRepository portfolioRepository;
     private final PortfolioFileRepository fileRepository;
     private final VaultSageService vaultSageService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/{shareCode}")
     public PortfolioResponse getPublicPortfolio(@PathVariable String shareCode) {
@@ -67,10 +67,12 @@ public class PublicController {
     }
 
     @GetMapping("/{shareCode}/chat/history")
-    public String chatHistory(@PathVariable String shareCode) {
+    public ResponseEntity<String> chatHistory(@PathVariable String shareCode) {
         portfolioRepository.findByShareCode(shareCode)
                 .filter(Portfolio::isPublished)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
-        return vaultSageService.getPublicChatHistory(shareCode);
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(vaultSageService.getPublicChatHistory(shareCode));
     }
 }
