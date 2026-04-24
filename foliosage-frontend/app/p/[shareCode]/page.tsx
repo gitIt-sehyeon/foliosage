@@ -61,7 +61,7 @@ export default function PublicPortfolioPage() {
               <CertificateBadge
                 key={f.id}
                 fileId={f.id}
-                portfolioId={portfolio.id}
+                shareCode={shareCode}
                 filename={f.name}
                 fileHash={f.fileHash}
                 certifiedAt={f.certifiedAt}
@@ -76,7 +76,7 @@ export default function PublicPortfolioPage() {
             {selectedFile && (
               <div className="flex-1 bg-white rounded-2xl border overflow-hidden mb-3">
                 <img
-                  src={`${API_URL}/api/portfolios/preview/${selectedFile.vaultsageFileId}`}
+                  src={`${API_URL}/api/public/${shareCode}/preview/${selectedFile.vaultsageFileId}`}
                   alt={selectedFile.name}
                   className="w-full h-full object-contain"
                   onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
@@ -94,7 +94,7 @@ export default function PublicPortfolioPage() {
                   }`}
                 >
                   <img
-                    src={`${API_URL}/api/portfolios/preview/${f.vaultsageFileId}`}
+                    src={`${API_URL}/api/public/${shareCode}/preview/${f.vaultsageFileId}`}
                     alt={f.name}
                     className="w-full h-full object-cover"
                     onError={e => {

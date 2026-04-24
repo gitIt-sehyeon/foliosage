@@ -1,13 +1,13 @@
 interface Props {
   fileId: string
-  portfolioId: string
+  shareCode: string
   filename: string
   fileHash: string
   certifiedAt: string | null
 }
 
-export default function CertificateBadge({ fileId, portfolioId, filename, fileHash, certifiedAt }: Props) {
-  const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'}/api/portfolios/${portfolioId}/certificates/${fileId}/download`
+export default function CertificateBadge({ fileId, shareCode, filename, fileHash, certifiedAt }: Props) {
+  const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'}/api/public/${shareCode}/certificates/${fileId}/download`
 
   return (
     <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-200">

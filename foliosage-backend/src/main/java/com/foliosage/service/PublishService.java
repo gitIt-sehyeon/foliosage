@@ -35,7 +35,10 @@ public class PublishService {
 
     @Transactional
     public PublishResponse publish(String userEmail, UUID portfolioId) {
-        Portfolio portfolio = getPortfolioForUser(userEmail, portfolioId);
+        Portfolio portfolio = portfolioRepository.findByIdWithLock(portfolioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+        if (!portfolio.getUser().getEmail().equals(userEmail))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
 
         if (portfolio.getShareCode() != null)
             return new PublishResponse(portfolio.getShareCode(), buildShareUrl(portfolio.getShareCode()));
