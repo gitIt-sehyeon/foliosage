@@ -90,12 +90,19 @@ public class PortfolioController {
     public ResponseEntity<byte[]> downloadCertificate(
             @AuthenticationPrincipal UserDetails user,
             @PathVariable UUID id,
-            @PathVariable UUID fileId) throws Exception {
-        byte[] pdf = certificateService.generateForFile(user.getUsername(), id, fileId);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .header("Content-Disposition", "attachment; filename=\"certificate.pdf\"")
-                .body(pdf);
+            @PathVariable UUID fileId) {
+        try {
+            byte[] pdf = certificateService.generateForFile(user.getUsername(), id, fileId);
+            String filename = "certificate-" + fileId + ".pdf";
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .body(pdf);
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate certificate");
+        }
     }
 
     @GetMapping("/preview/{vaultsageFileId}")

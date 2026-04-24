@@ -7,7 +7,7 @@ class CertificateServiceTest {
 
     @Test
     void generatePdf_returnsPdfBytes() throws Exception {
-        CertificateService service = new CertificateService(null, null, null);
+        CertificateService service = new CertificateService(null);
         byte[] pdf = service.buildPdf(
                 "design.pdf",
                 "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",

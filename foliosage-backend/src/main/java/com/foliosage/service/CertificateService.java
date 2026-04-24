@@ -1,9 +1,7 @@
 package com.foliosage.service;
 
 import com.foliosage.entity.PortfolioFile;
-import com.foliosage.repository.CertificateRepository;
 import com.foliosage.repository.PortfolioFileRepository;
-import com.foliosage.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -24,9 +22,7 @@ import java.util.UUID;
 @Service @RequiredArgsConstructor
 public class CertificateService {
 
-    private final CertificateRepository certificateRepository;
     private final PortfolioFileRepository fileRepository;
-    private final PortfolioRepository portfolioRepository;
 
     public byte[] generateForFile(String userEmail, UUID portfolioId, UUID fileId) throws Exception {
         PortfolioFile file = fileRepository.findById(fileId)
