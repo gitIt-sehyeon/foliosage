@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import ChatPanel from '@/components/ChatPanel'
 import CertificateBadge from '@/components/CertificateBadge'
-import api from '@/lib/api'
+import api from '@/lib/publicApi'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
