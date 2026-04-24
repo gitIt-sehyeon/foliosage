@@ -2,6 +2,7 @@ package com.foliosage.controller;
 
 import com.foliosage.dto.portfolio.*;
 import com.foliosage.repository.PortfolioFileRepository;
+import com.foliosage.service.CertificateService;
 import com.foliosage.service.OrganizeService;
 import com.foliosage.service.PortfolioService;
 import com.foliosage.service.PublishService;
@@ -28,6 +29,7 @@ public class PortfolioController {
     private final VaultSageService vaultSageService;
     private final PortfolioFileRepository fileRepository;
     private final PublishService publishService;
+    private final CertificateService certificateService;
 
     @PostMapping
     public PortfolioResponse create(@AuthenticationPrincipal UserDetails user,
@@ -82,6 +84,18 @@ public class PortfolioController {
         return ResponseEntity.ok()
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .body(json);
+    }
+
+    @GetMapping("/{id}/certificates/{fileId}/download")
+    public ResponseEntity<byte[]> downloadCertificate(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID id,
+            @PathVariable UUID fileId) throws Exception {
+        byte[] pdf = certificateService.generateForFile(user.getUsername(), id, fileId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header("Content-Disposition", "attachment; filename=\"certificate.pdf\"")
+                .body(pdf);
     }
 
     @GetMapping("/preview/{vaultsageFileId}")
