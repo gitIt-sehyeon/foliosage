@@ -276,7 +276,7 @@ public class VaultSageService {
             // apply/progress may not have "status" — check for completion via progress fields
             if (node.has("progress") && node.has("total")) {
                 int progress = node.path("progress").asInt(0);
-                int total = node.path("total").asInt(1);
+                int total = node.path("total").asInt(1); // default 1 prevents false 0>=0 completion when total is absent
                 if (total > 0 && progress >= total) return "completed";
             }
             return "pending";

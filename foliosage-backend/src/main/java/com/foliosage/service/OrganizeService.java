@@ -90,7 +90,8 @@ public class OrganizeService {
                                String currentStep, UUID portfolioId) throws InterruptedException {
         int maxAttempts = 60;
         for (int i = 0; i < maxAttempts; i++) {
-            String s = statusFn.get().toLowerCase();
+            String s = statusFn.get();
+            if (s == null) { Thread.sleep(3000); continue; }
             if (s.equals("done") || s.equals("completed") || s.equals("success") || s.equals("complete")) return;
             if (s.equals("failed") || s.equals("error") || s.equals("cancelled") || s.equals("canceled"))
                 throw new RuntimeException("Step " + currentStep + " failed with status: " + s);
