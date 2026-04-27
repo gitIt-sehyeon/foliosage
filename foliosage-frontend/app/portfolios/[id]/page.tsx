@@ -45,15 +45,8 @@ export default function PortfolioPage() {
   useEffect(() => {
     if (!isLoggedIn()) { router.push('/login'); return }
     loadPortfolio()
-    api.get(`/api/portfolios/${id}/organize/status`).then(({ data }) => {
-      setOrganizeStatus(data)
-      if (data.status === 'done') {
-        api.get(`/api/portfolios/${id}/organize/tree`)
-          .then(({ data: tree }) => setOrganizeTree(tree))
-          .catch(() => {})
-      }
-    }).catch(() => {})
-  }, [loadPortfolio, router, id])
+    pollOrganizeStatus().catch(() => {})
+  }, [loadPortfolio, pollOrganizeStatus, router])
 
   const startOrganize = async () => {
     if (isOrganizing) return

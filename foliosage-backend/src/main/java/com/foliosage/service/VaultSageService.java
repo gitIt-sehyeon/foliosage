@@ -192,14 +192,6 @@ public class VaultSageService {
         return extractStatus(response);
     }
 
-    public String getTree(String organizerId) {
-        return vaultSageClient.get()
-                .uri("/api/v1/smart-organizers/{id}/tree", organizerId)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-    }
-
     public com.foliosage.dto.portfolio.OrganizerTreeDto fetchOrganizerTree(String organizerId) {
         java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> roots = fetchNodes(organizerId, null);
         return new com.foliosage.dto.portfolio.OrganizerTreeDto(roots);
