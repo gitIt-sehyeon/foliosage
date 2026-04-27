@@ -87,11 +87,17 @@ export default function PublicPortfolioPage() {
                     <p className="text-xs mt-1">Preview not available</p>
                   </div>
                 ) : selectedFile.mimeType === 'application/pdf' ? (
-                  <embed
-                    src={`${API_URL}/api/public/${shareCode}/preview/${selectedFile.vaultsageFileId}`}
+                  <object
+                    data={`${API_URL}/api/public/${shareCode}/preview/${selectedFile.vaultsageFileId}`}
                     type="application/pdf"
                     className="w-full h-full"
-                  />
+                  >
+                    <div className="text-center text-slate-400">
+                      <div className="text-6xl mb-3">📄</div>
+                      <p className="text-sm">{selectedFile.name}</p>
+                      <p className="text-xs mt-1">Preview not available</p>
+                    </div>
+                  </object>
                 ) : (
                   <img
                     src={`${API_URL}/api/public/${shareCode}/preview/${selectedFile.vaultsageFileId}`}
