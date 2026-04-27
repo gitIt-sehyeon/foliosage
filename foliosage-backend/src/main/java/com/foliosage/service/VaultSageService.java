@@ -269,7 +269,17 @@ public class VaultSageService {
     }
 
     private String extractStatus(String json) {
-        try { return objectMapper.readTree(json).path("status").asText("pending"); }
-        catch (Exception e) { log.warn("Failed to parse status from: {}", json, e); return "pending"; }
+        try {
+            JsonNode node = objectMapper.readTree(json);
+            String status = node.path("status").asText("");
+            if (!status.isEmpty()) return status.toLowerCase();
+            // apply/progress may not have "status" — check for completion via progress fields
+            if (node.has("progress") && node.has("total")) {
+                int progress = node.path("progress").asInt(0);
+                int total = node.path("total").asInt(1);
+                if (total > 0 && progress >= total) return "completed";
+            }
+            return "pending";
+        } catch (Exception e) { log.warn("Failed to parse status from: {}", json, e); return "pending"; }
     }
 }

@@ -90,10 +90,10 @@ public class OrganizeService {
                                String currentStep, UUID portfolioId) throws InterruptedException {
         int maxAttempts = 60;
         for (int i = 0; i < maxAttempts; i++) {
-            String s = statusFn.get();
-            if ("done".equals(s) || "completed".equals(s) || "success".equals(s)) return;
-            if ("failed".equals(s) || "error".equals(s))
-                throw new RuntimeException("Step " + currentStep + " failed");
+            String s = statusFn.get().toLowerCase();
+            if (s.equals("done") || s.equals("completed") || s.equals("success") || s.equals("complete")) return;
+            if (s.equals("failed") || s.equals("error") || s.equals("cancelled") || s.equals("canceled"))
+                throw new RuntimeException("Step " + currentStep + " failed with status: " + s);
             Thread.sleep(3000);
         }
         throw new RuntimeException("Timed out waiting for " + currentStep);
