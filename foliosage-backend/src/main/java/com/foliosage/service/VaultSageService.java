@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service @Slf4j @RequiredArgsConstructor
 public class VaultSageService {
@@ -227,10 +229,12 @@ public class VaultSageService {
 
     // ── Chat ───────────────────────────────────────────────────────────
 
-    public String publicChat(String shareCode, String message, String conversationId) {
-        Map<String, Object> body = conversationId != null
-                ? Map.of("share_code", shareCode, "message", message, "conversation_id", conversationId)
-                : Map.of("share_code", shareCode, "message", message);
+    public String publicChat(String shareCode, String message, String conversationId, String sessionId) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("share_code", shareCode);
+        body.put("message", message);
+        body.put("session_id", sessionId != null ? sessionId : UUID.randomUUID().toString());
+        if (conversationId != null) body.put("conversation_id", conversationId);
         return vaultSageClient.post()
                 .uri("/api/v1/chat/public")
                 .bodyValue(body)

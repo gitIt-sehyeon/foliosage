@@ -16,6 +16,7 @@ export default function ChatPanel({ shareCode }: Props) {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
+  const [sessionId] = useState(() => crypto.randomUUID())
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function ChatPanel({ shareCode }: Props) {
       const { data } = await api.post(`/api/public/${shareCode}/chat`, {
         message: userMessage,
         conversationId,
+        sessionId,
       })
       if (data.conversationId) setConversationId(data.conversationId)
       setMessages(prev => [...prev, { id: nextId.current++, role: 'assistant', content: data.message }])

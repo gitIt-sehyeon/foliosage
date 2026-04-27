@@ -57,7 +57,7 @@ public class PublicController {
                 .filter(Portfolio::isPublished)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
 
-        String raw = vaultSageService.publicChat(shareCode, req.message(), req.conversationId());
+        String raw = vaultSageService.publicChat(shareCode, req.message(), req.conversationId(), req.sessionId());
         try {
             JsonNode node = objectMapper.readTree(raw);
             String message = node.path("message").asText(
