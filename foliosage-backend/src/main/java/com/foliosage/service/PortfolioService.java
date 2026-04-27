@@ -124,6 +124,13 @@ public class PortfolioService {
 
     private PortfolioResponse toResponse(Portfolio p, List<PortfolioResponse.PortfolioFileDto> files) {
         return new PortfolioResponse(p.getId(), p.getTitle(), p.getDescription(),
-                p.getOrganizerId(), p.getShareCode(), p.isPublished(), p.getCreatedAt(), files);
+                p.getOrganizerId(), normalizeShareCode(p.getShareCode()), p.isPublished(), p.getCreatedAt(), files);
+    }
+
+    private static String normalizeShareCode(String shareCode) {
+        if (shareCode == null) return null;
+        int idx = shareCode.indexOf("code=");
+        if (idx >= 0) return shareCode.substring(idx + 5);
+        return shareCode;
     }
 }

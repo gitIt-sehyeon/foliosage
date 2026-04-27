@@ -24,7 +24,7 @@ export default function FileUploadZone({ portfolioId, onUploaded }: Props) {
         onUploaded(data)
       }
     } catch (err: any) {
-      setError(err.response?.data?.error ?? 'Upload failed.')
+      setError(err.response?.data?.message ?? err.response?.data?.error ?? 'Upload failed.')
     } finally { setUploading(false) }
   }
 

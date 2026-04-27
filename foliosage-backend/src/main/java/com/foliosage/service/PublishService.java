@@ -40,8 +40,10 @@ public class PublishService {
         if (!portfolio.getUser().getEmail().equals(userEmail))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
 
-        if (portfolio.getShareCode() != null)
-            return new PublishResponse(portfolio.getShareCode(), buildShareUrl(portfolio.getShareCode()));
+        if (portfolio.getShareCode() != null) {
+            String code = normalizeShareCode(portfolio.getShareCode());
+            return new PublishResponse(code, buildShareUrl(code));
+        }
 
         List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
         if (files.isEmpty())
@@ -53,16 +55,24 @@ public class PublishService {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "VaultSage share creation failed");
         }
 
-        portfolio.setShareCode(shareCode);
-        portfolio.setVaultsageShareId(shareCode);
+        String normalizedCode = normalizeShareCode(shareCode);
+        portfolio.setShareCode(normalizedCode);
+        portfolio.setVaultsageShareId(normalizedCode);
         portfolio.setPublished(true);
         portfolioRepository.save(portfolio);
 
-        return new PublishResponse(portfolio.getShareCode(), buildShareUrl(portfolio.getShareCode()));
+        return new PublishResponse(normalizedCode, buildShareUrl(normalizedCode));
     }
 
     public String buildShareUrl(String shareCode) {
-        return baseUrl + "/p/" + shareCode;
+        return baseUrl + "/p/" + normalizeShareCode(shareCode);
+    }
+
+    private static String normalizeShareCode(String shareCode) {
+        if (shareCode == null) return null;
+        int idx = shareCode.indexOf("code=");
+        if (idx >= 0) return shareCode.substring(idx + 5);
+        return shareCode;
     }
 
     @Transactional(readOnly = true)

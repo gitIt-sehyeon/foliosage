@@ -13,12 +13,17 @@ export default function PublicPortfolioPage() {
   const [error, setError] = useState('')
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [showCerts, setShowCerts] = useState(false)
+  const [previewError, setPreviewError] = useState(false)
 
   useEffect(() => {
     api.get(`/api/public/${shareCode}`)
       .then(r => { setPortfolio(r.data); setSelectedFile(r.data.files?.[0] ?? null) })
       .catch(() => setError('This portfolio could not be found.'))
   }, [shareCode])
+
+  useEffect(() => {
+    setPreviewError(false)
+  }, [selectedFile])
 
   if (error) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -74,13 +79,21 @@ export default function PublicPortfolioPage() {
           {/* Gallery Panel */}
           <div className="flex-1 flex flex-col min-w-0">
             {selectedFile && (
-              <div className="flex-1 bg-white rounded-2xl border overflow-hidden mb-3">
-                <img
-                  src={`${API_URL}/api/public/${shareCode}/preview/${selectedFile.vaultsageFileId}`}
-                  alt={selectedFile.name}
-                  className="w-full h-full object-contain"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-                />
+              <div className="flex-1 bg-white rounded-2xl border overflow-hidden mb-3 flex items-center justify-center">
+                {previewError ? (
+                  <div className="text-center text-slate-400">
+                    <div className="text-6xl mb-3">📄</div>
+                    <p className="text-sm">{selectedFile.name}</p>
+                    <p className="text-xs mt-1">Preview not available</p>
+                  </div>
+                ) : (
+                  <img
+                    src={`${API_URL}/api/public/${shareCode}/preview/${selectedFile.vaultsageFileId}`}
+                    alt={selectedFile.name}
+                    className="w-full h-full object-contain"
+                    onError={() => setPreviewError(true)}
+                  />
+                )}
               </div>
             )}
 
