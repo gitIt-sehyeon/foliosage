@@ -109,6 +109,10 @@ public class PortfolioService {
         return HexFormat.of().formatHex(digest.digest(bytes));
     }
 
+    public Portfolio getPortfolioEntity(String userEmail, UUID portfolioId) {
+        return getPortfolioForUser(userEmail, portfolioId);
+    }
+
     private Portfolio getPortfolioForUser(String userEmail, UUID portfolioId) {
         Portfolio p = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));

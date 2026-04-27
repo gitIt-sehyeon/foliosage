@@ -200,6 +200,46 @@ public class VaultSageService {
                 .block();
     }
 
+    public com.foliosage.dto.portfolio.OrganizerTreeDto fetchOrganizerTree(String organizerId) {
+        java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> roots = fetchNodes(organizerId, null);
+        return new com.foliosage.dto.portfolio.OrganizerTreeDto(roots);
+    }
+
+    private java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> fetchNodes(String organizerId, String parentId) {
+        try {
+            String response = parentId == null
+                    ? vaultSageClient.get()
+                            .uri("/api/v1/smart-organizers/{id}/tree", organizerId)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block()
+                    : vaultSageClient.get()
+                            .uri(u -> u.path("/api/v1/smart-organizers/{id}/tree")
+                                    .queryParam("parent_id", parentId)
+                                    .build(organizerId))
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
+            if (response == null) return java.util.List.of();
+            com.fasterxml.jackson.databind.JsonNode root = objectMapper.readTree(response);
+            com.fasterxml.jackson.databind.JsonNode data = root.path("data");
+            java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> nodes = new java.util.ArrayList<>();
+            for (com.fasterxml.jackson.databind.JsonNode item : data) {
+                String id = item.path("id").asText();
+                String name = item.path("name").asText("Unnamed");
+                int fileCount = item.path("file_count").asInt(0);
+                int childCount = item.path("child_count").asInt(0);
+                java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> children =
+                        childCount > 0 ? fetchNodes(organizerId, id) : java.util.List.of();
+                nodes.add(new com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto(id, name, fileCount, childCount, children));
+            }
+            return nodes;
+        } catch (Exception e) {
+            log.warn("Failed to fetch organizer tree for organizerId={}", organizerId, e);
+            return java.util.List.of();
+        }
+    }
+
     public String createNode(String organizerId, String name) {
         String response = vaultSageClient.post()
                 .uri("/api/v1/smart-organizers/{id}/nodes", organizerId)

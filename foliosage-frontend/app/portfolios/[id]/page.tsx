@@ -16,6 +16,7 @@ export default function PortfolioPage() {
   const [portfolio, setPortfolio] = useState<any>(null)
   const [organizeStatus, setOrganizeStatus] = useState({ status: 'idle', message: 'Not started' })
   const [isOrganizing, setIsOrganizing] = useState(false)
+  const [organizeTree, setOrganizeTree] = useState<any>(null)
   const [publishError, setPublishError] = useState('')
 
   const loadPortfolio = useCallback(async () => {
@@ -32,13 +33,27 @@ export default function PortfolioPage() {
       setTimeout(pollOrganizeStatus, 3000)
     } else {
       setIsOrganizing(false)
+      if (data.status === 'done') {
+        try {
+          const { data: tree } = await api.get(`/api/portfolios/${id}/organize/tree`)
+          setOrganizeTree(tree)
+        } catch { /* tree fetch failure is non-critical */ }
+      }
     }
   }, [id])
 
   useEffect(() => {
     if (!isLoggedIn()) { router.push('/login'); return }
     loadPortfolio()
-  }, [loadPortfolio, router])
+    api.get(`/api/portfolios/${id}/organize/status`).then(({ data }) => {
+      setOrganizeStatus(data)
+      if (data.status === 'done') {
+        api.get(`/api/portfolios/${id}/organize/tree`)
+          .then(({ data: tree }) => setOrganizeTree(tree))
+          .catch(() => {})
+      }
+    }).catch(() => {})
+  }, [loadPortfolio, router, id])
 
   const startOrganize = async () => {
     if (isOrganizing) return
@@ -106,6 +121,34 @@ export default function PortfolioPage() {
               message={organizeStatus.message}
               onRetry={startOrganize}
             />
+          </section>
+        )}
+
+        {organizeTree?.nodes?.length > 0 && (
+          <section className="bg-white rounded-xl border p-6">
+            <h2 className="font-semibold text-lg mb-4">📂 AI-Organized Categories</h2>
+            <div className="space-y-2">
+              {organizeTree.nodes.map((node: any) => (
+                <div key={node.id}>
+                  <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-purple-50">
+                    <span className="text-purple-600">📁</span>
+                    <span className="font-medium text-slate-800">{node.name}</span>
+                    <span className="ml-auto text-xs text-slate-400">{node.fileCount} file{node.fileCount !== 1 ? 's' : ''}</span>
+                  </div>
+                  {node.children?.length > 0 && (
+                    <div className="ml-6 mt-1 space-y-1">
+                      {node.children.map((child: any) => (
+                        <div key={child.id} className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-slate-50">
+                          <span className="text-slate-400">📄</span>
+                          <span className="text-sm text-slate-700">{child.name}</span>
+                          <span className="ml-auto text-xs text-slate-400">{child.fileCount} file{child.fileCount !== 1 ? 's' : ''}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </section>
         )}
 

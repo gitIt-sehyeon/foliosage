@@ -73,6 +73,16 @@ public class PortfolioController {
         return organizeService.getStatus(user.getUsername(), id);
     }
 
+    @GetMapping("/{id}/organize/tree")
+    public com.foliosage.dto.portfolio.OrganizerTreeDto organizeTree(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID id) {
+        com.foliosage.entity.Portfolio portfolio = portfolioService.getPortfolioEntity(user.getUsername(), id);
+        if (portfolio.getOrganizerId() == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Portfolio not organized yet");
+        return vaultSageService.fetchOrganizerTree(portfolio.getOrganizerId());
+    }
+
     @PostMapping("/{id}/publish")
     public PublishResponse publish(@AuthenticationPrincipal UserDetails user, @PathVariable UUID id) {
         return publishService.publish(user.getUsername(), id);
