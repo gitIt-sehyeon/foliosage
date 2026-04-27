@@ -76,16 +76,24 @@ public class PublicController {
         Portfolio portfolio = portfolioRepository.findByShareCode(shareCode)
                 .filter(Portfolio::isPublished)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
-        // verify this file belongs to this portfolio
-        boolean owned = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio)
-                .stream().anyMatch(f -> f.getVaultsageFileId().equals(vaultsageFileId));
-        if (!owned) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
+        PortfolioFile file = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio)
+                .stream()
+                .filter(f -> f.getVaultsageFileId().equals(vaultsageFileId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
 
-        byte[] bytes = vaultSageService.downloadPngPreview(vaultsageFileId);
-        if (bytes == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Preview not available");
-        return ResponseEntity.ok()
-                .contentType(org.springframework.http.MediaType.IMAGE_PNG)
-                .body(bytes);
+        byte[] bytes = vaultSageService.streamPreviewAnonymous(shareCode, vaultsageFileId);
+        if (bytes == null || bytes.length == 0)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Preview not available");
+
+        String mimeType = file.getMimeType() != null ? file.getMimeType() : "application/octet-stream";
+        org.springframework.http.MediaType mediaType;
+        try {
+            mediaType = org.springframework.http.MediaType.parseMediaType(mimeType);
+        } catch (Exception e) {
+            mediaType = org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
+        }
+        return ResponseEntity.ok().contentType(mediaType).body(bytes);
     }
 
     @GetMapping("/{shareCode}/certificates/{fileId}/download")

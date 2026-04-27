@@ -84,8 +84,36 @@ public class VaultSageService {
     }
 
     public byte[] downloadPngPreview(String fileId) {
-        return vaultSageClient.get()
+        byte[] zipBytes = vaultSageClient.get()
                 .uri("/api/v1/files/png-preview-download/{id}", fileId)
+                .retrieve()
+                .bodyToMono(byte[].class)
+                .block();
+        if (zipBytes == null) return null;
+        return extractFirstPngFromZip(zipBytes, fileId);
+    }
+
+    private byte[] extractFirstPngFromZip(byte[] zipBytes, String fileId) {
+        try (java.util.zip.ZipInputStream zis =
+                     new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(zipBytes))) {
+            java.util.zip.ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (entry.getName().toLowerCase().endsWith(".png")) {
+                    return zis.readAllBytes();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to extract PNG from ZIP preview for fileId={}", fileId, e);
+        }
+        return null;
+    }
+
+    public byte[] streamPreviewAnonymous(String shareCode, String fileId) {
+        return vaultSageClient.get()
+                .uri(u -> u.path("/api/v1/files/stream-preview-anonymous")
+                        .queryParam("share_code", shareCode)
+                        .queryParam("file_id", fileId)
+                        .build())
                 .retrieve()
                 .bodyToMono(byte[].class)
                 .block();
