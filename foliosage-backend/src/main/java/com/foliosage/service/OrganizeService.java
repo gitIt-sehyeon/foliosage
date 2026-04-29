@@ -88,9 +88,10 @@ public class OrganizeService {
 
     private void pollUntilDone(java.util.function.Supplier<String> statusFn,
                                String currentStep, UUID portfolioId) throws InterruptedException {
-        int maxAttempts = 60;
+        int maxAttempts = 200; // 200 × 3s = 10 minutes
         for (int i = 0; i < maxAttempts; i++) {
             String s = statusFn.get();
+            if (i % 10 == 0) log.debug("Polling step={} attempt={} status={} portfolio={}", currentStep, i, s, portfolioId);
             if (s == null) { Thread.sleep(3000); continue; }
             if (s.equals("done") || s.equals("completed") || s.equals("success") || s.equals("complete")) return;
             if (s.equals("failed") || s.equals("error") || s.equals("cancelled") || s.equals("canceled"))

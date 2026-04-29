@@ -1,0 +1,152 @@
+<h2>Share Link 페이지 레이아웃</h2>
+<p class="subtitle">Dark Premium 스타일에서 PDF 뷰어 · 파일 목록 · 채팅의 배치를 선택하세요</p>
+
+<div class="cards">
+
+  <!-- Layout A: Left sidebar + Big PDF center -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:12px;font-family:sans-serif;min-height:200px;">
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 2px;">
+        <div>
+          <span style="color:#a78bfa;font-size:7px;font-weight:700;letter-spacing:1px;">FOLIOSAGE</span>
+          <div style="color:#fff;font-size:10px;font-weight:700;">김민준 — UI/UX Designer</div>
+        </div>
+        <div style="background:#6d28d9;color:#fff;font-size:6px;padding:2px 6px;border-radius:10px;">💬 AI 채팅</div>
+      </div>
+      <!-- Body: sidebar + PDF -->
+      <div style="display:flex;gap:6px;height:155px;">
+        <!-- Left sidebar: file list -->
+        <div style="width:80px;display:flex;flex-direction:column;gap:4px;overflow:hidden;">
+          <div style="color:#64748b;font-size:6px;text-transform:uppercase;letter-spacing:1px;padding:0 2px;">파일 목록</div>
+          <div style="background:#1e293b;border-radius:6px;padding:6px;border:1.5px solid #6d28d9;">
+            <div style="font-size:10px;text-align:center;">📄</div>
+            <div style="color:#a78bfa;font-size:6px;text-align:center;margin-top:2px;font-weight:600;">Resume.pdf</div>
+            <div style="color:#64748b;font-size:5px;text-align:center;">이력서</div>
+            <div style="background:#6d28d9;color:#fff;font-size:5px;padding:1px 4px;border-radius:3px;margin-top:3px;text-align:center;">↓ 다운로드</div>
+          </div>
+          <div style="background:#1e293b;border-radius:6px;padding:6px;border:1px solid #334155;">
+            <div style="font-size:10px;text-align:center;">📄</div>
+            <div style="color:#94a3b8;font-size:6px;text-align:center;margin-top:2px;">Portfolio.pdf</div>
+            <div style="color:#475569;font-size:5px;text-align:center;">작업물</div>
+          </div>
+          <div style="background:#1e293b;border-radius:6px;padding:6px;border:1px solid #334155;">
+            <div style="font-size:10px;text-align:center;">🖼️</div>
+            <div style="color:#94a3b8;font-size:6px;text-align:center;margin-top:2px;">Design.png</div>
+            <div style="color:#475569;font-size:5px;text-align:center;">UI 작업</div>
+          </div>
+        </div>
+        <!-- PDF Viewer: center -->
+        <div style="flex:1;background:#1e293b;border-radius:8px;border:1px solid #334155;display:flex;align-items:center;justify-content:center;position:relative;">
+          <div style="text-align:center;">
+            <div style="font-size:24px;">📄</div>
+            <div style="color:#a78bfa;font-size:8px;font-weight:600;margin-top:4px;">Resume.pdf</div>
+            <div style="color:#334155;font-size:7px;margin-top:2px;">← 스크롤하여 전체 보기 →</div>
+            <div style="margin-top:6px;display:flex;gap:3px;justify-content:center;">
+              <div style="width:20px;height:2px;background:#6d28d9;border-radius:1px;"></div>
+              <div style="width:6px;height:2px;background:#334155;border-radius:1px;"></div>
+              <div style="width:6px;height:2px;background:#334155;border-radius:1px;"></div>
+            </div>
+          </div>
+          <div style="position:absolute;bottom:6px;right:6px;background:#6d28d9;color:#fff;font-size:6px;padding:2px 5px;border-radius:3px;">⛶ 전체화면</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 사이드바 + 뷰어</h3>
+      <p>왼쪽 파일 목록, 오른쪽 큰 PDF 뷰어. 채팅은 헤더 버튼으로 슬라이드인. 파일 탐색이 쉽고 뷰어가 크게 보임.</p>
+    </div>
+  </div>
+
+  <!-- Layout B: Big PDF top + horizontal file strip bottom + right chat -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:12px;font-family:sans-serif;min-height:200px;">
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div>
+          <span style="color:#a78bfa;font-size:7px;font-weight:700;letter-spacing:1px;">FOLIOSAGE</span>
+          <div style="color:#fff;font-size:10px;font-weight:700;">김민준 — UI/UX Designer</div>
+        </div>
+        <div style="display:flex;gap:3px;">
+          <div style="background:#1e293b;border:1px solid #334155;color:#94a3b8;font-size:6px;padding:2px 5px;border-radius:4px;">👁 42 views</div>
+          <div style="background:#6d28d9;color:#fff;font-size:6px;padding:2px 5px;border-radius:4px;">↓ 다운로드</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;height:160px;">
+        <!-- PDF: center (large) -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+          <div style="flex:1;background:#1e293b;border-radius:8px;border:1px solid #334155;display:flex;align-items:center;justify-content:center;">
+            <div style="text-align:center;">
+              <div style="font-size:22px;">📄</div>
+              <div style="color:#a78bfa;font-size:8px;margin-top:4px;">Resume.pdf</div>
+              <div style="color:#475569;font-size:6px;margin-top:1px;">스크롤하여 전체 보기</div>
+            </div>
+          </div>
+          <!-- File thumbnail strip -->
+          <div style="display:flex;gap:4px;">
+            <div style="width:36px;height:28px;background:#6d28d9;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1.5px solid #a78bfa;">📄</div>
+            <div style="width:36px;height:28px;background:#1e293b;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1px solid #334155;">📄</div>
+            <div style="width:36px;height:28px;background:#1e293b;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1px solid #334155;">🖼️</div>
+            <div style="width:36px;height:28px;background:#1e293b;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1px solid #334155;">📁</div>
+          </div>
+        </div>
+        <!-- Right: Chat panel -->
+        <div style="width:85px;background:#1e293b;border-radius:8px;border:1px solid #334155;display:flex;flex-direction:column;padding:6px;">
+          <div style="color:#a78bfa;font-size:7px;font-weight:600;margin-bottom:5px;">💬 AI 채팅</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+            <div style="background:#0f172a;border-radius:4px;padding:3px 5px;font-size:6px;color:#94a3b8;">이 이력서에 대해 궁금한 점이 있으신가요?</div>
+            <div style="background:#6d28d9;border-radius:4px;padding:3px 5px;font-size:6px;color:#fff;margin-left:8px;">React 경험 있나요?</div>
+            <div style="background:#0f172a;border-radius:4px;padding:3px 5px;font-size:6px;color:#94a3b8;">네, 3년간...</div>
+          </div>
+          <div style="background:#0f172a;border-radius:4px;padding:3px 5px;display:flex;align-items:center;margin-top:4px;gap:2px;">
+            <div style="color:#475569;font-size:5px;flex:1;">메시지 입력...</div>
+            <div style="background:#6d28d9;color:#fff;font-size:5px;padding:1px 3px;border-radius:2px;">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 뷰어 + 하단 썸네일 + 우측 채팅</h3>
+      <p>PDF 뷰어가 중앙, 하단에 파일 썸네일 스트립, 우측에 항상 보이는 채팅. 현재 레이아웃 개선판.</p>
+    </div>
+  </div>
+
+  <!-- Layout C: Immersive full-screen PDF with overlay -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:0;font-family:sans-serif;min-height:200px;border-radius:8px;overflow:hidden;position:relative;">
+      <!-- Full-screen PDF bg -->
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;">
+          <div style="font-size:32px;">📄</div>
+          <div style="color:#334155;font-size:8px;margin-top:4px;">PDF Full View</div>
+        </div>
+      </div>
+      <!-- Top overlay bar -->
+      <div style="position:absolute;top:0;left:0;right:0;background:linear-gradient(180deg,rgba(15,23,42,0.95) 0%,transparent 100%);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="color:#a78bfa;font-size:7px;font-weight:700;letter-spacing:1px;">FOLIOSAGE</span>
+          <div style="color:#fff;font-size:10px;font-weight:700;">김민준</div>
+        </div>
+        <div style="display:flex;gap:3px;">
+          <div style="background:rgba(109,40,217,0.8);color:#fff;font-size:6px;padding:2px 6px;border-radius:10px;backdrop-filter:blur(4px);">↓ 다운로드</div>
+          <div style="background:rgba(30,41,59,0.8);color:#a78bfa;font-size:6px;padding:2px 6px;border-radius:10px;backdrop-filter:blur(4px);">💬</div>
+          <div style="background:rgba(30,41,59,0.8);color:#94a3b8;font-size:6px;padding:2px 6px;border-radius:10px;backdrop-filter:blur(4px);">≡ 파일</div>
+        </div>
+      </div>
+      <!-- Bottom overlay: file strip -->
+      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(15,23,42,0.98) 0%,transparent 100%);padding:10px 12px 8px;">
+        <div style="display:flex;gap:4px;margin-bottom:4px;">
+          <div style="width:32px;height:24px;background:#6d28d9;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1.5px solid #a78bfa;">📄</div>
+          <div style="width:32px;height:24px;background:rgba(30,41,59,0.7);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1px solid #334155;">📄</div>
+          <div style="width:32px;height:24px;background:rgba(30,41,59,0.7);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;border:1px solid #334155;">🖼️</div>
+        </div>
+        <div style="color:#a78bfa;font-size:7px;font-weight:600;">Resume.pdf <span style="color:#475569;font-weight:400;">· 이력서</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 풀스크린 몰입형</h3>
+      <p>PDF가 전체 화면을 채움. 상단/하단에 오버레이 컨트롤. 채팅·파일 목록은 버튼 클릭시 슬라이드인. 가장 임팩트 있음.</p>
+    </div>
+  </div>
+
+</div>

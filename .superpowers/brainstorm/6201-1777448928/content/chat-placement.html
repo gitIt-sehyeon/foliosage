@@ -1,0 +1,154 @@
+<h2>AI 채팅 위치 — C 레이아웃 기준</h2>
+<p class="subtitle">풀스크린 PDF 위에서 채팅창을 어떻게 열까요?</p>
+
+<div class="cards">
+
+  <!-- Option A: Right slide-in panel -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:0;font-family:sans-serif;min-height:210px;border-radius:8px;overflow:hidden;position:relative;">
+      <!-- PDF bg -->
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;opacity:0.4;">
+          <div style="font-size:28px;">📄</div>
+          <div style="color:#475569;font-size:7px;margin-top:3px;">PDF Viewer</div>
+        </div>
+      </div>
+      <!-- Top bar -->
+      <div style="position:absolute;top:0;left:0;right:0;background:rgba(15,23,42,0.92);padding:8px 10px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="color:#fff;font-size:9px;font-weight:700;">김민준</div>
+        <div style="display:flex;gap:3px;">
+          <div style="background:#6d28d9;color:#fff;font-size:5px;padding:2px 5px;border-radius:10px;">↓</div>
+          <div style="background:#6d28d9;color:#fff;font-size:5px;padding:2px 5px;border-radius:10px;">💬 채팅</div>
+          <div style="background:rgba(30,41,59,0.8);color:#94a3b8;font-size:5px;padding:2px 5px;border-radius:10px;">≡ 파일</div>
+        </div>
+      </div>
+      <!-- Right slide-in chat panel -->
+      <div style="position:absolute;top:0;right:0;bottom:0;width:100px;background:#1e293b;border-left:1px solid #334155;display:flex;flex-direction:column;padding:8px 6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="color:#a78bfa;font-size:7px;font-weight:700;">💬 AI 채팅</div>
+          <div style="color:#475569;font-size:8px;">✕</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px;overflow:hidden;">
+          <div style="background:#0f172a;border-radius:5px;padding:4px 5px;font-size:5.5px;color:#94a3b8;line-height:1.4;">이 포트폴리오에 대해 궁금한 게 있으신가요?</div>
+          <div style="background:#6d28d9;border-radius:5px;padding:4px 5px;font-size:5.5px;color:#fff;margin-left:10px;">React 경험이 얼마나 되나요?</div>
+          <div style="background:#0f172a;border-radius:5px;padding:4px 5px;font-size:5.5px;color:#94a3b8;line-height:1.4;">3년 경험 있으며 주요 프로젝트...</div>
+        </div>
+        <div style="background:#0f172a;border-radius:5px;padding:4px 5px;display:flex;gap:2px;margin-top:5px;">
+          <div style="color:#475569;font-size:5px;flex:1;">입력...</div>
+          <div style="background:#6d28d9;color:#fff;font-size:5px;padding:1px 4px;border-radius:3px;">→</div>
+        </div>
+      </div>
+      <!-- Bottom strip -->
+      <div style="position:absolute;bottom:0;left:0;right:100px;background:rgba(15,23,42,0.95);padding:6px 8px;">
+        <div style="display:flex;gap:3px;margin-bottom:3px;">
+          <div style="width:26px;height:20px;background:#6d28d9;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">📄</div>
+          <div style="width:26px;height:20px;background:rgba(30,41,59,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">📄</div>
+          <div style="width:26px;height:20px;background:rgba(30,41,59,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">🖼️</div>
+        </div>
+        <div style="color:#a78bfa;font-size:6px;font-weight:600;">Resume.pdf</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 우측 슬라이드인 패널</h3>
+      <p>💬 버튼 클릭 시 오른쪽에서 채팅 패널이 슬라이드인. PDF는 왼쪽으로 좁아짐. 가장 자연스러운 사이드바 패턴.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Bottom drawer -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:0;font-family:sans-serif;min-height:210px;border-radius:8px;overflow:hidden;position:relative;">
+      <!-- PDF bg -->
+      <div style="position:absolute;inset:0;top:28px;bottom:100px;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;opacity:0.5;">
+          <div style="font-size:24px;">📄</div>
+          <div style="color:#475569;font-size:6px;margin-top:2px;">PDF Viewer</div>
+        </div>
+      </div>
+      <!-- Top bar -->
+      <div style="position:absolute;top:0;left:0;right:0;background:rgba(15,23,42,0.92);padding:8px 10px;display:flex;justify-content:space-between;align-items:center;z-index:2;">
+        <div style="color:#fff;font-size:9px;font-weight:700;">김민준</div>
+        <div style="display:flex;gap:3px;">
+          <div style="background:#6d28d9;color:#fff;font-size:5px;padding:2px 5px;border-radius:10px;">↓</div>
+          <div style="background:rgba(30,41,59,0.8);color:#94a3b8;font-size:5px;padding:2px 5px;border-radius:10px;">≡ 파일</div>
+        </div>
+      </div>
+      <!-- Bottom drawer: chat -->
+      <div style="position:absolute;bottom:0;left:0;right:0;background:#1e293b;border-top:1px solid #6d28d9;padding:8px 10px;height:105px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="color:#a78bfa;font-size:7px;font-weight:700;">💬 AI 채팅 <span style="color:#475569;font-weight:400;font-size:6px;">— 이 포트폴리오에 대해 질문하세요</span></div>
+          <div style="color:#475569;font-size:8px;">∨</div>
+        </div>
+        <div style="display:flex;gap:4px;margin-bottom:5px;overflow:hidden;">
+          <div style="background:#0f172a;border-radius:5px;padding:3px 6px;font-size:5.5px;color:#94a3b8;flex:1;white-space:nowrap;overflow:hidden;">React 경험이 얼마나 되나요?</div>
+          <div style="background:#6d28d9;border-radius:5px;padding:3px 6px;font-size:5.5px;color:#fff;flex:1;white-space:nowrap;overflow:hidden;">3년 경험 있으며 주요 프로...</div>
+        </div>
+        <div style="background:#0f172a;border-radius:6px;padding:5px 8px;display:flex;align-items:center;gap:4px;">
+          <div style="color:#475569;font-size:6px;flex:1;">메시지를 입력하세요...</div>
+          <div style="background:#6d28d9;color:#fff;font-size:6px;padding:2px 6px;border-radius:4px;">→</div>
+        </div>
+      </div>
+      <!-- File strip above drawer -->
+      <div style="position:absolute;bottom:105px;left:0;right:0;background:rgba(15,23,42,0.9);padding:4px 10px;display:flex;gap:4px;align-items:center;">
+        <div style="width:24px;height:18px;background:#6d28d9;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">📄</div>
+        <div style="width:24px;height:18px;background:rgba(30,41,59,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">📄</div>
+        <div style="width:24px;height:18px;background:rgba(30,41,59,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">🖼️</div>
+        <div style="color:#a78bfa;font-size:6px;margin-left:4px;font-weight:600;">Resume.pdf</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 하단 드로어</h3>
+      <p>채팅이 하단에 항상 보이는 얇은 바로 고정. 클릭하면 위로 펼쳐짐. PDF는 세로로 좁아지지 않아 넓게 유지.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Floating chat bubble -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:0;font-family:sans-serif;min-height:210px;border-radius:8px;overflow:hidden;position:relative;">
+      <!-- PDF bg (full) -->
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;opacity:0.5;">
+          <div style="font-size:28px;">📄</div>
+          <div style="color:#475569;font-size:7px;margin-top:3px;">PDF Viewer — 전체 화면</div>
+        </div>
+      </div>
+      <!-- Top bar -->
+      <div style="position:absolute;top:0;left:0;right:0;background:rgba(15,23,42,0.92);padding:8px 10px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="color:#fff;font-size:9px;font-weight:700;">김민준</div>
+        <div style="display:flex;gap:3px;">
+          <div style="background:#6d28d9;color:#fff;font-size:5px;padding:2px 5px;border-radius:10px;">↓</div>
+          <div style="background:rgba(30,41,59,0.8);color:#94a3b8;font-size:5px;padding:2px 5px;border-radius:10px;">≡ 파일</div>
+        </div>
+      </div>
+      <!-- Floating chat window (open state) -->
+      <div style="position:absolute;bottom:30px;right:10px;width:110px;background:#1e293b;border-radius:10px;border:1px solid #6d28d9;box-shadow:0 8px 32px rgba(109,40,217,0.3);overflow:hidden;">
+        <div style="background:linear-gradient(90deg,#6d28d9,#4f46e5);padding:5px 8px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="color:#fff;font-size:7px;font-weight:700;">💬 AI 채팅</div>
+          <div style="color:#e9d5ff;font-size:8px;">✕</div>
+        </div>
+        <div style="padding:5px;display:flex;flex-direction:column;gap:3px;">
+          <div style="background:#0f172a;border-radius:4px;padding:3px 5px;font-size:5.5px;color:#94a3b8;">궁금한 점을 물어보세요!</div>
+          <div style="background:#6d28d9;border-radius:4px;padding:3px 5px;font-size:5.5px;color:#fff;margin-left:8px;">React 경험?</div>
+          <div style="background:#0f172a;border-radius:4px;padding:3px 5px;font-size:5.5px;color:#94a3b8;">3년...</div>
+        </div>
+        <div style="background:#0f172a;margin:4px;border-radius:4px;padding:3px 5px;display:flex;gap:2px;">
+          <div style="color:#475569;font-size:5px;flex:1;">입력...</div>
+          <div style="background:#6d28d9;color:#fff;font-size:5px;padding:1px 3px;border-radius:2px;">→</div>
+        </div>
+      </div>
+      <!-- Chat bubble button (closed state indicator) -->
+      <div style="position:absolute;bottom:8px;right:10px;background:#6d28d9;border-radius:20px;padding:3px 8px;font-size:6px;color:#fff;opacity:0.5;">닫으면 이 버튼</div>
+      <!-- Bottom strip -->
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,23,42,0.92);padding:5px 8px;display:flex;gap:3px;align-items:center;">
+        <div style="width:24px;height:18px;background:#6d28d9;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">📄</div>
+        <div style="width:24px;height:18px;background:rgba(30,41,59,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">📄</div>
+        <div style="width:24px;height:18px;background:rgba(30,41,59,0.7);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;">🖼️</div>
+        <div style="color:#a78bfa;font-size:6px;margin-left:3px;font-weight:600;">Resume.pdf</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 플로팅 채팅 버블</h3>
+      <p>우하단에 플로팅 버튼. 클릭하면 위로 채팅창 팝업. PDF를 전혀 가리지 않음. 닫으면 버블만 남음.</p>
+    </div>
+  </div>
+
+</div>

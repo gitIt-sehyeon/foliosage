@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #060b14; color: #fff; font-family: -apple-system, sans-serif; padding: 24px; }
+  h2 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .subtitle { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .panel { background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 20px; cursor: pointer; }
+  .panel h3 { font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+  .panel p { font-size: 11px; color: #64748b; margin-bottom: 16px; line-height: 1.5; }
+  .label { font-size: 10px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .demo { background: #080e1a; border-radius: 10px; padding: 16px; min-height: 160px; display: flex; flex-direction: column; gap: 10px; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+
+  /* ─── Option A: Aurora + Glow ─── */
+  @keyframes aurora {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .aurora-bg {
+    background: linear-gradient(135deg, #1e0a3c, #0f172a, #0d2137, #1e0a3c);
+    background-size: 400% 400%;
+    animation: aurora 6s ease infinite;
+    width: 100%; height: 80px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(109,40,217,0.4), 0 0 24px rgba(109,40,217,0.2); }
+    50%       { box-shadow: 0 0 20px rgba(109,40,217,0.8), 0 0 40px rgba(109,40,217,0.4); }
+  }
+  .glow-card {
+    background: #1e293b; border: 1px solid #6d28d9; border-radius: 8px;
+    padding: 10px 14px; font-size: 11px; color: #a78bfa; font-weight: 600;
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+  @keyframes count-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .stat-num {
+    font-size: 24px; font-weight: 800; color: #a78bfa;
+    animation: count-up 0.6s ease both;
+  }
+  .stat-row { display: flex; gap: 16px; }
+  .stat-box { text-align: center; animation: count-up 0.6s ease both; }
+  .stat-box:nth-child(2) { animation-delay: 0.15s; }
+  .stat-box:nth-child(3) { animation-delay: 0.3s; }
+  .stat-label { font-size: 9px; color: #475569; margin-top: 2px; }
+
+  /* ─── Option B: Slide + Spring ─── */
+  @keyframes slide-in {
+    from { transform: translateX(60px); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { transform: translateY(16px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .chat-panel {
+    background: #1e293b; border-left: 1px solid #334155; border-radius: 8px;
+    padding: 10px; width: 120px;
+    animation: slide-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .chat-msg {
+    background: #0f172a; border-radius: 6px; padding: 5px 7px;
+    font-size: 9px; color: #94a3b8; margin-bottom: 4px;
+    animation: slide-up 0.4s ease both;
+  }
+  .chat-msg:nth-child(2) { animation-delay: 0.2s; background: #6d28d9; color: #fff; margin-left: 12px; }
+  .chat-msg:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes file-select {
+    0%   { transform: scale(1); border-color: #334155; }
+    50%  { transform: scale(1.04); border-color: #6d28d9; }
+    100% { transform: scale(1); border-color: #6d28d9; }
+  }
+  .file-chip {
+    background: #1e293b; border: 1.5px solid #334155; border-radius: 6px;
+    padding: 6px 10px; font-size: 9px; color: #e2e8f0;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .file-chip.active {
+    animation: file-select 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    border-color: #6d28d9; color: #a78bfa;
+  }
+  .file-row { display: flex; gap: 6px; }
+
+  /* ─── Option C: Particles + Shimmer ─── */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+    33%       { transform: translateY(-8px) rotate(2deg); opacity: 1; }
+    66%       { transform: translateY(-4px) rotate(-1deg); opacity: 0.8; }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .particle { position: absolute; border-radius: 50%; }
+  .shimmer-text {
+    font-size: 22px; font-weight: 800;
+    background: linear-gradient(90deg, #a78bfa 0%, #fff 40%, #6d28d9 60%, #a78bfa 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: shimmer 2.5s linear infinite;
+  }
+  @keyframes skeleton {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% auto;
+    animation: skeleton 1.5s linear infinite;
+    border-radius: 4px; height: 8px;
+  }
+
+  .selected { border: 2px solid #6d28d9; }
+  .panel:hover { border-color: #334155; }
+  .tag { display: inline-block; background: rgba(109,40,217,0.15); color: #a78bfa; font-size: 9px; padding: 2px 7px; border-radius: 10px; margin-top: 6px; margin-right: 4px; }
+</style>
+</head>
+<body>
+  <h2>애니메이션 방향</h2>
+  <p class="subtitle">실제로 움직이는 걸 보고 선택해주세요. 클릭하면 선택됩니다.</p>
+
+  <div class="grid">
+
+    <!-- A: Aurora + Glow -->
+    <div class="panel" onclick="this.classList.toggle('selected')">
+      <h3>A. Aurora & Glow</h3>
+      <p>배경이 은은하게 흐르고, 카드/버튼에 보라 빛 글로우가 살아 숨쉬는 느낌</p>
+      <div class="label">미리보기</div>
+      <div class="demo">
+        <div class="aurora-bg">
+          <span style="color:#a78bfa;font-size:11px;font-weight:700;letter-spacing:1px;">FOLIOSAGE</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-box">
+            <div class="stat-num">42</div>
+            <div class="stat-label">조회</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" style="color:#34d399">8</div>
+            <div class="stat-label">오늘</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" style="color:#fbbf24">12</div>
+            <div class="stat-label">다운로드</div>
+          </div>
+        </div>
+        <div class="glow-card">📄 Resume.pdf · 선택됨</div>
+      </div>
+      <span class="tag">배경 그라디언트 흐름</span>
+      <span class="tag">글로우 pulse</span>
+      <span class="tag">숫자 카운트업</span>
+    </div>
+
+    <!-- B: Slide + Spring -->
+    <div class="panel" onclick="this.classList.toggle('selected')">
+      <h3>B. Slide & Spring</h3>
+      <p>채팅 패널 스프링으로 튕겨 들어오고, 파일 선택 시 카드가 통통 튀는 느낌</p>
+      <div class="label">미리보기</div>
+      <div class="demo" style="flex-direction:row;align-items:flex-start;padding:12px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding-top:4px;">
+          <div class="file-row">
+            <div class="file-chip active">📄 Resume</div>
+          </div>
+          <div class="file-row" style="animation-delay:0.1s">
+            <div class="file-chip">📄 Portfolio</div>
+          </div>
+          <div class="file-row" style="animation-delay:0.2s">
+            <div class="file-chip">🖼️ Design</div>
+          </div>
+        </div>
+        <div class="chat-panel">
+          <div style="color:#a78bfa;font-size:9px;font-weight:700;margin-bottom:6px;">💬 AI</div>
+          <div class="chat-msg">안녕하세요!</div>
+          <div class="chat-msg">React 경험?</div>
+          <div class="chat-msg">3년입니다</div>
+        </div>
+      </div>
+      <span class="tag">스프링 슬라이드인</span>
+      <span class="tag">카드 바운스 선택</span>
+      <span class="tag">메시지 순차 등장</span>
+    </div>
+
+    <!-- C: Shimmer + Particles -->
+    <div class="panel" onclick="this.classList.toggle('selected')">
+      <h3>C. Shimmer & Particles</h3>
+      <p>제목에 빛이 흐르고, 배경에 떠다니는 파티클, 로딩 시 스켈레톤 반짝임</p>
+      <div class="label">미리보기</div>
+      <div class="demo" style="position:relative;">
+        <!-- Particles -->
+        <div class="particle" style="width:4px;height:4px;background:#6d28d9;top:20px;left:20px;animation:float 3s ease-in-out infinite;"></div>
+        <div class="particle" style="width:3px;height:3px;background:#4f46e5;top:40px;right:30px;animation:float 4s ease-in-out infinite 0.5s;"></div>
+        <div class="particle" style="width:5px;height:5px;background:#a78bfa;bottom:25px;left:40px;animation:float 3.5s ease-in-out infinite 1s;opacity:0.5;"></div>
+        <div class="particle" style="width:3px;height:3px;background:#818cf8;bottom:35px;right:20px;animation:float 2.8s ease-in-out infinite 0.3s;"></div>
+
+        <div class="shimmer-text">김민준</div>
+        <div style="color:#64748b;font-size:10px;margin-bottom:8px;">UI/UX Designer</div>
+
+        <!-- Skeleton loading bars -->
+        <div style="width:100%;display:flex;flex-direction:column;gap:5px;">
+          <div class="skeleton" style="width:80%;"></div>
+          <div class="skeleton" style="width:60%;animation-delay:0.2s;"></div>
+          <div class="skeleton" style="width:70%;animation-delay:0.4s;"></div>
+        </div>
+      </div>
+      <span class="tag">텍스트 shimmer</span>
+      <span class="tag">배경 파티클</span>
+      <span class="tag">스켈레톤 로딩</span>
+    </div>
+
+  </div>
+
+  <div style="margin-top:20px;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:14px;">
+    <div style="color:#94a3b8;font-size:11px;font-weight:600;margin-bottom:8px;">💡 조합 추천</div>
+    <div style="color:#64748b;font-size:10px;line-height:1.7;">
+      셋 중 하나만 고를 필요 없어요. <strong style="color:#a78bfa;">A의 Aurora 배경</strong> + <strong style="color:#a78bfa;">B의 스프링 슬라이드</strong> + <strong style="color:#a78bfa;">C의 스켈레톤 로딩</strong>을 조합하면 가장 트렌디하게 나와요. 각각 역할이 달라서 겹치지 않습니다.
+    </div>
+  </div>
+
+  <script>
+    // Re-trigger animations every 3s for demo
+    setInterval(() => {
+      document.querySelectorAll('.chat-msg, .stat-box, .chat-panel').forEach(el => {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.animation = '';
+      });
+    }, 4000);
+  </script>
+</body>
+</html>
