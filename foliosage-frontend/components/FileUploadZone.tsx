@@ -1,21 +1,22 @@
 'use client'
 import { useState, useRef } from 'react'
-import { Button } from '@/components/ui/button'
 import api from '@/lib/api'
 
 interface Props {
   portfolioId: string
   onUploaded: (file: any) => void
+  compact?: boolean
 }
 
-export default function FileUploadZone({ portfolioId, onUploaded }: Props) {
+export default function FileUploadZone({ portfolioId, onUploaded, compact = false }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
-    setUploading(true); setError('')
+    setUploading(true)
+    setError('')
     try {
       for (const file of Array.from(files)) {
         const form = new FormData()
@@ -26,6 +27,28 @@ export default function FileUploadZone({ portfolioId, onUploaded }: Props) {
     } catch (err: any) {
       setError(err.response?.data?.message ?? err.response?.data?.error ?? 'Upload failed.')
     } finally { setUploading(false) }
+  }
+
+  if (compact) {
+    return (
+      <div>
+        <div
+          className="border border-dashed border-[#334155] rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-[#6d28d9] hover:bg-[#1e0a3c]/20 transition-all"
+          onClick={() => fileRef.current?.click()}
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files) }}
+        >
+          <span className="text-xl">📁</span>
+          <span className="text-[#64748b] text-sm flex-1">
+            {uploading ? '업로드 중...' : '파일 추가 (클릭 또는 드래그)'}
+          </span>
+          <span className="text-[#6d28d9] text-xs font-medium">+ 추가</span>
+          <input ref={fileRef} type="file" multiple className="hidden"
+                 onChange={e => handleFiles(e.target.files)} />
+        </div>
+        {error && <p className="text-[#f87171] text-xs mt-1">{error}</p>}
+      </div>
+    )
   }
 
   return (
