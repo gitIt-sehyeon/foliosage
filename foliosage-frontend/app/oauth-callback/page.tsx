@@ -1,9 +1,9 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { setToken } from '@/lib/auth'
 
-export default function OAuthCallbackPage() {
+function OAuthCallbackInner() {
   const router = useRouter()
   const params = useSearchParams()
 
@@ -21,5 +21,17 @@ export default function OAuthCallbackPage() {
     <div className="min-h-screen flex items-center justify-center">
       <p className="text-slate-500">로그인 처리 중...</p>
     </div>
+  )
+}
+
+export default function OAuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-slate-500">로그인 처리 중...</p>
+      </div>
+    }>
+      <OAuthCallbackInner />
+    </Suspense>
   )
 }
