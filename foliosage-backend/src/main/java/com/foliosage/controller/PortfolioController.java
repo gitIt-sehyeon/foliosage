@@ -60,6 +60,15 @@ public class PortfolioController {
         return portfolioService.uploadFile(user.getUsername(), id, file);
     }
 
+    @DeleteMapping("/{id}/files/{fileId}")
+    public ResponseEntity<Void> deleteFile(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID id,
+            @PathVariable UUID fileId) {
+        portfolioService.deleteFile(user.getUsername(), id, fileId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{id}/organize")
     public OrganizeStatusResponse startOrganize(@AuthenticationPrincipal UserDetails user,
                                                 @PathVariable UUID id) {

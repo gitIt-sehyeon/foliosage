@@ -104,6 +104,20 @@ public class PortfolioService {
         portfolioRepository.delete(p);
     }
 
+    @Transactional
+    public void deleteFile(String userEmail, UUID portfolioId, UUID fileId) {
+        Portfolio portfolio = getPortfolioForUser(userEmail, portfolioId);
+        PortfolioFile file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
+        if (!file.getPortfolio().getId().equals(portfolio.getId()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "File does not belong to this portfolio");
+        log.info("Deleting file id={} vaultsageFileId={} from portfolio={} by user={}",
+                fileId, file.getVaultsageFileId(), portfolioId, userEmail);
+        // Best-effort: VaultSage failure is logged inside deleteFile() but does not block DB cleanup
+        vaultSageService.deleteFile(file.getVaultsageFileId());
+        fileRepository.delete(file);
+    }
+
     private String sha256(byte[] bytes) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return HexFormat.of().formatHex(digest.digest(bytes));
