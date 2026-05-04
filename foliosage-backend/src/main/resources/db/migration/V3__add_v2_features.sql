@@ -1,0 +1,15 @@
+-- V3__add_v2_features.sql
+ALTER TABLE portfolios
+    ADD COLUMN IF NOT EXISTS organize_status    VARCHAR(20),
+    ADD COLUMN IF NOT EXISTS organize_completed_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN IF NOT EXISTS view_count         INT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS download_count     INT NOT NULL DEFAULT 0;
+
+ALTER TABLE portfolio_files
+    ADD COLUMN IF NOT EXISTS description VARCHAR(500);
+
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS username     VARCHAR(50) UNIQUE,
+    ADD COLUMN IF NOT EXISTS location     VARCHAR(100),
+    ADD COLUMN IF NOT EXISTS linkedin_url VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS github_url   VARCHAR(255);
