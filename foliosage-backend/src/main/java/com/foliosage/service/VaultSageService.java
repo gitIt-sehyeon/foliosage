@@ -119,6 +119,33 @@ public class VaultSageService {
                 .block();
     }
 
+    public byte[] downloadFile(String fileId) {
+        try {
+            return vaultSageClient.post()
+                    .uri("/api/v1/files/download")
+                    .bodyValue(Map.of("file_ids", List.of(fileId)))
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block();
+        } catch (Exception e) {
+            log.error("Failed to download file from VaultSage fileId={}", fileId, e);
+            return null;
+        }
+    }
+
+    public void deleteFile(String fileId) {
+        try {
+            vaultSageClient.post()
+                    .uri("/api/v1/files/delete")
+                    .bodyValue(Map.of("file_ids", List.of(fileId)))
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
+        } catch (Exception e) {
+            log.error("Failed to delete file from VaultSage fileId={}", fileId, e);
+        }
+    }
+
     // ── Smart Organizers ───────────────────────────────────────────────
 
     public String createOrganizer(String name) {
