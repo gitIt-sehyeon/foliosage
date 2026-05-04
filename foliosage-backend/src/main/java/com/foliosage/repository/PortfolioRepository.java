@@ -14,6 +14,7 @@ import java.util.UUID;
 public interface PortfolioRepository extends JpaRepository<Portfolio, UUID> {
     List<Portfolio> findByUserOrderByCreatedAtDesc(User user);
     Optional<Portfolio> findByShareCode(String shareCode);
+    List<Portfolio> findByUserAndPublishedTrue(User user);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Portfolio p WHERE p.id = :id")
