@@ -53,7 +53,8 @@ public class PortfolioService {
                 .findByPortfolioOrderByCreatedAtAsc(p).stream()
                 .map(f -> new PortfolioResponse.PortfolioFileDto(
                         f.getId(), f.getName(), f.getVaultsageFileId(),
-                        f.getFileHash(), f.getMimeType(), f.getCertifiedAt()))
+                        f.getFileHash(), f.getMimeType(), f.getCertifiedAt(),
+                        f.getDescription()))
                 .toList();
         return toResponse(p, files);
     }
@@ -116,6 +117,22 @@ public class PortfolioService {
         // Best-effort: VaultSage failure is logged inside deleteFile() but does not block DB cleanup
         vaultSageService.deleteFile(file.getVaultsageFileId());
         fileRepository.delete(file);
+    }
+
+    @Transactional
+    public PortfolioResponse.PortfolioFileDto updateFileDescription(
+            String userEmail, UUID portfolioId, UUID fileId, String description) {
+        Portfolio portfolio = getPortfolioForUser(userEmail, portfolioId);
+        PortfolioFile file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
+        if (!file.getPortfolio().getId().equals(portfolio.getId()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "File does not belong to this portfolio");
+        file.setDescription(description);
+        fileRepository.save(file);
+        return new PortfolioResponse.PortfolioFileDto(
+                file.getId(), file.getName(), file.getVaultsageFileId(),
+                file.getFileHash(), file.getMimeType(), file.getCertifiedAt(),
+                file.getDescription());
     }
 
     private String sha256(byte[] bytes) throws Exception {

@@ -44,7 +44,8 @@ public class PublicController {
                 .findByPortfolioOrderByCreatedAtAsc(portfolio).stream()
                 .map(f -> new PortfolioResponse.PortfolioFileDto(
                         f.getId(), f.getName(), f.getVaultsageFileId(),
-                        f.getFileHash(), f.getMimeType(), f.getCertifiedAt()))
+                        f.getFileHash(), f.getMimeType(), f.getCertifiedAt(),
+                        f.getDescription()))
                 .toList();
 
         return new PortfolioResponse(

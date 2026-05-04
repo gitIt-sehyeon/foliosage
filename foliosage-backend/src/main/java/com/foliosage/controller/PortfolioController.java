@@ -60,6 +60,15 @@ public class PortfolioController {
         return portfolioService.uploadFile(user.getUsername(), id, file);
     }
 
+    @PatchMapping("/{id}/files/{fileId}")
+    public PortfolioResponse.PortfolioFileDto updateFile(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID id,
+            @PathVariable UUID fileId,
+            @Valid @RequestBody FileUpdateRequest req) {
+        return portfolioService.updateFileDescription(user.getUsername(), id, fileId, req.description());
+    }
+
     @DeleteMapping("/{id}/files/{fileId}")
     public ResponseEntity<Void> deleteFile(
             @AuthenticationPrincipal UserDetails user,

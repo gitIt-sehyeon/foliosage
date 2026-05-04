@@ -9,5 +9,6 @@ public record PortfolioResponse(
         OffsetDateTime createdAt, List<PortfolioFileDto> files
 ) {
     public record PortfolioFileDto(UUID id, String name, String vaultsageFileId,
-                                   String fileHash, String mimeType, OffsetDateTime certifiedAt) {}
+                                   String fileHash, String mimeType, OffsetDateTime certifiedAt,
+                                   String description) {}
 }
