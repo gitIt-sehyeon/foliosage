@@ -24,6 +24,18 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @Column(name = "username", unique = true)
+    private String username;
+
+    @Column(name = "location")
+    private String location;
+
+    @Column(name = "linkedin_url")
+    private String linkedinUrl;
+
+    @Column(name = "github_url")
+    private String githubUrl;
+
     @Column(name = "vaultsage_token")
     private String vaultsageToken;
 

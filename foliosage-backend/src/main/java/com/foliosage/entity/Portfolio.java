@@ -41,4 +41,18 @@ public class Portfolio {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
+
+    @Column(name = "organize_status")
+    private String organizeStatus;
+
+    @Column(name = "organize_completed_at")
+    private OffsetDateTime organizeCompletedAt;
+
+    @Builder.Default
+    @Column(name = "view_count", nullable = false)
+    private int viewCount = 0;
+
+    @Builder.Default
+    @Column(name = "download_count", nullable = false)
+    private int downloadCount = 0;
 }

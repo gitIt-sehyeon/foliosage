@@ -38,4 +38,7 @@ public class PortfolioFile {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
+
+    @Column(name = "description")
+    private String description;
 }
