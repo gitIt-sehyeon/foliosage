@@ -2,18 +2,22 @@ package com.foliosage.service;
 
 import com.foliosage.dto.portfolio.OrganizeStatusResponse;
 import com.foliosage.entity.Portfolio;
+import com.foliosage.entity.PortfolioFile;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
 import com.foliosage.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,14 +31,15 @@ public class OrganizeService {
     private final UserRepository userRepository;
     private final VaultSageService vaultSageService;
 
+    @Setter
     @Lazy @Autowired
     private OrganizeService self;
 
-    private final Map<UUID, String> statusMap = new ConcurrentHashMap<>();
+    private final Map<UUID, String> statusCache = new ConcurrentHashMap<>();
 
     public void startAsync(String userEmail, UUID portfolioId) {
         getPortfolioForUser(userEmail, portfolioId);
-        statusMap.put(portfolioId, "generating");
+        persistStatus(portfolioId, "generating");
         self.runPipeline(portfolioId);
     }
 
@@ -43,38 +48,43 @@ public class OrganizeService {
         Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow();
         String orgId = portfolio.getOrganizerId();
         try {
-            // Step 0: assign files to root node
-            statusMap.put(portfolioId, "generating");
-            List<String> fileIds = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio)
-                    .stream().map(f -> f.getVaultsageFileId()).toList();
+            List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
+            List<String> fileIds = files.stream().map(PortfolioFile::getVaultsageFileId).toList();
+
+            persistStatus(portfolioId, "generating");
+
             if (!fileIds.isEmpty()) {
+                waitForFilesReady(fileIds, portfolioId);
                 String rootNodeId = vaultSageService.createNode(orgId, portfolio.getTitle());
                 vaultSageService.assignFilesToNode(orgId, rootNodeId, fileIds);
             }
 
-            // Step 1: generate
             String generateJobId = vaultSageService.generateTree(orgId);
             pollUntilDone(() -> vaultSageService.getGenerateStatus(orgId, generateJobId), "generating", portfolioId);
 
-            statusMap.put(portfolioId, "applying");
+            persistStatus(portfolioId, "applying");
             String applyJobId = vaultSageService.applyOrganizer(orgId);
             pollUntilDone(() -> vaultSageService.getApplyProgress(orgId, applyJobId), "applying", portfolioId);
 
-            statusMap.put(portfolioId, "materializing");
+            persistStatus(portfolioId, "materializing");
             String materializeJobId = vaultSageService.materialize(orgId);
             pollUntilDone(() -> vaultSageService.getMaterializeStatus(orgId, materializeJobId), "materializing", portfolioId);
 
-            statusMap.put(portfolioId, "done");
+            persistStatus(portfolioId, "done");
             log.info("Organize pipeline completed for portfolio={}", portfolioId);
         } catch (Exception e) {
-            log.error("Organize pipeline failed for portfolio={}", portfolioId, e);
-            statusMap.put(portfolioId, "failed");
+            log.error("Organize pipeline failed at status={} for portfolio={}", statusCache.get(portfolioId), portfolioId, e);
+            persistStatus(portfolioId, "failed");
         }
     }
 
     public OrganizeStatusResponse getStatus(String userEmail, UUID portfolioId) {
         getPortfolioForUser(userEmail, portfolioId);
-        String status = statusMap.getOrDefault(portfolioId, "idle");
+        // Prefer in-memory cache; fall back to DB (survives server restart)
+        String status = statusCache.computeIfAbsent(portfolioId, id ->
+                portfolioRepository.findById(id)
+                        .map(p -> p.getOrganizeStatus() != null ? p.getOrganizeStatus() : "idle")
+                        .orElse("idle"));
         String message = switch (status) {
             case "generating"    -> "AI is analyzing your files...";
             case "applying"      -> "Applying project structure...";
@@ -86,9 +96,45 @@ public class OrganizeService {
         return new OrganizeStatusResponse(status, message);
     }
 
+    private void persistStatus(UUID portfolioId, String status) {
+        statusCache.put(portfolioId, status);
+        self.persistStatusToDb(portfolioId, status);
+        if ("done".equals(status) || "failed".equals(status)) {
+            statusCache.remove(portfolioId);
+        }
+    }
+
+    @Transactional
+    public void persistStatusToDb(UUID portfolioId, String status) {
+        portfolioRepository.findById(portfolioId).ifPresent(p -> {
+            p.setOrganizeStatus(status);
+            if ("done".equals(status)) p.setOrganizeCompletedAt(OffsetDateTime.now());
+            portfolioRepository.save(p);
+        });
+    }
+
+    private void waitForFilesReady(List<String> fileIds, UUID portfolioId) throws InterruptedException {
+        int maxAttempts = 100; // ~5 minutes at 3s interval
+        for (int i = 0; i < maxAttempts; i++) {
+            boolean allReady = fileIds.stream().allMatch(id -> {
+                try {
+                    String s = vaultSageService.getProcessingStatus(id);
+                    return "completed".equalsIgnoreCase(s) || "success".equalsIgnoreCase(s);
+                } catch (Exception e) {
+                    log.warn("Could not check processing status for fileId={}", id, e);
+                    return false;
+                }
+            });
+            if (allReady) return;
+            if (i % 10 == 0) log.debug("Waiting for files to be ready, attempt={}, portfolio={}", i, portfolioId);
+            Thread.sleep(3000);
+        }
+        throw new RuntimeException("Files did not finish processing within timeout for portfolio=" + portfolioId);
+    }
+
     private void pollUntilDone(java.util.function.Supplier<String> statusFn,
                                String currentStep, UUID portfolioId) throws InterruptedException {
-        int maxAttempts = 200; // 200 × 3s = 10 minutes
+        int maxAttempts = 200;
         for (int i = 0; i < maxAttempts; i++) {
             String s = statusFn.get();
             if (i % 10 == 0) log.debug("Polling step={} attempt={} status={} portfolio={}", currentStep, i, s, portfolioId);
