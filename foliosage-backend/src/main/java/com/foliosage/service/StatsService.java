@@ -7,6 +7,7 @@ import com.foliosage.entity.Portfolio;
 import com.foliosage.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,6 +23,22 @@ public class StatsService {
     private final PortfolioRepository portfolioRepository;
     private final VaultSageService vaultSageService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Async
+    public void incrementViewCount(UUID portfolioId) {
+        portfolioRepository.findById(portfolioId).ifPresent(p -> {
+            p.setViewCount(p.getViewCount() + 1);
+            portfolioRepository.save(p);
+        });
+    }
+
+    @Async
+    public void incrementDownloadCount(UUID portfolioId) {
+        portfolioRepository.findById(portfolioId).ifPresent(p -> {
+            p.setDownloadCount(p.getDownloadCount() + 1);
+            portfolioRepository.save(p);
+        });
+    }
 
     public StatsResponse getStats(UUID portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)

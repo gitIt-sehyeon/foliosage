@@ -11,6 +11,7 @@ import com.foliosage.repository.PortfolioRepository;
 import com.foliosage.repository.UserRepository;
 import com.foliosage.service.CertificateService;
 import com.foliosage.service.DefenseService;
+import com.foliosage.service.StatsService;
 import com.foliosage.service.VaultSageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class PublicController {
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
     private final DefenseService defenseService;
+    private final StatsService statsService;
 
     @GetMapping("/{shareCode}")
     public PortfolioResponse getPublicPortfolio(@PathVariable String shareCode) {
@@ -41,6 +43,8 @@ public class PublicController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
         if (!portfolio.isPublished())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found");
+
+        statsService.incrementViewCount(portfolio.getId());
 
         List<PortfolioResponse.PortfolioFileDto> files = fileRepository
                 .findByPortfolioOrderByCreatedAtAsc(portfolio).stream()
@@ -163,6 +167,8 @@ public class PublicController {
         byte[] bytes = vaultSageService.downloadFile(vaultsageFileId);
         if (bytes == null || bytes.length == 0)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not available");
+
+        statsService.incrementDownloadCount(portfolio.getId());
 
         String mimeType = resolveMimeType(file, bytes);
         String disposition = download
