@@ -10,6 +10,7 @@ import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
 import com.foliosage.repository.UserRepository;
 import com.foliosage.service.CertificateService;
+import com.foliosage.service.DefenseService;
 import com.foliosage.service.VaultSageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class PublicController {
     private final CertificateService certificateService;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
+    private final DefenseService defenseService;
 
     @GetMapping("/{shareCode}")
     public PortfolioResponse getPublicPortfolio(@PathVariable String shareCode) {
@@ -57,9 +59,10 @@ public class PublicController {
     @PostMapping("/{shareCode}/chat")
     public ChatResponse chat(@PathVariable String shareCode,
                              @Valid @RequestBody ChatRequest req) {
-        portfolioRepository.findByShareCode(shareCode)
+        Portfolio portfolio = portfolioRepository.findByShareCode(shareCode)
                 .filter(Portfolio::isPublished)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+        List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
 
         String raw = vaultSageService.publicChat(shareCode, req.message(), req.conversationId(), req.sessionId());
         try {
@@ -68,7 +71,9 @@ public class PublicController {
                     node.path("content").asText(node.path("response").asText("")));
             String convId = node.path("conversation_id").asText(
                     node.path("id").asText(""));
-            return new ChatResponse(message, convId, "assistant");
+            JsonNode metaData = node.path("meta_data").isMissingNode() ? null : node.path("meta_data");
+            return new ChatResponse(message, convId, "assistant",
+                    defenseService.extractChatEvidence(message, metaData, files));
         } catch (Exception e) {
             return new ChatResponse(raw, null, "assistant");
         }
@@ -136,6 +141,11 @@ public class PublicController {
                 .body(vaultSageService.getPublicChatHistory(shareCode));
     }
 
+    @GetMapping("/{shareCode}/defense")
+    public DefenseDtos.PublicDefenseResponse publicDefense(@PathVariable String shareCode) {
+        return defenseService.publicDefense(shareCode);
+    }
+
     @GetMapping("/{shareCode}/files/{vaultsageFileId}/raw")
     public ResponseEntity<byte[]> rawFile(
             @PathVariable String shareCode,
@@ -154,12 +164,14 @@ public class PublicController {
         if (bytes == null || bytes.length == 0)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not available");
 
-        String mimeType = file.getMimeType() != null ? file.getMimeType() : "application/octet-stream";
+        String mimeType = resolveMimeType(file, bytes);
         String disposition = download
                 ? org.springframework.http.ContentDisposition.attachment()
                         .filename(file.getName(), java.nio.charset.StandardCharsets.UTF_8)
                         .build().toString()
-                : "inline";
+                : org.springframework.http.ContentDisposition.inline()
+                        .filename(file.getName(), java.nio.charset.StandardCharsets.UTF_8)
+                        .build().toString();
 
         org.springframework.http.MediaType mediaType;
         try {
@@ -170,7 +182,29 @@ public class PublicController {
         return ResponseEntity.ok()
                 .contentType(mediaType)
                 .header("Content-Disposition", disposition)
+                .header("X-Content-Type-Options", "nosniff")
                 .body(bytes);
+    }
+
+    private String resolveMimeType(PortfolioFile file, byte[] bytes) {
+        if (looksLikePdf(bytes)) return "application/pdf";
+        String name = file.getName() != null ? file.getName().toLowerCase(java.util.Locale.ROOT) : "";
+        if (name.endsWith(".pdf")) return "application/pdf";
+        if (name.endsWith(".png")) return "image/png";
+        if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+        if (name.endsWith(".webp")) return "image/webp";
+        if (name.endsWith(".gif")) return "image/gif";
+        return file.getMimeType() != null ? file.getMimeType() : "application/octet-stream";
+    }
+
+    private boolean looksLikePdf(byte[] bytes) {
+        return bytes != null
+                && bytes.length >= 5
+                && bytes[0] == '%'
+                && bytes[1] == 'P'
+                && bytes[2] == 'D'
+                && bytes[3] == 'F'
+                && bytes[4] == '-';
     }
 
     @GetMapping("/users/{username}")

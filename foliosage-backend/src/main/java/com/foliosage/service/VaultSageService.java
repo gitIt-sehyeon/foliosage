@@ -121,16 +121,44 @@ public class VaultSageService {
 
     public byte[] downloadFile(String fileId) {
         try {
-            return vaultSageClient.post()
+            byte[] bytes = vaultSageClient.post()
                     .uri("/api/v1/files/download")
                     .bodyValue(Map.of("file_ids", List.of(fileId)))
                     .retrieve()
                     .bodyToMono(byte[].class)
                     .block();
+            return unwrapSingleFileDownload(bytes, fileId);
         } catch (Exception e) {
             log.error("Failed to download file from VaultSage fileId={}", fileId, e);
             return null;
         }
+    }
+
+    byte[] unwrapSingleFileDownload(byte[] bytes, String fileId) {
+        if (!looksLikeZip(bytes)) return bytes;
+
+        try (java.util.zip.ZipInputStream zis =
+                     new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(bytes))) {
+            java.util.zip.ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (entry.isDirectory()) continue;
+                String name = entry.getName() != null ? entry.getName() : "";
+                if (name.startsWith("__MACOSX/")) continue;
+                return zis.readAllBytes();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to extract downloaded ZIP for fileId={}", fileId, e);
+        }
+        return bytes;
+    }
+
+    private boolean looksLikeZip(byte[] bytes) {
+        return bytes != null
+                && bytes.length >= 4
+                && bytes[0] == 'P'
+                && bytes[1] == 'K'
+                && (bytes[2] == 3 || bytes[2] == 5 || bytes[2] == 7)
+                && (bytes[3] == 4 || bytes[3] == 6 || bytes[3] == 8);
     }
 
     public void deleteFile(String fileId) {

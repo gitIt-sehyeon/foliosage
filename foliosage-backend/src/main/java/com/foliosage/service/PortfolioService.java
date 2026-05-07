@@ -74,10 +74,11 @@ public class PortfolioService {
 
         String vaultsageFileId;
         try {
+            String contentType = resolveUploadContentType(file.getOriginalFilename(), file.getContentType());
             vaultsageFileId = vaultSageService.uploadFile(
                     bytes,
                     file.getOriginalFilename(),
-                    file.getContentType() != null ? file.getContentType() : "application/octet-stream",
+                    contentType,
                     portfolio.getDirectoryId());
             vaultSageService.requestPngPreview(vaultsageFileId);
         } catch (Exception e) {
@@ -90,13 +91,29 @@ public class PortfolioService {
                 .name(file.getOriginalFilename())
                 .fileHash(hash)
                 .fileSize(file.getSize())
-                .mimeType(file.getContentType())
+                .mimeType(resolveUploadContentType(file.getOriginalFilename(), file.getContentType()))
                 .build());
 
         certificateRepository.save(Certificate.builder()
                 .file(pf).build());
 
         return new FileUploadResponse(pf.getId(), pf.getName(), hash, vaultsageFileId);
+    }
+
+    private String resolveUploadContentType(String filename, String contentType) {
+        if (contentType != null
+                && !contentType.isBlank()
+                && !"application/octet-stream".equalsIgnoreCase(contentType)) {
+            return contentType;
+        }
+        String name = filename != null ? filename.toLowerCase(java.util.Locale.ROOT) : "";
+        if (name.endsWith(".pdf")) return "application/pdf";
+        if (name.endsWith(".png")) return "image/png";
+        if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+        if (name.endsWith(".webp")) return "image/webp";
+        if (name.endsWith(".gif")) return "image/gif";
+        if (name.endsWith(".mp4")) return "video/mp4";
+        return contentType != null && !contentType.isBlank() ? contentType : "application/octet-stream";
     }
 
     @Transactional

@@ -3,9 +3,11 @@ package com.foliosage.controller;
 import com.foliosage.dto.portfolio.*;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.service.CertificateService;
+import com.foliosage.service.DefenseService;
 import com.foliosage.service.OrganizeService;
 import com.foliosage.service.PortfolioService;
 import com.foliosage.service.PublishService;
+import com.foliosage.service.StatsService;
 import com.foliosage.service.VaultSageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,8 @@ public class PortfolioController {
     private final PortfolioFileRepository fileRepository;
     private final PublishService publishService;
     private final CertificateService certificateService;
+    private final StatsService statsService;
+    private final DefenseService defenseService;
 
     @PostMapping
     public PortfolioResponse create(@AuthenticationPrincipal UserDetails user,
@@ -114,6 +118,12 @@ public class PortfolioController {
                 .body(json);
     }
 
+    @GetMapping("/{id}/stats")
+    public StatsResponse stats(@AuthenticationPrincipal UserDetails user, @PathVariable UUID id) {
+        portfolioService.getPortfolioEntity(user.getUsername(), id);
+        return statsService.getStats(id);
+    }
+
     @GetMapping("/{id}/certificates/{fileId}/download")
     public ResponseEntity<byte[]> downloadCertificate(
             @AuthenticationPrincipal UserDetails user,
@@ -131,6 +141,29 @@ public class PortfolioController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate certificate");
         }
+    }
+
+    @PostMapping("/{id}/defense/sessions")
+    public DefenseDtos.DefenseSessionResponse startDefense(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID id) {
+        return defenseService.start(user.getUsername(), id);
+    }
+
+    @GetMapping("/{id}/defense/sessions/latest")
+    public DefenseDtos.DefenseSessionResponse latestDefense(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID id) {
+        return defenseService.latest(user.getUsername(), id);
+    }
+
+    @PostMapping("/{id}/defense/sessions/{sessionId}/answers")
+    public DefenseDtos.DefenseSessionResponse answerDefense(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID id,
+            @PathVariable UUID sessionId,
+            @Valid @RequestBody DefenseAnswerRequest req) {
+        return defenseService.answer(user.getUsername(), id, sessionId, req.answer());
     }
 
     @GetMapping("/preview/{vaultsageFileId}")
