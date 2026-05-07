@@ -2,10 +2,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowRight, Bot, FileCheck2, Fingerprint, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { isAxiosError } from 'axios'
 import api from '@/lib/api'
 import { setToken } from '@/lib/auth'
@@ -29,35 +29,91 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <Card className="w-full max-w-md">
-        <CardHeader><CardTitle className="text-2xl text-center">Welcome back</CardTitle></CardHeader>
-        <CardContent>
+    <main className="relative min-h-screen overflow-hidden bg-[#060912] text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.055)_1px,transparent_1px)] bg-[size:44px_44px]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(124,58,237,0.22),transparent_28%),radial-gradient(circle_at_82%_28%,rgba(20,184,166,0.12),transparent_24%)]" />
+
+      <nav className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="flex size-8 items-center justify-center rounded-lg border border-violet-400/25 bg-violet-400/10 text-violet-200">
+            <Sparkles className="size-4" />
+          </span>
+          <span className="text-sm font-bold tracking-[0.26em] text-violet-100">FOLIOSAGE</span>
+        </Link>
+        <Link href="/signup" className="text-sm text-slate-400 transition-colors hover:text-white">
+          Create account
+        </Link>
+      </nav>
+
+      <section className="relative z-10 mx-auto grid min-h-[calc(100vh-76px)] max-w-6xl items-center gap-10 px-5 pb-16 sm:px-8 lg:grid-cols-[1fr_440px]">
+        <div className="hidden max-w-xl animate-slide-up lg:block">
+          <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-cyan-200">Creator workspace</p>
+          <h1 className="text-5xl font-semibold leading-tight">Return to your living portfolio.</h1>
+          <p className="mt-5 text-base leading-7 text-slate-400">
+            Continue organizing source files, publishing polished portfolio views, and letting AI answer from your work.
+          </p>
+
+          <div className="mt-8 grid gap-3">
+            {[
+              { icon: Bot, title: 'AI context stays with the portfolio' },
+              { icon: FileCheck2, title: 'Every uploaded file keeps its proof trail' },
+              { icon: Fingerprint, title: 'Public pages are ready for review and sharing' },
+            ].map(item => (
+              <div key={item.title} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3 text-sm text-slate-300">
+                <item.icon className="size-4 text-cyan-200" />
+                {item.title}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="animate-spring-in rounded-2xl border border-white/10 bg-[#0b1020]/90 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">
+          <div className="mb-7">
+            <p className="text-sm text-violet-200">Welcome back</p>
+            <h2 className="mt-2 text-3xl font-semibold text-white">Sign in to FolioSage</h2>
+            <p className="mt-2 text-sm text-slate-500">Manage your portfolio OS and public AI guide.</p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={form.email} onChange={e => setForm(prev => ({...prev, email: e.target.value}))} required />
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-slate-300">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={form.email}
+                onChange={e => setForm(prev => ({...prev, email: e.target.value}))}
+                className="h-11 border-white/10 bg-white/[0.04] text-white placeholder:text-slate-600 focus-visible:ring-violet-400/30"
+                required
+              />
             </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={form.password} onChange={e => setForm(prev => ({...prev, password: e.target.value}))} required />
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-slate-300">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={form.password}
+                onChange={e => setForm(prev => ({...prev, password: e.target.value}))}
+                className="h-11 border-white/10 bg-white/[0.04] text-white placeholder:text-slate-600 focus-visible:ring-violet-400/30"
+                required
+              />
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={loading}>
+            {error && <p className="rounded-lg border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-200">{error}</p>}
+            <Button type="submit" className="h-11 w-full bg-white text-slate-950 hover:bg-cyan-100" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}
+              <ArrowRight className="size-4" />
             </Button>
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
+                <div className="w-full border-t border-white/10" />
               </div>
-              <div className="relative flex justify-center text-xs text-slate-400">
-                <span className="bg-white px-2">또는</span>
+              <div className="relative flex justify-center text-xs text-slate-500">
+                <span className="bg-[#0b1020] px-2">또는</span>
               </div>
             </div>
             <Button
               type="button"
               variant="outline"
-              className="w-full flex items-center gap-2"
+              className="h-11 w-full border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.07] hover:text-white"
               onClick={() => {
                 window.location.href = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'}/oauth2/authorization/google`
               }}
@@ -71,11 +127,11 @@ export default function LoginPage() {
               Google로 계속하기
             </Button>
             <p className="text-center text-sm text-slate-500">
-              No account? <Link href="/signup" className="text-purple-600">Sign up</Link>
+              No account? <Link href="/signup" className="text-violet-200 hover:text-white">Sign up</Link>
             </p>
           </form>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </section>
+    </main>
   )
 }

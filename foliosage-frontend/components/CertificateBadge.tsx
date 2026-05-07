@@ -1,3 +1,5 @@
+import { FileBadge2 } from 'lucide-react'
+
 interface Props {
   fileId: string
   shareCode: string
@@ -12,7 +14,9 @@ export default function CertificateBadge({ fileId, shareCode, filename, fileHash
   return (
     <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-200">
       <div className="flex items-center gap-3">
-        <span className="text-2xl">📜</span>
+        <span className="flex size-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
+          <FileBadge2 className="size-5" />
+        </span>
         <div>
           <p className="text-sm font-medium text-slate-800 truncate max-w-[160px]">{filename}</p>
           <p className="text-xs text-slate-400 font-mono">{fileHash.slice(0, 12)}...</p>

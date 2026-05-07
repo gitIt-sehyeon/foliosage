@@ -2,20 +2,45 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import {
+  Archive,
+  ArrowLeft,
+  BarChart3,
+  Bot,
+  CheckCircle2,
+  CirclePause,
+  Copy,
+  ExternalLink,
+  File,
+  FileText,
+  Folder,
+  FolderOpen,
+  ImageIcon,
+  LinkIcon,
+  Trash2,
+  Video,
+  XCircle,
+} from 'lucide-react'
 import { isLoggedIn } from '@/lib/auth'
 import FileUploadZone from '@/components/FileUploadZone'
-import OrganizeStatus from '@/components/OrganizeStatus'
+import DefenseRoom from '@/components/DefenseRoom'
 import CountUpNumber from '@/components/ui/CountUpNumber'
 import api from '@/lib/api'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
+function FileTypeIcon({ mimeType, className = 'size-6' }: { mimeType: string; className?: string }) {
+  const Icon = mimeType?.includes('pdf') ? FileText
+    : mimeType?.includes('image') ? ImageIcon
+    : mimeType?.includes('video') ? Video
+    : mimeType?.includes('zip') || mimeType?.includes('archive') ? Archive
+    : File
+  return <Icon className={className} />
+}
 
-function fileIcon(mimeType: string) {
-  if (mimeType?.includes('pdf')) return '📄'
-  if (mimeType?.includes('image')) return '🖼️'
-  if (mimeType?.includes('video')) return '🎬'
-  if (mimeType?.includes('zip') || mimeType?.includes('archive')) return '📦'
-  return '📁'
+function StatusIcon({ status }: { status: string }) {
+  if (status === 'done') return <CheckCircle2 className="size-4" />
+  if (status === 'failed') return <XCircle className="size-4" />
+  if (['generating', 'applying', 'materializing'].includes(status)) return <Bot className="size-4" />
+  return <CirclePause className="size-4" />
 }
 
 export default function PortfolioPage() {
@@ -129,18 +154,20 @@ export default function PortfolioPage() {
     <div className="h-screen flex flex-col bg-[#0f172a] overflow-hidden">
 
       {/* ── Nav ── */}
-      <nav className="h-12 flex-shrink-0 flex items-center justify-between px-6 bg-[#080e1a] border-b border-[#1e293b]">
-        <Link href="/dashboard" className="text-[#a78bfa] font-bold text-sm tracking-widest">FolioSage</Link>
+      <nav className="h-14 flex-shrink-0 flex items-center justify-between px-6 bg-[#070b15] border-b border-white/10">
+        <Link href="/dashboard" className="text-[#a78bfa] font-bold text-sm tracking-[0.24em]">FolioSage</Link>
         <div className="flex gap-2">
           {portfolio.shareCode && (
             <Link href={`/p/${portfolio.shareCode}`} target="_blank"
-              className="text-[#94a3b8] text-xs px-3 py-1.5 rounded-lg hover:bg-[#1e293b] hover:text-white transition-colors">
-              공개 페이지 →
+              className="inline-flex items-center gap-2 text-[#94a3b8] text-xs px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:text-white transition-colors">
+              <ExternalLink className="size-3.5" />
+              공개 페이지
             </Link>
           )}
           <Link href="/dashboard"
-            className="text-[#64748b] text-xs px-3 py-1.5 rounded-lg hover:bg-[#1e293b] transition-colors">
-            ← 대시보드
+            className="inline-flex items-center gap-2 text-[#94a3b8] text-xs px-3 py-2 rounded-lg hover:bg-white/[0.05] hover:text-white transition-colors">
+            <ArrowLeft className="size-3.5" />
+            대시보드
           </Link>
         </div>
       </nav>
@@ -148,7 +175,7 @@ export default function PortfolioPage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* ── Sidebar ── */}
-        <aside className="w-[220px] flex-shrink-0 bg-[#080e1a] border-r border-[#1e293b] overflow-y-auto p-4 space-y-5 relative">
+        <aside className="w-[296px] flex-shrink-0 bg-[#070b15] border-r border-white/10 overflow-y-auto p-5 space-y-5 relative">
           {/* Subtle aurora on sidebar */}
           <div
             className="absolute inset-0 animate-aurora opacity-10 pointer-events-none"
@@ -156,10 +183,11 @@ export default function PortfolioPage() {
           />
 
           {/* Portfolio title + status */}
-          <div className="relative">
-            <h2 className="text-white font-bold text-sm leading-snug">{portfolio.title}</h2>
-            <div className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full mt-1.5 ${
-              portfolio.published ? 'bg-[#064e3b] text-[#34d399]' : 'bg-[#1e293b] text-[#64748b]'
+          <div className="relative rounded-xl border border-white/10 bg-white/[0.035] p-4">
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#64748b]">Portfolio</p>
+            <h2 className="text-white font-semibold text-base leading-snug">{portfolio.title}</h2>
+            <div className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full mt-3 ${
+              portfolio.published ? 'bg-[#064e3b] text-[#34d399]' : 'bg-[#1e293b] text-[#94a3b8]'
             }`}>
               <span className={`w-1.5 h-1.5 rounded-full ${portfolio.published ? 'bg-[#34d399]' : 'bg-[#64748b]'}`} />
               {portfolio.published ? '공개 중' : '비공개'}
@@ -168,19 +196,22 @@ export default function PortfolioPage() {
 
           {/* Stats */}
           <div className="relative">
-            <p className="text-[#475569] text-[9px] font-bold uppercase tracking-widest mb-2">통계</p>
-            <div className="grid grid-cols-3 gap-1">
+            <p className="mb-2 flex items-center gap-2 text-[#64748b] text-[10px] font-bold uppercase tracking-[0.24em]">
+              <BarChart3 className="size-3.5" />
+              통계
+            </p>
+            <div className="grid grid-cols-3 gap-2">
               {[
                 { label: '총 조회', value: stats.viewCount, color: 'text-[#a78bfa]' },
                 { label: '오늘', value: stats.todayViews, color: 'text-[#34d399]' },
                 { label: '다운', value: stats.downloadCount, color: 'text-[#fbbf24]' },
               ].map(({ label, value, color }, i) => (
                 <div key={label}
-                  className="bg-[#0f172a] border border-[#1e293b] rounded-lg py-2 text-center animate-slide-up"
+                  className="bg-[#0f172a] border border-white/10 rounded-xl px-2 py-3 text-center animate-slide-up"
                   style={{ animationDelay: `${i * 0.1}s` }}
                 >
-                  <CountUpNumber target={value} className={`${color} text-sm font-bold block`} />
-                  <p className="text-[#475569] text-[8px] mt-0.5">{label}</p>
+                  <CountUpNumber target={value} className={`${color} text-lg font-semibold block`} />
+                  <p className="text-[#64748b] text-[10px] mt-1">{label}</p>
                 </div>
               ))}
             </div>
@@ -188,34 +219,30 @@ export default function PortfolioPage() {
 
           {/* AI organize */}
           <div className="relative space-y-2">
-            <p className="text-[#475569] text-[9px] font-bold uppercase tracking-widest">AI 분류</p>
-            <div className={`rounded-lg px-3 py-2 flex items-center gap-2 text-xs ${
+            <p className="text-[#64748b] text-[10px] font-bold uppercase tracking-[0.24em]">AI 분류</p>
+            <div className={`rounded-xl px-3 py-3 flex items-center gap-2.5 text-sm border ${
               organizeStatus.status === 'done'    ? 'bg-[#064e3b] text-[#34d399]' :
               organizeStatus.status === 'failed'  ? 'bg-[#450a0a] text-[#f87171]' :
               ['generating','applying','materializing'].includes(organizeStatus.status)
                                                   ? 'bg-[#1e0a3c] text-[#a78bfa]' :
                                                     'bg-[#0f172a] text-[#64748b]'
-            }`}>
-              <span>{
-                organizeStatus.status === 'done'    ? '✅' :
-                organizeStatus.status === 'failed'  ? '❌' :
-                ['generating','applying','materializing'].includes(organizeStatus.status) ? '🤖' : '⏸️'
-              }</span>
+            } border-white/10`}>
+              <StatusIcon status={organizeStatus.status} />
               <span className="flex-1 truncate">{organizeStatus.message}</span>
             </div>
 
             {organizeTree?.nodes?.length > 0 && (
-              <div className="space-y-1 max-h-40 overflow-y-auto">
+              <div className="space-y-1 max-h-52 overflow-y-auto rounded-xl border border-white/10 bg-[#0b1020] p-2">
                 {organizeTree.nodes.map((node: any) => (
                   <div key={node.id}>
-                    <div className="flex items-center gap-1.5 py-1 px-2 rounded text-[11px] text-[#a78bfa]">
-                      <span>📁</span>
+                    <div className="flex items-center gap-2 py-1.5 px-2 rounded-lg text-xs text-[#c4b5fd]">
+                      <Folder className="size-4" />
                       <span className="truncate">{node.name}</span>
                       <span className="ml-auto text-[#475569]">{node.fileCount}</span>
                     </div>
                     {node.children?.map((child: any) => (
-                      <div key={child.id} className="flex items-center gap-1.5 py-0.5 px-2 pl-5 text-[10px] text-[#64748b]">
-                        <span>📄</span>
+                      <div key={child.id} className="flex items-center gap-2 py-1 px-2 pl-7 text-[11px] text-[#64748b]">
+                        <FileText className="size-3.5" />
                         <span className="truncate">{child.name}</span>
                       </div>
                     ))}
@@ -228,16 +255,19 @@ export default function PortfolioPage() {
               <button
                 onClick={startOrganize}
                 disabled={isOrganizing}
-                className="w-full text-xs px-3 py-2 bg-[#1e0a3c] hover:bg-[#2d1458] border border-[#6d28d9] text-[#a78bfa] rounded-lg transition-colors disabled:opacity-40"
+                className="w-full text-sm px-3 py-3 bg-[#1e0a3c] hover:bg-[#2d1458] border border-[#6d28d9] text-[#c4b5fd] rounded-xl transition-colors disabled:opacity-40"
               >
-                {isOrganizing ? '⏳ 분석 중...' : '🤖 AI 분류 시작'}
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Bot className="size-4" />
+                  {isOrganizing ? '분석 중...' : 'AI 분류 시작'}
+                </span>
               </button>
             )}
           </div>
 
           {/* Quick links */}
           <div className="relative space-y-1.5">
-            <p className="text-[#475569] text-[9px] font-bold uppercase tracking-widest mb-2">링크</p>
+            <p className="text-[#64748b] text-[10px] font-bold uppercase tracking-[0.24em] mb-2">링크</p>
             {publishError && (
               <p className="text-[#f87171] text-[10px]">{publishError}</p>
             )}
@@ -245,42 +275,57 @@ export default function PortfolioPage() {
               <>
                 <button
                   onClick={copyLink}
-                  className="w-full text-left text-xs px-3 py-2 bg-[#0f172a] border border-[#334155] text-[#94a3b8] rounded-lg hover:border-[#6d28d9] transition-colors"
+                  className="w-full text-left text-sm px-3 py-3 bg-[#0f172a] border border-white/10 text-[#94a3b8] rounded-xl hover:border-[#6d28d9] transition-colors"
                 >
-                  {copied ? '✅ 복사됨' : '🔗 링크 복사'}
+                  <span className="inline-flex items-center gap-2">
+                    {copied ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
+                    {copied ? '복사됨' : '링크 복사'}
+                  </span>
                 </button>
                 <Link
                   href={`/p/${portfolio.shareCode}`}
                   target="_blank"
-                  className="block text-xs px-3 py-2 bg-[#0f172a] border border-[#334155] text-[#94a3b8] rounded-lg hover:border-[#6d28d9] transition-colors"
+                  className="block text-sm px-3 py-3 bg-[#0f172a] border border-white/10 text-[#94a3b8] rounded-xl hover:border-[#6d28d9] transition-colors"
                 >
-                  외부에서 보기 ↗
+                  <span className="inline-flex items-center gap-2">
+                    <ExternalLink className="size-3.5" />
+                    외부에서 보기
+                  </span>
                 </Link>
               </>
             ) : (
               <button
                 onClick={publish}
-                className="w-full text-xs px-3 py-2 bg-[#6d28d9] hover:bg-[#7c3aed] text-white rounded-lg transition-colors"
+                className="w-full text-sm px-3 py-3 bg-[#6d28d9] hover:bg-[#7c3aed] text-white rounded-xl transition-colors"
               >
-                🔗 포트폴리오 공개
+                <span className="inline-flex items-center justify-center gap-2">
+                  <LinkIcon className="size-3.5" />
+                  포트폴리오 공개
+                </span>
               </button>
             )}
           </div>
         </aside>
 
         {/* ── Main content ── */}
-        <main className="flex-1 overflow-y-auto p-6 space-y-5">
+        <main className="flex-1 overflow-y-auto bg-[#0b1020] p-6 space-y-5">
 
           {/* Upload zone (compact) */}
           <FileUploadZone portfolioId={id} onUploaded={() => loadPortfolio()} compact />
 
+          <DefenseRoom
+            portfolioId={id}
+            published={portfolio.published}
+            fileCount={portfolio.files?.length ?? 0}
+          />
+
           {/* File grid */}
           {portfolio.files?.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3">
               {portfolio.files.map((file: any, i: number) => (
                 <div
                   key={file.id}
-                  className="group bg-[#1e293b] border border-[#334155] rounded-xl p-4 relative hover:border-[#475569] transition-all animate-slide-up"
+                  className="group relative min-h-[132px] rounded-xl border border-white/10 bg-[#111827]/90 p-4 transition-all animate-slide-up hover:border-[#6d28d9]/70 hover:bg-[#162033] hover:shadow-[0_12px_40px_rgba(0,0,0,0.22)]"
                   style={{ animationDelay: `${i * 0.08}s` }}
                 >
                   {/* Delete button */}
@@ -289,14 +334,16 @@ export default function PortfolioPage() {
                     className="absolute top-3 right-3 text-[#f87171] opacity-0 group-hover:opacity-100 p-1 hover:bg-[#450a0a] rounded transition-all"
                     aria-label="파일 삭제"
                   >
-                    🗑️
+                    <Trash2 className="size-4" />
                   </button>
 
                   {/* Icon */}
-                  <div className="text-3xl mb-2">{fileIcon(file.mimeType)}</div>
+                  <div className="mb-3 flex size-11 items-center justify-center rounded-xl border border-violet-300/15 bg-violet-300/[0.07] text-[#c4b5fd]">
+                    <FileTypeIcon mimeType={file.mimeType} className="size-6" />
+                  </div>
 
                   {/* Filename */}
-                  <p className="text-white font-medium text-sm truncate pr-8">{file.name}</p>
+                  <p className="text-white font-medium text-sm leading-5 line-clamp-2 pr-8">{file.name}</p>
 
                   {/* Description inline edit */}
                   {editingDesc?.id === file.id ? (
@@ -311,12 +358,12 @@ export default function PortfolioPage() {
                       }}
                       maxLength={200}
                       placeholder="설명 입력..."
-                      className="w-full mt-1.5 text-xs bg-[#0f172a] border border-[#6d28d9] text-[#94a3b8] rounded px-2 py-1 outline-none"
+                      className="w-full mt-2 text-xs bg-[#0f172a] border border-[#6d28d9] text-[#94a3b8] rounded-lg px-2 py-1.5 outline-none"
                     />
                   ) : (
                     <p
                       onClick={() => setEditingDesc({ id: file.id, value: file.description ?? '' })}
-                      className="text-[#475569] text-xs mt-1.5 cursor-pointer hover:text-[#94a3b8] min-h-[16px] transition-colors"
+                      className="text-[#64748b] text-xs mt-2 cursor-pointer hover:text-[#94a3b8] min-h-[18px] transition-colors line-clamp-2"
                     >
                       {file.description || '+ 설명 추가'}
                     </p>
@@ -326,7 +373,7 @@ export default function PortfolioPage() {
             </div>
           ) : (
             <div className="text-center py-16 text-[#334155]">
-              <p className="text-4xl mb-3">📂</p>
+              <FolderOpen className="mx-auto mb-3 size-10" />
               <p className="text-sm">파일을 업로드하면 여기에 표시됩니다.</p>
             </div>
           )}

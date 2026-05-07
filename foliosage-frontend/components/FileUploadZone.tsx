@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef } from 'react'
+import { FolderPlus, UploadCloud } from 'lucide-react'
 import api from '@/lib/api'
 
 interface Props {
@@ -38,7 +39,7 @@ export default function FileUploadZone({ portfolioId, onUploaded, compact = fals
           onDragOver={e => e.preventDefault()}
           onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files) }}
         >
-          <span className="text-xl">📁</span>
+          <FolderPlus className="size-5 text-[#a78bfa]" />
           <span className="text-[#64748b] text-sm flex-1">
             {uploading ? '업로드 중...' : '파일 추가 (클릭 또는 드래그)'}
           </span>
@@ -59,7 +60,7 @@ export default function FileUploadZone({ portfolioId, onUploaded, compact = fals
         onDragOver={e => e.preventDefault()}
         onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files) }}
       >
-        <div className="text-4xl mb-3">📁</div>
+        <UploadCloud className="mx-auto mb-3 size-10 text-purple-500" />
         {uploading
           ? <p className="text-purple-600 font-medium">Uploading...</p>
           : <p className="text-slate-500">Drop files here or click to upload<br /><span className="text-sm">Any file type supported</span></p>

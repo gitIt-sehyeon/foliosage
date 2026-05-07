@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { Archive, File, FileAudio, FileText, ImageIcon, Video } from 'lucide-react'
 
 interface FileItem {
   id: string
@@ -19,13 +20,14 @@ function FilePreview({ file, apiUrl }: { file: FileItem; apiUrl: string }) {
   const [imgError, setImgError] = useState(false)
   const previewUrl = `${apiUrl}/api/portfolios/preview/${file.vaultsageFileId}`
 
-  const fileIcon = (mime: string) => {
-    if (mime?.includes('image')) return '🖼️'
-    if (mime?.includes('pdf')) return '📄'
-    if (mime?.includes('video')) return '🎬'
-    if (mime?.includes('audio')) return '🎵'
-    if (mime?.includes('zip') || mime?.includes('archive')) return '📦'
-    return '📁'
+  const FileIcon = ({ mime }: { mime: string }) => {
+    const Icon = mime?.includes('image') ? ImageIcon
+      : mime?.includes('pdf') ? FileText
+      : mime?.includes('video') ? Video
+      : mime?.includes('audio') ? FileAudio
+      : mime?.includes('zip') || mime?.includes('archive') ? Archive
+      : File
+    return <Icon className="size-10 text-slate-400" />
   }
 
   return (
@@ -39,7 +41,7 @@ function FilePreview({ file, apiUrl }: { file: FileItem; apiUrl: string }) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <span className="text-5xl">{fileIcon(file.mimeType)}</span>
+          <FileIcon mime={file.mimeType} />
         )}
       </div>
       <div className="p-3">
