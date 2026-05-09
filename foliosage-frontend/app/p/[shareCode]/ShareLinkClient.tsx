@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import {
   Archive,
-  Bot,
   CheckCircle2,
   Download,
   Eye,
@@ -308,25 +307,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                 </div>
               </div>
 
-              {/* ── Hero artwork ── */}
-              <div className="mt-10 relative h-72 sm:h-80 overflow-hidden rounded-2xl border border-white/[0.08]"
-                style={{
-                  background:
-                    'radial-gradient(circle at 25% 30%, rgba(167,139,250,0.55), transparent 50%),' +
-                    'radial-gradient(circle at 80% 65%, rgba(34,211,238,0.40), transparent 55%),' +
-                    'radial-gradient(circle at 60% 20%, rgba(245,158,11,0.35), transparent 45%),' +
-                    'linear-gradient(135deg, #1e1b4b, #0b1020 60%, #0f172a)',
-                }}>
-                <div className="absolute bottom-5 left-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0b1020]/70 px-4 py-2 text-xs text-slate-300 backdrop-blur-md">
-                  <Bot className="size-3.5 text-amber-300" />
-                  {portfolio.files[0]?.name ?? 'Portfolio files'}
-                </div>
-                {portfolio.files[0]?.fileHash && (
-                  <div className="absolute right-5 top-5 font-mono text-[11px] text-white/40">
-                    #{portfolio.files[0].fileHash.slice(0, 8)} · verified
-                  </div>
-                )}
-              </div>
+
 
               {/* ── Story section ── */}
               {storySections.length > 0 && (
