@@ -28,9 +28,9 @@ export default function FileLightbox({ name, fileHash, pdfUrl, imageUrl, onClose
         </div>
 
         {/* Content */}
-        <div className="relative min-h-0 flex-1 overflow-hidden">
+        <div className="relative min-h-0 flex-1">
           {pdfUrl ? (
-            <iframe src={pdfUrl} className="h-full w-full border-0" title={name} />
+            <iframe src={pdfUrl} className="absolute inset-0 h-full w-full border-0" title={name} />
           ) : imageUrl ? (
             <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_50%_20%,rgba(124,58,237,0.12),transparent_40%)] p-6">
               <img src={imageUrl} alt={name} className="max-h-full max-w-full rounded-xl object-contain" />
