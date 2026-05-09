@@ -3,22 +3,36 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Archive,
   ArrowLeft,
+  ArrowUpRight,
   BarChart3,
   Bot,
   CheckCircle2,
   CirclePause,
+  Compass,
   Copy,
   ExternalLink,
-  File,
+  FileCheck2,
+  FileStack,
   FileText,
+  File,
   Folder,
   FolderOpen,
+  Globe2,
   ImageIcon,
+  Archive,
+  Layers,
   LinkIcon,
+  ListChecks,
+  Loader2,
+  PlayCircle,
+  Save,
+  ShieldCheck,
+  Sparkles,
   Trash2,
+  UploadCloud,
   Video,
+  Wand2,
   XCircle,
 } from 'lucide-react'
 import { isLoggedIn } from '@/lib/auth'
@@ -55,12 +69,38 @@ export default function PortfolioPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [editingDesc, setEditingDesc] = useState<{ id: string; value: string } | null>(null)
   const [publishError, setPublishError] = useState('')
+  const [publishBusy, setPublishBusy] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [readiness, setReadiness] = useState<any>(null)
+  const [storyForm, setStoryForm] = useState({
+    summary: '',
+    role: '',
+    problem: '',
+    solution: '',
+    impact: '',
+    evidenceHighlights: [] as any[],
+    missingProof: [] as string[],
+    interviewQuestions: [] as string[],
+  })
+  const [storyGenerating, setStoryGenerating] = useState(false)
+  const [storySaving, setStorySaving] = useState(false)
+  const [storyError, setStoryError] = useState('')
+  const [tab, setTab] = useState<'story' | 'files' | 'activity'>('story')
 
   const loadPortfolio = useCallback(async () => {
     try {
       const { data } = await api.get(`/api/portfolios/${id}`)
       setPortfolio(data)
+      setStoryForm({
+        summary: data.story?.summary ?? '',
+        role: data.story?.role ?? '',
+        problem: data.story?.problem ?? '',
+        solution: data.story?.solution ?? '',
+        impact: data.story?.impact ?? '',
+        evidenceHighlights: data.story?.evidenceHighlights ?? [],
+        missingProof: data.story?.missingProof ?? [],
+        interviewQuestions: data.story?.interviewQuestions ?? [],
+      })
     } catch {
       router.push('/dashboard')
     }
@@ -71,6 +111,13 @@ export default function PortfolioPage() {
       const { data } = await api.get(`/api/portfolios/${id}/stats`)
       setStats(data)
     } catch { /* stats are non-critical */ }
+  }, [id])
+
+  const loadReadiness = useCallback(async () => {
+    try {
+      const { data } = await api.get(`/api/portfolios/${id}/readiness`)
+      setReadiness(data)
+    } catch { /* readiness is non-critical */ }
   }, [id])
 
   const pollOrganizeStatus = useCallback(async () => {
@@ -93,8 +140,9 @@ export default function PortfolioPage() {
     if (!isLoggedIn()) { router.push('/login'); return }
     loadPortfolio()
     loadStats()
+    loadReadiness()
     pollOrganizeStatus().catch(() => {})
-  }, [loadPortfolio, loadStats, pollOrganizeStatus, router])
+  }, [loadPortfolio, loadStats, loadReadiness, pollOrganizeStatus, router])
 
   const startOrganize = async () => {
     if (isOrganizing) return
@@ -106,12 +154,32 @@ export default function PortfolioPage() {
   }
 
   const publish = async () => {
+    if (publishBusy) return
+    setPublishBusy(true)
     try {
       await api.post(`/api/portfolios/${id}/publish`)
       setPublishError('')
       loadPortfolio()
+      loadReadiness()
     } catch (e: any) {
       setPublishError(e?.response?.data?.message ?? '공개 실패')
+    } finally {
+      setPublishBusy(false)
+    }
+  }
+
+  const unpublish = async () => {
+    if (publishBusy) return
+    setPublishBusy(true)
+    try {
+      await api.post(`/api/portfolios/${id}/unpublish`)
+      setPublishError('')
+      loadPortfolio()
+      loadReadiness()
+    } catch (e: any) {
+      setPublishError(e?.response?.data?.message ?? '비공개 전환 실패')
+    } finally {
+      setPublishBusy(false)
     }
   }
 
@@ -128,6 +196,7 @@ export default function PortfolioPage() {
       setDeleteConfirm(null)
       loadPortfolio()
       loadStats()
+      loadReadiness()
     } catch { /* ignore */ }
   }
 
@@ -136,7 +205,57 @@ export default function PortfolioPage() {
     try {
       await api.patch(`/api/portfolios/${id}/files/${fileId}`, { description })
       loadPortfolio()
+      loadReadiness()
     } catch { /* ignore */ }
+  }
+
+  const generateStory = async () => {
+    if (storyGenerating || files.length === 0) return
+    setStoryGenerating(true)
+    setStoryError('')
+    try {
+      const { data } = await api.post(`/api/portfolios/${id}/story/generate`)
+      setPortfolio((prev: any) => ({ ...prev, story: data }))
+      setStoryForm({
+        summary: data.summary ?? '',
+        role: data.role ?? '',
+        problem: data.problem ?? '',
+        solution: data.solution ?? '',
+        impact: data.impact ?? '',
+        evidenceHighlights: data.evidenceHighlights ?? [],
+        missingProof: data.missingProof ?? [],
+        interviewQuestions: data.interviewQuestions ?? [],
+      })
+      loadReadiness()
+    } catch (e: any) {
+      setStoryError(e?.response?.data?.message ?? '스토리 생성에 실패했습니다.')
+    } finally {
+      setStoryGenerating(false)
+    }
+  }
+
+  const saveStory = async () => {
+    setStorySaving(true)
+    setStoryError('')
+    try {
+      const { data } = await api.patch(`/api/portfolios/${id}/story`, storyForm)
+      setPortfolio((prev: any) => ({ ...prev, story: data }))
+      setStoryForm({
+        summary: data.summary ?? '',
+        role: data.role ?? '',
+        problem: data.problem ?? '',
+        solution: data.solution ?? '',
+        impact: data.impact ?? '',
+        evidenceHighlights: data.evidenceHighlights ?? [],
+        missingProof: data.missingProof ?? [],
+        interviewQuestions: data.interviewQuestions ?? [],
+      })
+      loadReadiness()
+    } catch (e: any) {
+      setStoryError(e?.response?.data?.message ?? '스토리 저장에 실패했습니다.')
+    } finally {
+      setStorySaving(false)
+    }
   }
 
   if (!portfolio) {
@@ -150,6 +269,28 @@ export default function PortfolioPage() {
     )
   }
 
+  const files = portfolio.files ?? []
+  const describedFiles = files.filter((file: any) => file.description && file.description.trim()).length
+  const storyReady = readiness?.storyReady ?? Boolean(portfolio.story?.summary)
+  const readinessItems = [
+    { label: 'Story', done: storyReady, detail: storyReady ? '면접용 스토리 준비됨' : 'Generate Portfolio Story 실행' },
+    { label: 'Evidence', done: readiness?.evidenceReady ?? files.length > 0, detail: files.length > 0 ? `${files.length}개 파일, ${describedFiles}개 설명` : '작업 증거 파일을 추가하세요' },
+    { label: 'AI Review', done: readiness?.aiReviewReady ?? false, detail: readiness?.aiReviewReady ? '리뷰 완료' : '스토리와 공개 링크 후 실행' },
+    { label: 'Public Link', done: readiness?.publicLinkReady ?? portfolio.published, detail: portfolio.published ? '방문자에게 공유 가능' : '공개 링크 생성 필요' },
+  ]
+  const storyField = (key: 'summary' | 'role' | 'problem' | 'solution' | 'impact', label: string, placeholder: string) => (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-medium text-slate-400">{label}</span>
+      <textarea
+        value={storyForm[key]}
+        onChange={e => setStoryForm(prev => ({ ...prev, [key]: e.target.value }))}
+        placeholder={placeholder}
+        rows={key === 'summary' ? 4 : 3}
+        className="w-full resize-none rounded-xl border border-white/10 bg-[#0b1020] px-3 py-2.5 text-sm leading-6 text-white outline-none placeholder:text-[#475569] focus:border-[#6d28d9]"
+      />
+    </label>
+  )
+
   return (
     <div className="h-screen flex flex-col bg-[#0f172a] overflow-hidden">
 
@@ -157,7 +298,7 @@ export default function PortfolioPage() {
       <nav className="h-14 flex-shrink-0 flex items-center justify-between px-6 bg-[#070b15] border-b border-white/10">
         <Link href="/dashboard" className="text-[#a78bfa] font-bold text-sm tracking-[0.24em]">FolioSage</Link>
         <div className="flex gap-2">
-          {portfolio.shareCode && (
+          {portfolio.published && portfolio.shareCode && (
             <Link href={`/p/${portfolio.shareCode}`} target="_blank"
               className="inline-flex items-center gap-2 text-[#94a3b8] text-xs px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:text-white transition-colors">
               <ExternalLink className="size-3.5" />
@@ -271,7 +412,7 @@ export default function PortfolioPage() {
             {publishError && (
               <p className="text-[#f87171] text-[10px]">{publishError}</p>
             )}
-            {portfolio.shareCode ? (
+            {portfolio.published && portfolio.shareCode ? (
               <>
                 <button
                   onClick={copyLink}
@@ -292,15 +433,23 @@ export default function PortfolioPage() {
                     외부에서 보기
                   </span>
                 </Link>
+                <button
+                  onClick={unpublish}
+                  disabled={publishBusy}
+                  className="w-full text-left text-sm px-3 py-3 bg-[#1f1318] border border-rose-300/15 text-rose-200 rounded-xl hover:border-rose-300/35 transition-colors disabled:opacity-45"
+                >
+                  비공개로 전환
+                </button>
               </>
             ) : (
               <button
                 onClick={publish}
-                className="w-full text-sm px-3 py-3 bg-[#6d28d9] hover:bg-[#7c3aed] text-white rounded-xl transition-colors"
+                disabled={publishBusy}
+                className="w-full text-sm px-3 py-3 bg-[#6d28d9] hover:bg-[#7c3aed] text-white rounded-xl transition-colors disabled:opacity-45"
               >
                 <span className="inline-flex items-center justify-center gap-2">
                   <LinkIcon className="size-3.5" />
-                  포트폴리오 공개
+                  {publishBusy ? '처리 중...' : '포트폴리오 공개'}
                 </span>
               </button>
             )}
@@ -312,6 +461,123 @@ export default function PortfolioPage() {
 
           {/* Upload zone (compact) */}
           <FileUploadZone portfolioId={id} onUploaded={() => loadPortfolio()} compact />
+
+          <section className="rounded-xl border border-white/10 bg-[#111827]/90 p-4">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-cyan-200">
+                  <ListChecks className="size-3.5" />
+                  Portfolio readiness
+                </p>
+                <h3 className="mt-1 text-base font-semibold text-white">공유 전에 보여줄 증거를 정리하세요</h3>
+              </div>
+              <span className="rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] px-3 py-1 text-sm font-semibold text-cyan-100">
+                {readiness?.score ?? 0}
+              </span>
+            </div>
+            <div className="grid gap-2 md:grid-cols-4">
+              {readinessItems.map(item => (
+                <div key={item.label} className="rounded-xl border border-white/10 bg-[#0b1020] p-3">
+                  <p className={`inline-flex items-center gap-2 text-sm font-medium ${item.done ? 'text-emerald-200' : 'text-slate-300'}`}>
+                    <CheckCircle2 className={`size-4 ${item.done ? 'text-emerald-300' : 'text-slate-600'}`} />
+                    {item.label}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs leading-5 text-slate-500">
+              공개 페이지는 생성된 스토리, 증거 하이라이트, AI 질문 예시를 먼저 보여줍니다. 각 파일 설명을 채우면 방문자가 증거 맥락을 더 빨리 이해합니다.
+            </p>
+          </section>
+
+          <section className="rounded-xl border border-white/10 bg-[#111827]/90 p-4">
+            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-violet-200">
+                  <Sparkles className="size-3.5" />
+                  Portfolio story
+                </p>
+                <h3 className="mt-1 text-base font-semibold text-white">프로젝트 파일을 면접용 증거 스토리로 정리하세요</h3>
+                {portfolio.story?.generatedAt && (
+                  <p className="mt-1 text-xs text-slate-500">
+                    마지막 생성: {new Date(portfolio.story.generatedAt).toLocaleString('ko-KR')}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={generateStory}
+                  disabled={storyGenerating || files.length === 0}
+                  className="inline-flex items-center gap-2 rounded-lg bg-violet-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-400 disabled:opacity-45"
+                >
+                  {storyGenerating ? <Loader2 className="size-4 animate-spin" /> : <Bot className="size-4" />}
+                  {portfolio.story ? '스토리 다시 생성' : 'Generate Portfolio Story'}
+                </button>
+                <button
+                  onClick={saveStory}
+                  disabled={storySaving}
+                  className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:bg-white/[0.07] disabled:opacity-45"
+                >
+                  {storySaving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+                  저장
+                </button>
+              </div>
+            </div>
+            {storyError && <p className="mb-3 text-xs text-rose-300">{storyError}</p>}
+            {portfolio.story?.errorMessage && (
+              <p className="mb-3 rounded-lg border border-amber-300/20 bg-amber-300/[0.06] px-3 py-2 text-xs text-amber-100">
+                {portfolio.story.errorMessage}
+              </p>
+            )}
+            <div className="grid gap-3 lg:grid-cols-2">
+              {storyField('summary', 'Summary', '이 프로젝트를 한 문단으로 설명하세요.')}
+              {storyField('role', 'My Role', '본인이 맡은 역할과 책임을 적으세요.')}
+              {storyField('problem', 'Problem', '해결하려던 문제나 맥락을 적으세요.')}
+              {storyField('solution', 'Solution', '접근 방식과 핵심 결정을 적으세요.')}
+              <div className="lg:col-span-2">
+                {storyField('impact', 'Impact', '결과, 배운 점, 측정 가능한 임팩트를 적으세요.')}
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 lg:grid-cols-2">
+              <div className="rounded-xl border border-white/10 bg-[#0b1020] p-3">
+                <p className="mb-2 text-sm font-semibold text-white">Evidence Highlights</p>
+                {storyForm.evidenceHighlights.length === 0 ? (
+                  <p className="text-xs text-slate-500">스토리를 생성하면 핵심 증거 파일이 여기에 표시됩니다.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {storyForm.evidenceHighlights.map((item: any) => (
+                      <button
+                        key={`${item.fileId}-${item.vaultsageFileId}`}
+                        onClick={() => {
+                          const el = document.getElementById(`file-${item.fileId}`)
+                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        }}
+                        className="block w-full rounded-lg border border-emerald-300/15 bg-emerald-300/[0.045] px-3 py-2 text-left"
+                      >
+                        <span className="block truncate text-xs font-medium text-emerald-100">{item.fileName}</span>
+                        <span className="mt-1 block text-xs leading-5 text-emerald-100/70">{item.reason}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="rounded-xl border border-white/10 bg-[#0b1020] p-3">
+                <p className="mb-2 text-sm font-semibold text-white">Interview Questions</p>
+                {storyForm.interviewQuestions.length === 0 ? (
+                  <p className="text-xs text-slate-500">생성된 면접 질문이 여기에 표시됩니다.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {storyForm.interviewQuestions.map((question, index) => (
+                      <p key={`${question}-${index}`} className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs leading-5 text-slate-300">
+                        {question}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
 
           <DefenseRoom
             portfolioId={id}
@@ -325,6 +591,7 @@ export default function PortfolioPage() {
               {portfolio.files.map((file: any, i: number) => (
                 <div
                   key={file.id}
+                  id={`file-${file.id}`}
                   className="group relative min-h-[132px] rounded-xl border border-white/10 bg-[#111827]/90 p-4 transition-all animate-slide-up hover:border-[#6d28d9]/70 hover:bg-[#162033] hover:shadow-[0_12px_40px_rgba(0,0,0,0.22)]"
                   style={{ animationDelay: `${i * 0.08}s` }}
                 >
