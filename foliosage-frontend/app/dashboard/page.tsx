@@ -7,6 +7,7 @@ import {
   BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
+  Copy,
   ExternalLink,
   FileStack,
   Globe2,
@@ -27,6 +28,8 @@ type Portfolio = {
   published: boolean
   fileCount: number
   createdAt: string
+  storyReady: boolean
+  aiReviewed: boolean
 }
 
 type Profile = {
@@ -48,6 +51,8 @@ export default function DashboardPage() {
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileSaved, setProfileSaved] = useState(false)
   const [profileError, setProfileError] = useState('')
+  const [profileEditing, setProfileEditing] = useState(true)
+  const [profileCopied, setProfileCopied] = useState(false)
   const [tab, setTab] = useState<'portfolios' | 'profile'>('portfolios')
   const [error, setError] = useState('')
 
@@ -60,6 +65,7 @@ export default function DashboardPage() {
       .then(r => {
         setProfile(r.data)
         setProfileForm(r.data)
+        setProfileEditing(!r.data.username)
       })
       .catch(() => { /* profile optional */ })
   }, [router])
@@ -68,18 +74,20 @@ export default function DashboardPage() {
     setProfileSaving(true)
     setProfileError('')
     try {
-      await api.patch('/api/users/me/profile', {
-        username: profileForm.username || null,
-        bio: profileForm.bio || null,
-        location: profileForm.location || null,
-        linkedinUrl: profileForm.linkedinUrl || null,
-        githubUrl: profileForm.githubUrl || null,
+      const { data } = await api.patch('/api/users/me/profile', {
+        username: profileForm.username?.trim() || null,
+        bio: profileForm.bio?.trim() || null,
+        location: profileForm.location?.trim() || null,
+        linkedinUrl: profileForm.linkedinUrl?.trim() || null,
+        githubUrl: profileForm.githubUrl?.trim() || null,
       })
+      setProfile(data)
+      setProfileForm(data)
+      setProfileEditing(!data.username)
       setProfileSaved(true)
       setTimeout(() => setProfileSaved(false), 2000)
-      api.get('/api/users/me').then(r => setProfile(r.data))
     } catch (e: any) {
-      setProfileError(e?.response?.data?.message ?? '저장 실패')
+      setProfileError(e?.response?.data?.message ?? e?.response?.data?.error ?? '저장 실패')
     } finally {
       setProfileSaving(false)
     }
@@ -109,13 +117,25 @@ export default function DashboardPage() {
     .slice()
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
 
+  const profileUrl = profile?.username && typeof window !== 'undefined'
+    ? `${window.location.origin}/u/${profile.username}`
+    : ''
+
+  const copyProfileLink = async () => {
+    if (!profileUrl) return
+    await navigator.clipboard.writeText(profileUrl)
+    setProfileCopied(true)
+    setTimeout(() => setProfileCopied(false), 1500)
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#060912] text-white">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.055)_1px,transparent_1px)] bg-[size:44px_44px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(124,58,237,0.20),transparent_28%),radial-gradient(circle_at_84%_22%,rgba(20,184,166,0.12),transparent_26%),radial-gradient(circle_at_56%_90%,rgba(245,158,11,0.08),transparent_24%)]" />
 
-      <nav className="relative z-10 flex justify-between items-center px-5 py-5 sm:px-8">
-        <Link href="/" className="flex items-center gap-2">
+      <nav className="relative z-10 px-5 py-5 sm:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-2">
           <span className="flex size-8 items-center justify-center rounded-lg border border-violet-400/25 bg-violet-400/10 text-violet-200">
             <Sparkles className="size-4" />
           </span>
@@ -144,6 +164,7 @@ export default function DashboardPage() {
             로그아웃
           </button>
         </div>
+        </div>
       </nav>
 
       <div className="relative z-10 max-w-7xl mx-auto px-5 pb-14 pt-8 sm:px-8">
@@ -156,7 +177,7 @@ export default function DashboardPage() {
                   {profile?.name ? `${profile.name}의 포트폴리오` : 'Portfolio workspace'}
                 </h1>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-                  업로드한 작업물을 정리하고, 공개 포트폴리오와 AI 응답 경험을 관리하세요.
+                  프로젝트 파일을 업로드하고 면접에서 바로 설명할 수 있는 증거 포트폴리오로 정리하세요.
                 </p>
               </div>
               <Link href="/portfolios/new"
@@ -239,7 +260,7 @@ export default function DashboardPage() {
               <div className="rounded-2xl border border-dashed border-white/10 bg-[#0b1020]/70 text-center py-20">
                 <Palette className="mx-auto mb-4 size-10 text-[#475569]" />
                 <p className="text-slate-300 font-medium mb-2">포트폴리오가 없습니다.</p>
-                <p className="text-[#64748b] text-sm mb-5">첫 작업 공간을 만들고 파일을 업로드하세요.</p>
+                <p className="text-[#64748b] text-sm mb-5">첫 작업 공간을 만들고 파일 업로드 후 Portfolio Story를 생성하세요.</p>
                 <Link href="/portfolios/new"
                   className="inline-flex items-center gap-2 bg-white hover:bg-cyan-100 text-slate-950 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors">
                   <Plus className="size-4" />
@@ -273,6 +294,19 @@ export default function DashboardPage() {
                         </span>
                         <span>{new Date(p.createdAt).toLocaleDateString('ko-KR')}</span>
                       </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <span className={`rounded-full border px-2 py-1 text-[11px] ${
+                          p.storyReady ? 'border-emerald-300/20 bg-emerald-300/[0.07] text-emerald-200' : 'border-amber-300/20 bg-amber-300/[0.06] text-amber-100'
+                        }`}>
+                          {p.storyReady ? 'Story ready' : 'Needs story'}
+                        </span>
+                        {p.published && (
+                          <span className="rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] px-2 py-1 text-[11px] text-cyan-100">Published</span>
+                        )}
+                        {p.aiReviewed && (
+                          <span className="rounded-full border border-violet-300/20 bg-violet-300/[0.07] px-2 py-1 text-[11px] text-violet-100">AI reviewed</span>
+                        )}
+                      </div>
                       <div className="mt-4 flex items-center gap-1 text-xs text-violet-200 opacity-0 transition-opacity group-hover:opacity-100">
                         열기
                         <ArrowUpRight className="size-3.5" />
@@ -288,46 +322,103 @@ export default function DashboardPage() {
         {/* Profile tab */}
         {tab === 'profile' && (
           <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-            <div className="bg-[#0b1020]/90 border border-white/10 rounded-2xl p-6 space-y-4 backdrop-blur-xl">
-              <div className="mb-2">
-                <h2 className="text-white text-xl font-semibold">프로필 편집</h2>
-                <p className="mt-1 text-sm text-slate-500">공개 프로필과 포트폴리오 소유자 정보를 정리하세요.</p>
-              </div>
+            {profileEditing ? (
+              <div className="bg-[#0b1020]/90 border border-white/10 rounded-2xl p-6 space-y-4 backdrop-blur-xl">
+                <div className="mb-2 flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-white text-xl font-semibold">프로필 편집</h2>
+                    <p className="mt-1 text-sm text-slate-500">공개 프로필과 포트폴리오 소유자 정보를 정리하세요.</p>
+                  </div>
+                  {profile?.username && (
+                    <button
+                      onClick={() => setProfileEditing(false)}
+                      className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-slate-400 transition-colors hover:text-white"
+                    >
+                      닫기
+                    </button>
+                  )}
+                </div>
 
-              {field('사용자명 (username)', 'username', 'minjoonsage (영문, 숫자, -, _)')}
-              {field('한 줄 소개 (bio)', 'bio', '나를 소개하는 한 줄을 적어보세요')}
-              {field('위치', 'location', '서울, 대한민국')}
-              {field('링크드인 URL', 'linkedinUrl', 'https://linkedin.com/in/username', 'url')}
-              {field('깃허브 URL', 'githubUrl', 'https://github.com/username', 'url')}
+                {field('사용자명 (username)', 'username', 'minjoonsage (영문, 숫자, -, _)')}
+                {field('한 줄 소개 (bio)', 'bio', '나를 소개하는 한 줄을 적어보세요')}
+                {field('위치', 'location', '서울, 대한민국')}
+                {field('링크드인 URL', 'linkedinUrl', 'https://linkedin.com/in/username', 'url')}
+                {field('깃허브 URL', 'githubUrl', 'https://github.com/username', 'url')}
 
-              {profileError && <p className="text-[#f87171] text-xs">{profileError}</p>}
-
-              <div className="flex items-center gap-3 pt-1">
-                <button
-                  onClick={saveProfile}
-                  disabled={profileSaving}
-                  className="bg-[#6d28d9] hover:bg-[#7c3aed] disabled:opacity-40 text-white text-sm px-5 py-2.5 rounded-xl transition-colors"
-                >
-                  {profileSaving ? '저장 중...' : '저장'}
-                </button>
-                {profileSaved && (
-                  <span className="inline-flex items-center gap-1.5 text-[#34d399] text-sm">
-                    <CheckCircle2 className="size-4" />
-                    저장됨
-                  </span>
+                {profileError && (
+                  <div className="rounded-xl border border-rose-300/20 bg-rose-300/[0.06] px-3 py-2 text-xs text-rose-200">
+                    {profileError}
+                  </div>
                 )}
-                {profile?.username && (
-                  <Link
-                    href={`/u/${profile.username}`}
-                    target="_blank"
-                    className="inline-flex items-center gap-1.5 text-[#a78bfa] text-xs hover:text-white ml-auto"
+
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    onClick={saveProfile}
+                    disabled={profileSaving}
+                    className="bg-[#6d28d9] hover:bg-[#7c3aed] disabled:opacity-40 text-white text-sm px-5 py-2.5 rounded-xl transition-colors"
                   >
-                    내 프로필 보기
-                    <ExternalLink className="size-3.5" />
-                  </Link>
-                )}
+                    {profileSaving ? '저장 중...' : '저장'}
+                  </button>
+                  {profileSaved && (
+                    <span className="inline-flex items-center gap-1.5 text-[#34d399] text-sm">
+                      <CheckCircle2 className="size-4" />
+                      저장됨
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-[#0b1020]/90 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+                <p className="mb-4 text-xs font-medium uppercase tracking-[0.24em] text-cyan-200">Public profile card</p>
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                  <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-2xl font-semibold text-violet-100">
+                    {(profile?.name || 'F').slice(0, 1).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-2xl font-semibold text-white">{profile?.name || 'FolioSage creator'}</h2>
+                    <p className="mt-1 text-sm text-violet-200">@{profile?.username}</p>
+                    {profile?.bio && <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-400">{profile.bio}</p>}
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
+                      {profile?.location && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="size-3.5" />
+                          {profile.location}
+                        </span>
+                      )}
+                      {(profile?.linkedinUrl || profile?.githubUrl) && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <LinkIcon className="size-3.5" />
+                          외부 링크 연결됨
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setProfileEditing(true)}
+                        className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-slate-300 transition-colors hover:text-white"
+                      >
+                        Edit profile
+                      </button>
+                      <Link
+                        href={`/u/${profile?.username}`}
+                        target="_blank"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-violet-500 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-violet-400"
+                      >
+                        Open profile
+                        <ExternalLink className="size-3.5" />
+                      </Link>
+                      <button
+                        onClick={copyProfileLink}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-slate-300 transition-colors hover:text-white"
+                      >
+                        {profileCopied ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
+                        {profileCopied ? 'Copied' : 'Copy profile link'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <aside className="rounded-2xl border border-white/10 bg-[#0b1020]/80 p-5 backdrop-blur-xl">
               <p className="mb-4 text-xs font-medium uppercase tracking-[0.24em] text-slate-500">Public card</p>
