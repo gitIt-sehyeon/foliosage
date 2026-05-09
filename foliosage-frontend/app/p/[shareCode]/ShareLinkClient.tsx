@@ -167,7 +167,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#060912] text-white">
+    <div className="relative flex h-screen flex-col overflow-hidden bg-[#060912] text-white">
       {/* Void background */}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.055)_1px,transparent_1px)] bg-[size:44px_44px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(124,58,237,0.22),transparent_28%),radial-gradient(circle_at_80%_22%,rgba(20,184,166,0.12),transparent_26%)]" />
@@ -230,17 +230,17 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
 
       {/* ── Main: article + chat sidebar ── */}
       <div
-        className="relative z-10 transition-[grid-template-columns]"
+        className="relative z-10 min-h-0 flex-1 overflow-hidden transition-[grid-template-columns]"
         style={{
           display: 'grid',
           gridTemplateColumns: chatOpen ? '1fr 400px' : '1fr',
-          minHeight: 'calc(100vh - 64px)',
+          gridTemplateRows: '1fr',
           transitionDuration: '0.5s',
           transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}>
 
         {/* ── Magazine article ── */}
-        <article className="overflow-y-auto" style={{ padding: '40px 32px 120px', maxWidth: 880, margin: '0 auto', width: '100%' }}>
+        <article className="min-h-0 overflow-y-auto" style={{ padding: '40px 32px 120px', maxWidth: 880, margin: '0 auto', width: '100%' }}>
 
           {loading ? (
             <div className="space-y-4">
@@ -398,8 +398,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
 
         {/* ── Chat sidebar ── */}
         {chatOpen && (
-          <aside className="border-l border-white/10 bg-[#070b15]/95 backdrop-blur-xl"
-            style={{ position: 'sticky', top: 64, height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+          <aside className="min-h-0 overflow-hidden border-l border-white/10 bg-[#070b15]/95 backdrop-blur-xl">
             <ChatPanel shareCode={shareCode} dark suggestedQuestions={suggestedQuestions} />
           </aside>
         )}
