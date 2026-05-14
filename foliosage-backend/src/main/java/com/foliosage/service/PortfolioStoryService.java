@@ -178,7 +178,7 @@ public class PortfolioStoryService {
 
     private String callPublishedStoryGeneration(Portfolio portfolio, List<PortfolioFile> files) {
         String raw = vaultSageService.publicChat(
-                portfolio.getShareCode(),
+                normalizeShareCode(portfolio.getShareCode()),
                 buildPrompt(portfolio, files),
                 null,
                 UUID.randomUUID().toString());
@@ -322,6 +322,12 @@ public class PortfolioStoryService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
         return p;
+    }
+
+    private static String normalizeShareCode(String shareCode) {
+        if (shareCode == null) return null;
+        int idx = shareCode.indexOf("code=");
+        return idx >= 0 ? shareCode.substring(idx + 5) : shareCode;
     }
 
     private String text(JsonNode node, String field) {

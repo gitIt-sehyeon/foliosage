@@ -96,7 +96,7 @@ public class DefenseService {
         List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
         PublicChatResult result = callVaultSage(
                 portfolio.getShareCode(),
-                buildEvaluationPrompt(turn.getQuestion(), answer, files),
+                buildEvaluationPrompt(turn.getQuestion(), answer, portfolio, files),
                 session.getVaultsageConversationId(),
                 session.getVaultsageSessionId());
         if (result.conversationId() != null && !result.conversationId().isBlank()) {
@@ -114,7 +114,7 @@ public class DefenseService {
         if (complete) {
             PublicChatResult scoreResult = callVaultSage(
                     portfolio.getShareCode(),
-                    buildScorecardPrompt(turnRepository.findBySessionOrderByQuestionIndexAsc(session), files),
+                    buildScorecardPrompt(turnRepository.findBySessionOrderByQuestionIndexAsc(session), portfolio, files),
                     session.getVaultsageConversationId(),
                     session.getVaultsageSessionId());
             DefenseScorecardDto scorecard = parseScorecard(scoreResult.message());
@@ -313,7 +313,7 @@ public class DefenseService {
                 """.formatted(portfolio.getTitle(), nullToEmpty(portfolio.getDescription()), storyContext(portfolio), fileManifest(files));
     }
 
-    private String buildEvaluationPrompt(String question, String answer, List<PortfolioFile> files) {
+    private String buildEvaluationPrompt(String question, String answer, Portfolio portfolio, List<PortfolioFile> files) {
         return """
                 Evaluate this creator answer against the shared portfolio files.
                 Return JSON only: {"feedback":"...", "evidenceFiles":["exact filename or file id"], "missingProof":"..."}.
@@ -323,10 +323,10 @@ public class DefenseService {
                 %s
                 Available files:
                 %s
-                """.formatted(question, answer, storyContext(files.isEmpty() ? null : files.get(0).getPortfolio()), fileManifest(files));
+                """.formatted(question, answer, storyContext(portfolio), fileManifest(files));
     }
 
-    private String buildScorecardPrompt(List<PortfolioDefenseTurn> turns, List<PortfolioFile> files) {
+    private String buildScorecardPrompt(List<PortfolioDefenseTurn> turns, Portfolio portfolio, List<PortfolioFile> files) {
         StringBuilder transcript = new StringBuilder();
         for (PortfolioDefenseTurn turn : turns) {
             transcript.append("Q").append(turn.getQuestionIndex() + 1).append(": ").append(turn.getQuestion()).append("\n");
@@ -343,7 +343,7 @@ public class DefenseService {
                 %s
                 Files:
                 %s
-                """.formatted(transcript, storyContext(files.isEmpty() ? null : files.get(0).getPortfolio()), fileManifest(files));
+                """.formatted(transcript, storyContext(portfolio), fileManifest(files));
     }
 
     private String storyContext(Portfolio portfolio) {
