@@ -5,9 +5,9 @@ import publicApi from '@/lib/publicApi'
 
 interface EvidenceChip { fileId: string; vaultsageFileId: string; name: string }
 interface Message { id: number; role: 'user' | 'assistant'; content: string; evidence?: EvidenceChip[] }
-interface Props { shareCode: string; dark?: boolean }
+interface Props { shareCode: string; dark?: boolean; suggestedQuestions?: string[] }
 
-export default function ChatPanel({ shareCode, dark = false }: Props) {
+export default function ChatPanel({ shareCode, dark = false, suggestedQuestions = [] }: Props) {
   const [messages, setMessages] = useState<Message[]>([
     { id: 0, role: 'assistant', content: '안녕하세요. 이 포트폴리오에 대해 무엇이든 물어보세요.' }
   ])
@@ -22,9 +22,9 @@ export default function ChatPanel({ shareCode, dark = false }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const send = async () => {
-    if (!input.trim() || loading) return
-    const userMessage = input.trim()
+  const sendMessage = async (message: string) => {
+    if (!message.trim() || loading) return
+    const userMessage = message.trim()
     setInput('')
     setMessages(prev => [...prev, { id: nextId.current++, role: 'user', content: userMessage }])
     setLoading(true)
@@ -50,6 +50,8 @@ export default function ChatPanel({ shareCode, dark = false }: Props) {
     } finally { setLoading(false) }
   }
 
+  const send = async () => sendMessage(input)
+
   if (dark) {
     return (
       <div className="flex flex-col h-full overflow-hidden">
@@ -66,6 +68,23 @@ export default function ChatPanel({ shareCode, dark = false }: Props) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-3 min-h-0">
+          {suggestedQuestions.length > 0 && messages.length === 1 && (
+            <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#64748b]">Try asking</p>
+              <div className="space-y-1.5">
+                {suggestedQuestions.slice(0, 3).map(question => (
+                  <button
+                    key={question}
+                    onClick={() => sendMessage(question)}
+                    disabled={loading}
+                    className="block w-full rounded-lg border border-white/10 bg-[#0b1020] px-3 py-2 text-left text-xs leading-5 text-[#cbd5e1] transition-colors hover:border-violet-300/35 hover:text-white disabled:opacity-45"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${

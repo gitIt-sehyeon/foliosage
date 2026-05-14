@@ -40,6 +40,131 @@ type DefenseSession = {
   scorecard: Scorecard | null
 }
 
+function parseJsonLike(value: string | null | undefined): any | null {
+  if (!value) return null
+  let text = value.trim()
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim()
+  }
+  const objectStart = text.indexOf('{')
+  const arrayStart = text.indexOf('[')
+  const starts = [objectStart, arrayStart].filter(i => i >= 0)
+  if (starts.length > 0) text = text.slice(Math.min(...starts))
+  try {
+    const parsed = JSON.parse(text)
+    if (typeof parsed === 'string') return parseJsonLike(parsed) ?? parsed
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function stringList(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .map(item => {
+      if (typeof item === 'string') return item
+      if (item && typeof item === 'object') {
+        const record = item as Record<string, unknown>
+        return String(record.name ?? record.file ?? record.filename ?? record.reason ?? '').trim()
+      }
+      return ''
+    })
+    .filter(Boolean)
+}
+
+function cleanDisplayText(value: string | null | undefined, preferredFields = ['summary', 'feedback', 'rationale', 'assessment']) {
+  const parsed = parseJsonLike(value)
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    for (const field of preferredFields) {
+      const fieldValue = parsed[field]
+      if (typeof fieldValue === 'string' && fieldValue.trim()) return fieldValue.trim()
+    }
+  }
+  return value?.trim() || ''
+}
+
+function FeedbackText({ value }: { value: string | null }) {
+  const parsed = parseJsonLike(value)
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#cbd5e1]">{value}</p>
+  }
+
+  const main = cleanDisplayText(value, ['feedback', 'rationale', 'summary', 'assessment', 'comment'])
+  const missingProof = typeof parsed.missingProof === 'string'
+    ? [parsed.missingProof]
+    : stringList(parsed.missingProof ?? parsed.missing_proof)
+  const evidenceFiles = stringList(parsed.evidenceFiles ?? parsed.evidence_files)
+
+  return (
+    <div className="mt-2 space-y-2">
+      {main && <p className="whitespace-pre-wrap text-sm leading-6 text-[#cbd5e1]">{main}</p>}
+      {evidenceFiles.length > 0 && (
+        <div className="rounded-lg border border-emerald-300/15 bg-emerald-300/[0.045] px-3 py-2">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-200">Evidence</p>
+          <p className="mt-1 text-xs leading-5 text-emerald-100">{evidenceFiles.join(', ')}</p>
+        </div>
+      )}
+      {missingProof.length > 0 && (
+        <div className="rounded-lg border border-amber-300/15 bg-amber-300/[0.045] px-3 py-2">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">Missing proof</p>
+          <p className="mt-1 text-xs leading-5 text-amber-100">{missingProof.join(', ')}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+type WorkingStage = 'thinking' | 'reading' | 'scoring'
+
+function AIWorkingMascot({ stage }: { stage: WorkingStage }) {
+  const copy = {
+    thinking: '파일을 읽고 질문을 만드는 중...',
+    reading: '답변에서 근거 파일을 찾는 중...',
+    scoring: 'AI 리뷰 결과를 정리하는 중...',
+  }[stage]
+
+  return (
+    <div className="mb-4 overflow-hidden rounded-xl border border-cyan-300/20 bg-cyan-300/[0.055] p-4">
+      <div className="flex items-center gap-4">
+        <div className="relative h-20 w-24 flex-shrink-0">
+          <div className="ai-mascot-body absolute bottom-2 left-5 h-14 w-14 rounded-2xl border border-cyan-200/30 bg-[#11243a] shadow-[0_0_24px_rgba(34,211,238,0.20)]">
+            <div className="absolute left-3 top-5 h-2 w-2 rounded-full bg-cyan-200" />
+            <div className="absolute right-3 top-5 h-2 w-2 rounded-full bg-cyan-200" />
+            <div className="absolute bottom-4 left-1/2 h-1 w-5 -translate-x-1/2 rounded-full bg-violet-200/80" />
+            <div className="absolute -top-3 left-1/2 h-4 w-px -translate-x-1/2 bg-cyan-200/50" />
+            <div className="absolute -top-5 left-1/2 size-2 -translate-x-1/2 rounded-full bg-cyan-200" />
+          </div>
+          <div className="ai-mascot-page absolute bottom-3 right-2 h-11 w-8 rounded-md border border-white/20 bg-white/10" />
+          <div className="ai-mascot-spark absolute left-2 top-2 size-2 rounded-full bg-violet-200" />
+          <div className="ai-mascot-spark absolute right-5 top-1 size-1.5 rounded-full bg-emerald-200 [animation-delay:0.35s]" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-cyan-100">{copy}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">VaultSage가 파일 근거와 답변 맥락을 함께 확인하고 있습니다.</p>
+        </div>
+      </div>
+      <style jsx>{`
+        .ai-mascot-body { animation: mascot-bob 1.45s ease-in-out infinite; }
+        .ai-mascot-page { animation: mascot-read 1.1s ease-in-out infinite; transform-origin: bottom left; }
+        .ai-mascot-spark { animation: mascot-spark 1.25s ease-in-out infinite; }
+        @keyframes mascot-bob {
+          0%, 100% { transform: translateY(0) rotate(-1deg); }
+          50% { transform: translateY(-7px) rotate(1deg); }
+        }
+        @keyframes mascot-read {
+          0%, 100% { transform: rotate(-7deg) translateY(0); opacity: 0.72; }
+          50% { transform: rotate(7deg) translateY(-4px); opacity: 1; }
+        }
+        @keyframes mascot-spark {
+          0%, 100% { transform: scale(0.7); opacity: 0.45; }
+          50% { transform: scale(1.25); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 export default function DefenseRoom({
   portfolioId,
   published,
@@ -52,6 +177,7 @@ export default function DefenseRoom({
   const [session, setSession] = useState<DefenseSession | null>(null)
   const [answer, setAnswer] = useState('')
   const [loading, setLoading] = useState(false)
+  const [workingStage, setWorkingStage] = useState<WorkingStage | null>(null)
   const [error, setError] = useState('')
 
   const currentTurn = useMemo(() => {
@@ -67,21 +193,25 @@ export default function DefenseRoom({
 
   const start = async () => {
     setLoading(true)
+    setWorkingStage('thinking')
     setError('')
     try {
       const { data } = await api.post(`/api/portfolios/${portfolioId}/defense/sessions`)
       setSession(data)
       setAnswer('')
     } catch (e: any) {
-      setError(e?.response?.data?.message ?? 'Defense 세션을 시작할 수 없습니다.')
+      setError(e?.response?.data?.message ?? e?.response?.data?.error ?? 'AI 리뷰를 시작할 수 없습니다.')
     } finally {
       setLoading(false)
+      setWorkingStage(null)
     }
   }
 
   const submit = async () => {
     if (!session || !answer.trim() || loading) return
+    const isFinalAnswer = (currentTurn?.questionIndex ?? -1) >= session.totalQuestions - 1
     setLoading(true)
+    setWorkingStage(isFinalAnswer ? 'scoring' : 'reading')
     setError('')
     try {
       const { data } = await api.post(`/api/portfolios/${portfolioId}/defense/sessions/${session.id}/answers`, {
@@ -90,9 +220,10 @@ export default function DefenseRoom({
       setSession(data)
       setAnswer('')
     } catch (e: any) {
-      setError(e?.response?.data?.message ?? '답변 평가에 실패했습니다.')
+      setError(e?.response?.data?.message ?? e?.response?.data?.error ?? '답변 평가에 실패했습니다.')
     } finally {
       setLoading(false)
+      setWorkingStage(null)
     }
   }
 
@@ -102,9 +233,9 @@ export default function DefenseRoom({
         <div>
           <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#a78bfa]">
             <Gavel className="size-3.5" />
-            Defense Room
+            AI Portfolio Review
           </p>
-          <h3 className="mt-1 text-base font-semibold text-white">AI 심사위원 앞에서 포트폴리오 방어</h3>
+          <h3 className="mt-1 text-base font-semibold text-white">AI가 심사 질문을 만들고 증거 기반 피드백을 정리합니다</h3>
         </div>
         {session && (
           <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-[#94a3b8]">
@@ -116,34 +247,40 @@ export default function DefenseRoom({
       {!published ? (
         <div className="flex items-start gap-3 rounded-xl border border-amber-300/20 bg-amber-300/[0.06] p-3 text-sm text-amber-100">
           <ShieldAlert className="mt-0.5 size-4 flex-shrink-0" />
-          <p>Defense는 VaultSage 공유 채팅을 사용하므로 포트폴리오 공개 후 시작할 수 있습니다.</p>
+          <p>AI 리뷰는 공개된 포트폴리오 링크를 기준으로 파일 근거를 읽습니다. 먼저 포트폴리오를 공개하세요.</p>
         </div>
       ) : fileCount === 0 ? (
         <div className="rounded-xl border border-white/10 bg-[#0b1020] p-3 text-sm text-[#94a3b8]">파일을 먼저 업로드하세요.</div>
       ) : !session ? (
-        <button
-          onClick={start}
-          disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#6d28d9] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-45"
-        >
-          {loading ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
-          Start Defense
-        </button>
+        <>
+          {workingStage && <AIWorkingMascot stage={workingStage} />}
+          <button
+            onClick={start}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#6d28d9] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-45"
+          >
+            {loading ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
+            AI 리뷰 시작
+          </button>
+        </>
       ) : session.status === 'completed' && session.scorecard ? (
         <div className="space-y-4">
+          {workingStage && <AIWorkingMascot stage={workingStage} />}
           <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[0.06] p-4">
             <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
               <Award className="size-4" />
-              Defense Score {session.scorecard.overallScore}
+              Proof Score {session.scorecard.overallScore}
             </p>
-            <p className="mt-2 text-sm text-[#cbd5e1]">{session.scorecard.summary}</p>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#cbd5e1]">
+              {cleanDisplayText(session.scorecard.summary)}
+            </p>
           </div>
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-5">
             {session.scorecard.categories.map(category => (
               <div key={category.name} className="rounded-lg border border-white/10 bg-[#0b1020] p-3">
                 <p className="text-xs text-[#94a3b8]">{category.name}</p>
                 <p className="mt-1 text-xl font-semibold text-white">{category.score}</p>
-                <p className="mt-1 line-clamp-3 text-[11px] text-[#64748b]">{category.rationale}</p>
+                <p className="mt-1 line-clamp-3 text-[11px] text-[#64748b]">{cleanDisplayText(category.rationale)}</p>
               </div>
             ))}
           </div>
@@ -153,16 +290,17 @@ export default function DefenseRoom({
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-[#94a3b8] hover:text-white disabled:opacity-45"
           >
             {loading ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
-            새 Defense 시작
+            {loading ? '새 리뷰 준비 중...' : '새 AI 리뷰 시작'}
           </button>
         </div>
       ) : (
         <div className="space-y-4">
+          {workingStage && <AIWorkingMascot stage={workingStage} />}
           {currentTurn && (
             <div className="rounded-xl border border-violet-300/20 bg-[#1e0a3c]/55 p-4">
               <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#c4b5fd]">
                 <Bot className="size-4" />
-                Judge Question {currentTurn.questionIndex + 1}
+                Interview Question {currentTurn.questionIndex + 1}
               </p>
               <p className="text-sm leading-6 text-white">{currentTurn.question}</p>
             </div>
@@ -172,7 +310,7 @@ export default function DefenseRoom({
             {session.turns.filter(t => t.answered).map(turn => (
               <div key={turn.id} className="rounded-xl border border-white/10 bg-[#0b1020] p-3">
                 <p className="text-xs font-medium text-[#c4b5fd]">Q{turn.questionIndex + 1}. {turn.question}</p>
-                <p className="mt-2 text-sm text-[#cbd5e1]">{turn.feedback}</p>
+                <FeedbackText value={turn.feedback} />
                 {turn.evidence.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {turn.evidence.map(item => (

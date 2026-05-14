@@ -21,6 +21,24 @@ type DefenseSession = {
 }
 type PublicDefense = { available: boolean; session: DefenseSession | null; citedFileCount: number; totalEvidenceCount: number }
 
+function cleanDisplayText(value: string | null | undefined) {
+  if (!value) return ''
+  let text = value.trim()
+  if (text.startsWith('```')) text = text.replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim()
+  const objectStart = text.indexOf('{')
+  if (objectStart > 0) text = text.slice(objectStart)
+  try {
+    const parsed = JSON.parse(text)
+    if (typeof parsed === 'string') return parsed
+    if (parsed && typeof parsed === 'object') {
+      return String(parsed.feedback ?? parsed.rationale ?? parsed.summary ?? parsed.assessment ?? value).trim()
+    }
+  } catch {
+    return value
+  }
+  return value
+}
+
 export default function PublicDefensePanel({
   shareCode,
   open,
@@ -58,9 +76,9 @@ export default function PublicDefensePanel({
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
               <ShieldCheck className="size-4" />
-              Defense Scorecard
+              AI Review Scorecard
             </p>
-            <p className="text-xs text-[#64748b]">AI-reviewed proof from this portfolio</p>
+            <p className="text-xs text-[#64748b]">Evidence-backed review from this portfolio</p>
           </div>
           <button onClick={onClose} className="rounded-lg p-2 text-[#64748b] hover:bg-white/[0.06] hover:text-white" aria-label="닫기">
             <X className="size-4" />
@@ -71,11 +89,11 @@ export default function PublicDefensePanel({
           {loading ? (
             <div className="flex items-center gap-2 text-sm text-[#94a3b8]">
               <Loader2 className="size-4 animate-spin" />
-              Defense 결과를 불러오는 중...
+              AI 리뷰 결과를 불러오는 중...
             </div>
           ) : !data?.available || !data.session?.scorecard ? (
             <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm text-[#94a3b8]">
-              아직 공개된 Defense Scorecard가 없습니다.
+              아직 공개된 AI 리뷰 결과가 없습니다.
             </div>
           ) : (
             <div className="space-y-4">
@@ -84,7 +102,7 @@ export default function PublicDefensePanel({
                   <Award className="size-4" />
                   Overall {data.session.scorecard.overallScore}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-[#cbd5e1]">{data.session.scorecard.summary}</p>
+                <p className="mt-2 text-sm leading-6 text-[#cbd5e1]">{cleanDisplayText(data.session.scorecard.summary)}</p>
                 <p className="mt-2 text-xs text-[#64748b]">
                   {data.citedFileCount} cited files · {data.totalEvidenceCount} evidence matches
                 </p>
@@ -95,7 +113,7 @@ export default function PublicDefensePanel({
                   <div key={category.name} className="rounded-lg border border-white/10 bg-white/[0.035] p-3">
                     <p className="text-xs text-[#94a3b8]">{category.name}</p>
                     <p className="mt-1 text-xl font-semibold text-white">{category.score}</p>
-                    <p className="mt-1 line-clamp-3 text-[11px] text-[#64748b]">{category.rationale}</p>
+                    <p className="mt-1 line-clamp-3 text-[11px] text-[#64748b]">{cleanDisplayText(category.rationale)}</p>
                   </div>
                 ))}
               </div>
@@ -103,7 +121,7 @@ export default function PublicDefensePanel({
               {data.session.turns.map(turn => (
                 <div key={turn.id} className="rounded-xl border border-white/10 bg-[#0b1020] p-3">
                   <p className="text-xs font-medium text-[#c4b5fd]">Q{turn.questionIndex + 1}. {turn.question}</p>
-                  {turn.feedback && <p className="mt-2 text-sm leading-6 text-[#cbd5e1]">{turn.feedback}</p>}
+                  {turn.feedback && <p className="mt-2 text-sm leading-6 text-[#cbd5e1]">{cleanDisplayText(turn.feedback)}</p>}
                   {turn.evidence.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {turn.evidence.map(item => (

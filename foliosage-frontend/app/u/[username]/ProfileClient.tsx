@@ -4,11 +4,14 @@ import Link from 'next/link'
 import {
   ArrowUpRight,
   BriefcaseBusiness,
+  CheckCircle2,
+  Copy,
   Eye,
   FileStack,
   FileText,
   LinkIcon,
   MapPin,
+  ShieldCheck,
   Sparkles,
   UserRound,
 } from 'lucide-react'
@@ -23,6 +26,9 @@ type PortfolioSummary = {
   shareCode: string
   viewCount: number
   fileCount: number
+  defenseCompleted: boolean
+  defenseOverallScore: number | null
+  defenseSummary: string | null
 }
 
 type UserProfile = {
@@ -48,6 +54,8 @@ function getInitials(name: string) {
 export default function ProfileClient({ username }: { username: string }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [error, setError] = useState('')
+  const [copiedProfile, setCopiedProfile] = useState(false)
+  const [copiedPortfolio, setCopiedPortfolio] = useState<string | null>(null)
 
   useEffect(() => {
     fetch(`${API_URL}/api/public/users/${username}`)
@@ -55,6 +63,22 @@ export default function ProfileClient({ username }: { username: string }) {
       .then(setProfile)
       .catch(() => setError('사용자를 찾을 수 없습니다.'))
   }, [username])
+
+  const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/u/${username}` : ''
+
+  const copyProfileLink = async () => {
+    if (!profileUrl) return
+    await navigator.clipboard.writeText(profileUrl)
+    setCopiedProfile(true)
+    setTimeout(() => setCopiedProfile(false), 1500)
+  }
+
+  const copyPortfolioLink = async (shareCode: string, id: string) => {
+    if (typeof window === 'undefined') return
+    await navigator.clipboard.writeText(`${window.location.origin}/p/${shareCode}`)
+    setCopiedPortfolio(id)
+    setTimeout(() => setCopiedPortfolio(null), 1500)
+  }
 
   if (error) {
     return (
@@ -116,6 +140,13 @@ export default function ProfileClient({ username }: { username: string }) {
                       <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-400">{profile.bio}</p>
                     )}
                     <div className="flex flex-wrap gap-2 mt-5">
+                      <button
+                        onClick={copyProfileLink}
+                        className="inline-flex items-center gap-1.5 bg-white/[0.035] backdrop-blur-sm border border-white/10 text-[#94a3b8] text-xs px-3 py-2 rounded-lg hover:bg-white/[0.07] hover:text-white transition-all"
+                      >
+                        {copiedProfile ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
+                        {copiedProfile ? '복사됨' : '프로필 링크'}
+                      </button>
                       {profile.linkedinUrl && (
                         <a
                           href={profile.linkedinUrl}
@@ -168,9 +199,9 @@ export default function ProfileClient({ username }: { username: string }) {
                   </div>
                 </div>
                 <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.035] p-4">
-                  <p className="text-sm font-medium text-white">Verified portfolio space</p>
+                  <p className="text-sm font-medium text-white">Shareable creator card</p>
                   <p className="mt-1 text-xs leading-5 text-slate-500">
-                    Published work from FolioSage portfolios with file context and AI-ready public pages.
+                    공개 포트폴리오, 파일 근거, AI 리뷰 결과를 한 곳에서 공유합니다.
                   </p>
                 </div>
               </aside>
@@ -203,62 +234,84 @@ export default function ProfileClient({ username }: { username: string }) {
               <p className="text-[#64748b] text-sm">공개된 포트폴리오가 없습니다.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {profile.portfolios.map((p, i) => (
-                <Link key={p.id} href={`/p/${p.shareCode}`}>
-                  <div
-                    className="group min-h-[240px] bg-[#0b1020]/90 border border-white/10 rounded-2xl overflow-hidden cursor-pointer animate-slide-up hover:border-[#6d28d9]/70 hover:bg-[#111827] hover:shadow-[0_16px_48px_rgba(0,0,0,0.28)] transition-all"
-                    style={{
-                      transitionDuration: '0.3s',
-                      transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      animationDelay: `${i * 0.12}s`,
-                    }}
-                  >
-                    {/* Preview area */}
-                    <div className="h-32 relative overflow-hidden flex items-center justify-center border-b border-white/10">
+                <article key={p.id}
+                  className="group min-h-[244px] bg-[#0b1020]/90 border border-white/10 rounded-2xl overflow-hidden animate-slide-up hover:border-[#6d28d9]/70 hover:bg-[#111827] hover:shadow-[0_16px_48px_rgba(0,0,0,0.28)] transition-all"
+                  style={{
+                    transitionDuration: '0.3s',
+                    transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    animationDelay: `${i * 0.12}s`,
+                  }}
+                >
+                  <Link href={`/p/${p.shareCode}`} className="block">
+                    <div className="relative flex min-h-[104px] items-center gap-4 border-b border-white/10 p-5">
                       <div
-                        className="absolute inset-0 animate-aurora opacity-50"
+                        className="absolute inset-0 animate-aurora opacity-35"
                         style={{
                           background: 'linear-gradient(135deg, #1e0a3c, #0b1020, #0d2137, #1e0a3c)',
                           backgroundSize: '300% 300%',
                         }}
                       />
-                      <div className="relative z-10 flex gap-2.5 items-end">
-                        {Array.from({ length: Math.min(p.fileCount, 3) }).map((_, j) => (
-                          <div
-                            key={j}
-                            className="bg-white/10 border border-white/10 rounded-lg flex items-center justify-center"
-                            style={{ width: 42, height: 58 - j * 7 }}
-                          >
-                            <FileText className="size-5 text-white/65" />
-                          </div>
-                        ))}
+                      <div className="relative z-10 flex size-14 items-center justify-center rounded-xl border border-white/10 bg-white/10">
+                        <FileStack className="size-6 text-white/75" />
                       </div>
-                      <div className="absolute bottom-3 right-3 bg-[#070b15]/80 border border-white/10 text-white text-[10px] px-2.5 py-1 rounded-full backdrop-blur-xl">
-                        {p.fileCount}개 파일
+                      <div className="relative z-10 min-w-0 flex-1">
+                        <p className="line-clamp-2 text-base font-semibold text-white group-hover:text-violet-100 transition-colors">
+                          {p.title}
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                          <span className="inline-flex items-center gap-1">
+                            <FileText className="size-3.5" />
+                            {p.fileCount}개 파일
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Eye className="size-3.5" />
+                            {p.viewCount}
+                          </span>
+                          {p.defenseCompleted && (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-300/[0.08] px-2 py-0.5 text-emerald-200">
+                              <ShieldCheck className="size-3" />
+                              AI Review {p.defenseOverallScore ?? '완료'}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      <ArrowUpRight className="relative z-10 size-4 text-violet-200 opacity-0 transition-opacity group-hover:opacity-100" />
                     </div>
+                  </Link>
 
-                    <div className="p-5">
-                      <p className="line-clamp-2 text-white font-semibold text-base group-hover:text-violet-100 transition-colors">
-                        {p.title}
+                  <div
+                    className="p-5"
+                  >
+                    {p.description ? (
+                      <p className="text-[#64748b] text-sm leading-6 line-clamp-2">{p.description}</p>
+                    ) : (
+                      <p className="text-[#475569] text-sm">설명이 없는 공개 포트폴리오입니다.</p>
+                    )}
+                    {p.defenseSummary && (
+                      <p className="mt-3 rounded-xl border border-emerald-300/15 bg-emerald-300/[0.045] px-3 py-2 text-xs leading-5 text-emerald-100 line-clamp-2">
+                        {p.defenseSummary}
                       </p>
-                      {p.description && (
-                        <p className="text-[#64748b] text-sm mt-2 line-clamp-2">{p.description}</p>
-                      )}
-                      <div className="mt-5 flex items-center justify-between">
-                        <span className="inline-flex items-center gap-1 text-[#475569] text-xs">
-                          <Eye className="size-3.5" />
-                          {p.viewCount}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-xs text-violet-200 opacity-0 transition-opacity group-hover:opacity-100">
-                          보기
-                          <ArrowUpRight className="size-3.5" />
-                        </span>
-                      </div>
+                    )}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link
+                        href={`/p/${p.shareCode}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-violet-500 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-violet-400"
+                      >
+                        보기
+                        <ArrowUpRight className="size-3.5" />
+                      </Link>
+                      <button
+                        onClick={() => copyPortfolioLink(p.shareCode, p.id)}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-slate-300 transition-colors hover:text-white"
+                      >
+                        {copiedPortfolio === p.id ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
+                        {copiedPortfolio === p.id ? '복사됨' : '링크 복사'}
+                      </button>
                     </div>
                   </div>
-                </Link>
+                </article>
               ))}
             </div>
           )

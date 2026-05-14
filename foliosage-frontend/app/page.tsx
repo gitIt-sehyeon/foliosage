@@ -69,17 +69,17 @@ export default function LandingPage() {
         <div className="max-w-2xl animate-slide-up">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/5 px-3 py-1.5 text-xs font-medium text-cyan-100">
             <span className="size-1.5 rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(103,232,249,0.8)]" />
-            AI-powered portfolio OS for serious creators
+            Interview-ready evidence portfolios for job seekers
           </div>
 
           <h1 className="text-5xl font-semibold leading-[0.98] text-white sm:text-6xl lg:text-7xl">
-            Your work,
-            <span className="block animate-shimmer-text">ready to answer.</span>
+            Turn project files into
+            <span className="block animate-shimmer-text">an interview-ready portfolio.</span>
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
-            Upload the messy archive behind your projects. FolioSage organizes the story,
-            certifies the files, and gives visitors an AI guide that can explain the work.
+            Upload the archive behind your projects. FolioSage turns files into a structured story,
+            highlights proof, and gives interviewers an AI guide that can explain the work.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
