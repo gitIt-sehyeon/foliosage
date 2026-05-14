@@ -11,10 +11,12 @@ import com.foliosage.repository.PortfolioDefenseSessionRepository;
 import com.foliosage.repository.PortfolioDefenseTurnRepository;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
+import com.foliosage.repository.PortfolioStoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
@@ -32,6 +34,7 @@ public class DefenseService {
     private final PortfolioDefenseSessionRepository sessionRepository;
     private final PortfolioDefenseTurnRepository turnRepository;
     private final VaultSageService vaultSageService;
+    private final PortfolioStoryRepository storyRepository;
 
     @Transactional
     public DefenseSessionResponse start(String userEmail, UUID portfolioId) {
@@ -78,7 +81,7 @@ public class DefenseService {
     public DefenseSessionResponse answer(String userEmail, UUID portfolioId, UUID sessionId, String answer) {
         Portfolio portfolio = getPortfolioForUser(userEmail, portfolioId);
         PortfolioDefenseSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Defense session not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AI review session not found"));
         if (!session.getPortfolio().getId().equals(portfolio.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
@@ -88,7 +91,7 @@ public class DefenseService {
         PortfolioDefenseTurn turn = turns.stream()
                 .filter(t -> t.getAnswer() == null || t.getAnswer().isBlank())
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Defense session already answered"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "AI review session already answered"));
 
         List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
         PublicChatResult result = callVaultSage(
@@ -230,7 +233,7 @@ public class DefenseService {
                         clampScore(node.path("overallScore").asInt(node.path("overall_score").asInt(average(categories)))),
                         categories,
                         readStringList(node.path("missingProof").isMissingNode() ? node.path("missing_proof") : node.path("missingProof")),
-                        node.path("summary").asText("Defense complete.")
+                        node.path("summary").asText("AI review complete.")
                 );
             }
         }
@@ -274,7 +277,14 @@ public class DefenseService {
     }
 
     private PublicChatResult callVaultSage(String shareCode, String message, String conversationId, String sessionId) {
-        String raw = vaultSageService.publicChat(shareCode, message, conversationId, sessionId);
+        String raw;
+        try {
+            raw = vaultSageService.publicChat(shareCode, message, conversationId, sessionId);
+        } catch (WebClientResponseException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_GATEWAY,
+                    "VaultSage AI 리뷰 요청에 실패했습니다. 포트폴리오 공개 링크가 유효한지 확인해 주세요.");
+        }
         try {
             JsonNode node = MAPPER.readTree(raw);
             return new PublicChatResult(
@@ -287,16 +297,20 @@ public class DefenseService {
         }
     }
 
-    private String buildQuestionPrompt(Portfolio portfolio, List<PortfolioFile> files) {
+    String buildQuestionPrompt(Portfolio portfolio, List<PortfolioFile> files) {
         return """
                 You are an AI portfolio judge. Generate exactly 5 defense questions for this portfolio.
                 Return JSON only: {"questions":["..."]}.
                 Cover authorship, design/technical decisions, measurable impact, evidence strength, originality, and missing proof.
+                Use the full file manifest when selecting questions. Do not focus on only the first file; cover at least 3 distinct files when available.
+                Mention the most relevant file names in the questions so the creator must defend evidence across multiple uploaded files.
                 Portfolio: %s
                 Description: %s
+                Generated story:
+                %s
                 Files:
                 %s
-                """.formatted(portfolio.getTitle(), nullToEmpty(portfolio.getDescription()), fileManifest(files));
+                """.formatted(portfolio.getTitle(), nullToEmpty(portfolio.getDescription()), storyContext(portfolio), fileManifest(files));
     }
 
     private String buildEvaluationPrompt(String question, String answer, List<PortfolioFile> files) {
@@ -305,9 +319,11 @@ public class DefenseService {
                 Return JSON only: {"feedback":"...", "evidenceFiles":["exact filename or file id"], "missingProof":"..."}.
                 Question: %s
                 Answer: %s
+                Generated story:
+                %s
                 Available files:
                 %s
-                """.formatted(question, answer, fileManifest(files));
+                """.formatted(question, answer, storyContext(files.isEmpty() ? null : files.get(0).getPortfolio()), fileManifest(files));
     }
 
     private String buildScorecardPrompt(List<PortfolioDefenseTurn> turns, List<PortfolioFile> files) {
@@ -323,15 +339,43 @@ public class DefenseService {
                 Required categories: Originality, Technical Depth, Evidence Strength, Story Clarity, Missing Proof.
                 Transcript:
                 %s
+                Generated story:
+                %s
                 Files:
                 %s
-                """.formatted(transcript, fileManifest(files));
+                """.formatted(transcript, storyContext(files.isEmpty() ? null : files.get(0).getPortfolio()), fileManifest(files));
+    }
+
+    private String storyContext(Portfolio portfolio) {
+        if (portfolio == null || storyRepository == null) return "";
+        return storyRepository.findByPortfolio(portfolio)
+                .map(story -> """
+                        Summary: %s
+                        Role: %s
+                        Problem: %s
+                        Solution: %s
+                        Impact: %s
+                        Evidence highlights: %s
+                        Missing proof: %s
+                        Interview questions: %s
+                        """.formatted(
+                        nullToEmpty(story.getSummary()),
+                        nullToEmpty(story.getRole()),
+                        nullToEmpty(story.getProblem()),
+                        nullToEmpty(story.getSolution()),
+                        nullToEmpty(story.getImpact()),
+                        nullToEmpty(story.getEvidenceHighlightsJson()),
+                        nullToEmpty(story.getMissingProofJson()),
+                        nullToEmpty(story.getInterviewQuestionsJson())))
+                .orElse("");
     }
 
     private String fileManifest(List<PortfolioFile> files) {
         StringBuilder sb = new StringBuilder();
-        for (PortfolioFile file : files) {
-            sb.append("- ").append(file.getName())
+        for (int i = 0; i < files.size(); i++) {
+            PortfolioFile file = files.get(i);
+            sb.append("- [").append(i + 1).append("/").append(files.size()).append("] ")
+                    .append(file.getName())
                     .append(" | file_id=").append(file.getVaultsageFileId())
                     .append(" | hash=").append(file.getFileHash() == null ? "" : file.getFileHash().substring(0, Math.min(12, file.getFileHash().length())))
                     .append(" | certified_at=").append(file.getCertifiedAt())
@@ -424,11 +468,11 @@ public class DefenseService {
 
     private List<String> defaultQuestions() {
         return List.of(
-                "이 프로젝트에서 본인이 직접 수행한 핵심 역할은 무엇이며, 어떤 파일이 그 근거입니까?",
-                "가장 중요한 디자인 또는 기술 결정을 하나 고르고 그 판단 근거를 설명해 주세요.",
-                "이 작업의 결과나 임팩트를 증명할 수 있는 산출물은 무엇입니까?",
-                "AI 생성물이 아니라 본인의 창작 과정임을 보여주는 증거는 무엇입니까?",
-                "현재 포트폴리오에서 심사위원이 의심할 수 있는 가장 큰 증거 공백은 무엇이며 어떻게 보완하겠습니까?"
+                "여러 업로드 파일 중 최소 3개를 근거로, 이 프로젝트에서 본인이 직접 수행한 핵심 역할을 설명해 주세요.",
+                "첫 번째 파일에만 의존하지 말고 디자인 또는 기술 결정의 근거를 서로 다른 산출물로 연결해 설명해 주세요.",
+                "결과나 임팩트를 증명하는 파일과 과정 증거를 보여주는 파일을 구분해 설명해 주세요.",
+                "AI 생성물이 아니라 본인의 창작 과정임을 보여주는 증거를 두 개 이상의 파일에서 찾아 설명해 주세요.",
+                "전체 파일 묶음을 봤을 때 심사위원이 의심할 수 있는 가장 큰 증거 공백은 무엇이며 어떻게 보완하겠습니까?"
         );
     }
 

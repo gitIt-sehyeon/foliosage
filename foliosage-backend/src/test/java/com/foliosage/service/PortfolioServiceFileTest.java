@@ -24,7 +24,7 @@ class PortfolioServiceFileTest {
     UserRepository userRepo = mock(UserRepository.class);
     VaultSageService vaultSage = mock(VaultSageService.class);
 
-    PortfolioService service = new PortfolioService(portfolioRepo, fileRepo, certRepo, userRepo, vaultSage);
+    PortfolioService service = new PortfolioService(portfolioRepo, fileRepo, certRepo, userRepo, vaultSage, null, null, null);
 
     @Test
     void deleteFile_throws403_whenFileDoesNotBelongToPortfolio() {

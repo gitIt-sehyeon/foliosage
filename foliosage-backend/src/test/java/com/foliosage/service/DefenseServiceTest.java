@@ -2,6 +2,7 @@ package com.foliosage.service;
 
 import com.foliosage.dto.portfolio.DefenseDtos.EvidenceChipDto;
 import com.foliosage.dto.portfolio.DefenseDtos.ScoreCategoryDto;
+import com.foliosage.entity.Portfolio;
 import com.foliosage.entity.PortfolioFile;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DefenseServiceTest {
 
-    DefenseService service = new DefenseService(null, null, null, null, null);
+    DefenseService service = new DefenseService(null, null, null, null, null, null);
 
     @Test
     void parseQuestions_readsJsonArray() {
@@ -29,7 +30,27 @@ class DefenseServiceTest {
         List<String> questions = service.parseQuestions("not json");
 
         assertThat(questions).hasSize(5);
-        assertThat(questions.get(0)).contains("직접 수행");
+        assertThat(questions.get(0)).contains("최소 3개");
+    }
+
+    @Test
+    void buildQuestionPrompt_requiresCoverageAcrossDistinctFiles() {
+        Portfolio portfolio = Portfolio.builder()
+                .title("Creator OS")
+                .description("Design and engineering portfolio")
+                .build();
+        List<PortfolioFile> files = List.of(
+                PortfolioFile.builder().name("Brand system.pdf").vaultsageFileId("vs-brand").fileHash("abcdef0123456789").build(),
+                PortfolioFile.builder().name("Research notes.md").vaultsageFileId("vs-notes").fileHash("1234567890abcdef").build(),
+                PortfolioFile.builder().name("Prototype demo.mov").vaultsageFileId("vs-demo").fileHash("fedcba0987654321").build()
+        );
+
+        String prompt = service.buildQuestionPrompt(portfolio, files);
+
+        assertThat(prompt).contains("Do not focus on only the first file; cover at least 3 distinct files when available.");
+        assertThat(prompt).contains("[1/3] Brand system.pdf");
+        assertThat(prompt).contains("[2/3] Research notes.md");
+        assertThat(prompt).contains("[3/3] Prototype demo.mov");
     }
 
     @Test
