@@ -6,6 +6,7 @@ import com.foliosage.service.CertificateService;
 import com.foliosage.service.DefenseService;
 import com.foliosage.service.OrganizeService;
 import com.foliosage.service.PortfolioService;
+import com.foliosage.service.PortfolioStoryService;
 import com.foliosage.service.PublishService;
 import com.foliosage.service.StatsService;
 import com.foliosage.service.VaultSageService;
@@ -34,6 +35,7 @@ public class PortfolioController {
     private final CertificateService certificateService;
     private final StatsService statsService;
     private final DefenseService defenseService;
+    private final PortfolioStoryService portfolioStoryService;
 
     @PostMapping
     public PortfolioResponse create(@AuthenticationPrincipal UserDetails user,
@@ -50,6 +52,31 @@ public class PortfolioController {
     public PortfolioResponse get(@AuthenticationPrincipal UserDetails user,
                                  @PathVariable UUID id) {
         return portfolioService.get(user.getUsername(), id);
+    }
+
+    @GetMapping("/{id}/story")
+    public PortfolioStoryResponse getStory(@AuthenticationPrincipal UserDetails user,
+                                           @PathVariable UUID id) {
+        return portfolioStoryService.get(user.getUsername(), id);
+    }
+
+    @PostMapping("/{id}/story/generate")
+    public PortfolioStoryResponse generateStory(@AuthenticationPrincipal UserDetails user,
+                                                @PathVariable UUID id) {
+        return portfolioStoryService.generate(user.getUsername(), id);
+    }
+
+    @PatchMapping("/{id}/story")
+    public PortfolioStoryResponse updateStory(@AuthenticationPrincipal UserDetails user,
+                                              @PathVariable UUID id,
+                                              @RequestBody PortfolioStoryUpdateRequest req) {
+        return portfolioStoryService.update(user.getUsername(), id, req);
+    }
+
+    @GetMapping("/{id}/readiness")
+    public PortfolioReadinessResponse readiness(@AuthenticationPrincipal UserDetails user,
+                                                @PathVariable UUID id) {
+        return portfolioStoryService.readiness(user.getUsername(), id);
     }
 
     @DeleteMapping("/{id}")
@@ -108,6 +135,11 @@ public class PortfolioController {
     @PostMapping("/{id}/publish")
     public PublishResponse publish(@AuthenticationPrincipal UserDetails user, @PathVariable UUID id) {
         return publishService.publish(user.getUsername(), id);
+    }
+
+    @PostMapping("/{id}/unpublish")
+    public PublishResponse unpublish(@AuthenticationPrincipal UserDetails user, @PathVariable UUID id) {
+        return publishService.unpublish(user.getUsername(), id);
     }
 
     @GetMapping("/{id}/visitors")

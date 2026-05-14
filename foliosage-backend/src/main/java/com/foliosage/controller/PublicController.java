@@ -8,10 +8,13 @@ import com.foliosage.entity.PortfolioFile;
 import com.foliosage.dto.user.PublicUserResponse;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
+import com.foliosage.repository.PortfolioDefenseSessionRepository;
+import com.foliosage.repository.PortfolioStoryRepository;
 import com.foliosage.repository.UserRepository;
 import com.foliosage.service.CertificateService;
 import com.foliosage.service.DefenseService;
 import com.foliosage.service.StatsService;
+import com.foliosage.service.PortfolioStoryService;
 import com.foliosage.service.VaultSageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,9 @@ public class PublicController {
     private final UserRepository userRepository;
     private final DefenseService defenseService;
     private final StatsService statsService;
+    private final PortfolioDefenseSessionRepository defenseSessionRepository;
+    private final PortfolioStoryRepository storyRepository;
+    private final PortfolioStoryService portfolioStoryService;
 
     @GetMapping("/{shareCode}")
     public PortfolioResponse getPublicPortfolio(@PathVariable String shareCode) {
@@ -57,7 +63,9 @@ public class PublicController {
         return new PortfolioResponse(
                 portfolio.getId(), portfolio.getTitle(), portfolio.getDescription(),
                 portfolio.getOrganizerId(), portfolio.getShareCode(),
-                portfolio.isPublished(), portfolio.getCreatedAt(), files);
+                portfolio.isPublished(), portfolio.getCreatedAt(),
+                portfolio.getUser().getName(), portfolio.getViewCount(), files,
+                storyRepository.findByPortfolio(portfolio).map(portfolioStoryService::toResponse).orElse(null));
     }
 
     @PostMapping("/{shareCode}/chat")
@@ -223,10 +231,14 @@ public class PublicController {
         int totalViews = portfolios.stream().mapToInt(com.foliosage.entity.Portfolio::getViewCount).sum();
 
         List<PublicUserResponse.PortfolioSummary> summaries = portfolios.stream()
-                .map(p -> new PublicUserResponse.PortfolioSummary(
-                        p.getId(), p.getTitle(), p.getDescription(),
-                        p.getShareCode(), p.getViewCount(),
-                        (int) fileRepository.countByPortfolio(p)))
+                .map(p -> {
+                    DefenseSummary defense = latestDefenseSummary(p);
+                    return new PublicUserResponse.PortfolioSummary(
+                            p.getId(), p.getTitle(), p.getDescription(),
+                            p.getShareCode(), p.getViewCount(),
+                            (int) fileRepository.countByPortfolio(p),
+                            defense.completed(), defense.overallScore(), defense.summary());
+                })
                 .toList();
 
         return new PublicUserResponse(
@@ -234,4 +246,22 @@ public class PublicController {
                 user.getLocation(), user.getLinkedinUrl(), user.getGithubUrl(),
                 totalViews, summaries);
     }
+
+    private DefenseSummary latestDefenseSummary(Portfolio portfolio) {
+        return defenseSessionRepository.findFirstByPortfolioAndStatusOrderByCompletedAtDesc(portfolio, "completed")
+                .map(session -> {
+                    try {
+                        JsonNode node = objectMapper.readTree(session.getScorecardJson());
+                        return new DefenseSummary(
+                                true,
+                                node.path("overallScore").isNumber() ? node.path("overallScore").asInt() : null,
+                                node.path("summary").asText(null));
+                    } catch (Exception e) {
+                        return new DefenseSummary(true, null, null);
+                    }
+                })
+                .orElse(new DefenseSummary(false, null, null));
+    }
+
+    private record DefenseSummary(boolean completed, Integer overallScore, String summary) {}
 }

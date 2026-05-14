@@ -19,6 +19,9 @@ public record PublicUserResponse(
             String description,
             String shareCode,
             int viewCount,
-            int fileCount
+            int fileCount,
+            boolean defenseCompleted,
+            Integer defenseOverallScore,
+            String defenseSummary
     ) {}
 }

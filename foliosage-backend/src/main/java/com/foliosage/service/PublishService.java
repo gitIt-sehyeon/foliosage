@@ -42,6 +42,10 @@ public class PublishService {
 
         if (portfolio.getShareCode() != null) {
             String code = normalizeShareCode(portfolio.getShareCode());
+            portfolio.setShareCode(code);
+            portfolio.setVaultsageShareId(portfolio.getVaultsageShareId() == null ? code : portfolio.getVaultsageShareId());
+            portfolio.setPublished(true);
+            portfolioRepository.save(portfolio);
             return new PublishResponse(code, buildShareUrl(code));
         }
 
@@ -62,6 +66,20 @@ public class PublishService {
         portfolioRepository.save(portfolio);
 
         return new PublishResponse(normalizedCode, buildShareUrl(normalizedCode));
+    }
+
+    @Transactional
+    public PublishResponse unpublish(String userEmail, UUID portfolioId) {
+        Portfolio portfolio = portfolioRepository.findByIdWithLock(portfolioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+        if (!portfolio.getUser().getEmail().equals(userEmail))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+
+        String code = normalizeShareCode(portfolio.getShareCode());
+        portfolio.setShareCode(code);
+        portfolio.setPublished(false);
+        portfolioRepository.save(portfolio);
+        return new PublishResponse(code, code == null ? null : buildShareUrl(code));
     }
 
     public String buildShareUrl(String shareCode) {

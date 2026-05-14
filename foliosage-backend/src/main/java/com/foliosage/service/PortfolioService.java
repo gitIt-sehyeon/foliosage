@@ -24,6 +24,9 @@ public class PortfolioService {
     private final CertificateRepository certificateRepository;
     private final UserRepository userRepository;
     private final VaultSageService vaultSageService;
+    private final PortfolioStoryRepository storyRepository;
+    private final PortfolioDefenseSessionRepository defenseSessionRepository;
+    private final PortfolioStoryService portfolioStoryService;
 
     @Transactional
     public PortfolioResponse create(String userEmail, CreatePortfolioRequest req) {
@@ -42,7 +45,11 @@ public class PortfolioService {
         return portfolioRepository.findByUserOrderByCreatedAtDesc(user).stream()
                 .map(p -> new PortfolioListItem(p.getId(), p.getTitle(),
                         (int) fileRepository.countByPortfolio(p),
-                        p.isPublished(), p.getCreatedAt()))
+                        p.isPublished(), p.getCreatedAt(),
+                        storyRepository.findByPortfolio(p)
+                                .map(story -> "ready".equals(story.getStatus()) && story.getSummary() != null && !story.getSummary().isBlank())
+                                .orElse(false),
+                        defenseSessionRepository.findFirstByPortfolioAndStatusOrderByCompletedAtDesc(p, "completed").isPresent()))
                 .toList();
     }
 
@@ -176,7 +183,9 @@ public class PortfolioService {
 
     private PortfolioResponse toResponse(Portfolio p, List<PortfolioResponse.PortfolioFileDto> files) {
         return new PortfolioResponse(p.getId(), p.getTitle(), p.getDescription(),
-                p.getOrganizerId(), normalizeShareCode(p.getShareCode()), p.isPublished(), p.getCreatedAt(), files);
+                p.getOrganizerId(), normalizeShareCode(p.getShareCode()), p.isPublished(), p.getCreatedAt(),
+                p.getUser().getName(), p.getViewCount(), files,
+                storyRepository.findByPortfolio(p).map(portfolioStoryService::toResponse).orElse(null));
     }
 
     private static String normalizeShareCode(String shareCode) {
