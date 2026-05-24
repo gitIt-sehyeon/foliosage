@@ -1,6 +1,26 @@
 .worktrees/
+.codex
+.codex/
+.superpowers/
+.idea/
+*.iml
 .env
 .env.*
 !.env.docker.example
 !.env.example
 !.env.prod.example
+
+# Local tool caches
+.gradle-local/
+*/.gradle-local/
+
+# Local agent instruction files
+AGENTS.md
+CLAUDE.md
+*/AGENTS.md
+*/CLAUDE.md
+
+# Local design/spec handoff artifacts
+design_handoff*/
+docs/superpowers/
+*/docs/superpowers/
