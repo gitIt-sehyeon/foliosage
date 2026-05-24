@@ -204,11 +204,13 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
           </>
         )}
 
-        {data?.status === 'failed' && (
-          <div style={{ textAlign: 'center', padding: '60px 0' }}>
-            <p style={{ color: '#fca5a5', fontSize: 15, marginBottom: 16 }}>
-              AI 분류 중 오류가 발생했습니다.
-            </p>
+        {(data?.status === 'failed' || data?.status === 'running') && !isDone && (
+          <div style={{ textAlign: 'center', padding: data.status === 'failed' ? '60px 0' : '20px 0' }}>
+            {data.status === 'failed' && (
+              <p style={{ color: '#fca5a5', fontSize: 15, marginBottom: 16 }}>
+                AI 분류 중 오류가 발생했습니다.
+              </p>
+            )}
             <button
               onClick={startOrganize}
               style={{

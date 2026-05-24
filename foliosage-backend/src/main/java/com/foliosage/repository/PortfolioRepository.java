@@ -19,4 +19,7 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Portfolio p WHERE p.id = :id")
     Optional<Portfolio> findByIdWithLock(@Param("id") UUID id);
+
+    @Query("SELECT p FROM Portfolio p WHERE p.organizeStatus IN :statuses")
+    List<Portfolio> findByOrganizeStatusIn(@Param("statuses") List<String> statuses);
 }
