@@ -8,6 +8,7 @@ import com.foliosage.service.OrganizeService;
 import com.foliosage.service.PortfolioService;
 import com.foliosage.service.PortfolioStoryService;
 import com.foliosage.service.PublishService;
+import com.foliosage.service.SmartOrganizerService;
 import com.foliosage.service.StatsService;
 import com.foliosage.service.VaultSageService;
 import jakarta.validation.Valid;
@@ -36,6 +37,7 @@ public class PortfolioController {
     private final StatsService statsService;
     private final DefenseService defenseService;
     private final PortfolioStoryService portfolioStoryService;
+    private final SmartOrganizerService smartOrganizerService;
 
     @PostMapping
     public PortfolioResponse create(@AuthenticationPrincipal UserDetails user,
@@ -196,6 +198,27 @@ public class PortfolioController {
             @PathVariable UUID sessionId,
             @Valid @RequestBody DefenseAnswerRequest req) {
         return defenseService.answer(user.getUsername(), id, sessionId, req.answer());
+    }
+
+    @GetMapping("/{id}/organize/result")
+    public OrganizerResultDto getOrganizeResult(@AuthenticationPrincipal UserDetails user,
+                                                 @PathVariable UUID id) {
+        return smartOrganizerService.getResult(user.getUsername(), id);
+    }
+
+    @PatchMapping("/{id}/files/{fileId}/category")
+    public OrganizerResultDto.FileClassificationDto updateFileCategory(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable UUID id,
+            @PathVariable UUID fileId,
+            @RequestBody FileCategoryUpdateRequest req) {
+        return smartOrganizerService.updateCategory(user.getUsername(), id, fileId, req.category());
+    }
+
+    @PostMapping("/{id}/organize/confirm")
+    public OrganizerResultDto confirmOrganize(@AuthenticationPrincipal UserDetails user,
+                                               @PathVariable UUID id) {
+        return smartOrganizerService.confirm(user.getUsername(), id);
     }
 
     @GetMapping("/preview/{vaultsageFileId}")
