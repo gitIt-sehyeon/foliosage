@@ -112,20 +112,23 @@ public class OrganizeService {
         });
     }
 
+    private static final java.util.Set<String> FILE_READY_STATUSES =
+            java.util.Set.of("completed", "success", "skipped", "failed");
+
     private void waitForFilesReady(List<String> fileIds, UUID portfolioId) throws InterruptedException {
         int maxAttempts = 100; // ~5 minutes at 3s interval
         for (int i = 0; i < maxAttempts; i++) {
             boolean allReady = fileIds.stream().allMatch(id -> {
                 try {
                     String s = vaultSageService.getProcessingStatus(id);
-                    return "completed".equalsIgnoreCase(s) || "success".equalsIgnoreCase(s);
+                    return FILE_READY_STATUSES.contains(s == null ? "" : s.toLowerCase());
                 } catch (Exception e) {
                     log.warn("Could not check processing status for fileId={}", id, e);
                     return false;
                 }
             });
             if (allReady) return;
-            if (i % 10 == 0) log.debug("Waiting for files to be ready, attempt={}, portfolio={}", i, portfolioId);
+            if (i % 5 == 0) log.info("Waiting for files to be ready, attempt={}/{}, portfolio={}", i, maxAttempts, portfolioId);
             Thread.sleep(3000);
         }
         throw new RuntimeException("Files did not finish processing within timeout for portfolio=" + portfolioId);
