@@ -113,8 +113,9 @@ public class PortfolioController {
 
     @PostMapping("/{id}/organize")
     public OrganizeStatusResponse startOrganize(@AuthenticationPrincipal UserDetails user,
-                                                @PathVariable UUID id) {
-        organizeService.startAsync(user.getUsername(), id);
+                                                @PathVariable UUID id,
+                                                @RequestParam(defaultValue = "false") boolean force) {
+        organizeService.startAsync(user.getUsername(), id, force);
         return new OrganizeStatusResponse("started", "AI organization started");
     }
 

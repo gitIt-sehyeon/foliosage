@@ -93,17 +93,23 @@ public class SmartOrganizerService {
 
     @Transactional
     public void classify(UUID portfolioId) {
+        classify(portfolioId, false);
+    }
+
+    @Transactional
+    public void classify(UUID portfolioId, boolean force) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow();
         List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
 
         List<PortfolioFile> toSave = new ArrayList<>();
         for (PortfolioFile file : files) {
-            if (Boolean.TRUE.equals(file.getCategoryLocked())) continue;
+            if (!force && Boolean.TRUE.equals(file.getCategoryLocked())) continue;
             String ext = extractExt(file.getName());
             String category = classifyByExtensionAndName(file.getName(), ext, file.getMimeType());
             file.setCategory(category);
             file.setCategoryConfidence(calculateConfidence(file.getName(), ext, file.getMimeType(), category));
             file.setCategoryReasoning(generateReasoning(file.getName(), ext, category));
+            if (force) file.setCategoryLocked(false);
             toSave.add(file);
         }
         fileRepository.saveAll(toSave);

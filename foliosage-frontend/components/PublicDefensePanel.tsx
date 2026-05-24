@@ -64,7 +64,7 @@ export default function PublicDefensePanel({
 
   return (
     <div
-      className="absolute bottom-4 right-4 top-4 z-30 w-[min(460px,calc(100%-32px))] overflow-hidden rounded-2xl border border-white/10 bg-[#070b15]/96 shadow-2xl shadow-black/40 backdrop-blur-xl transition-all"
+      className="fixed inset-x-3 bottom-3 top-20 z-40 overflow-hidden rounded-2xl border border-white/10 bg-[#070b15]/96 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all sm:inset-x-auto sm:right-5 sm:top-24 sm:bottom-5 sm:w-[min(460px,calc(100vw-40px))] lg:right-8"
       style={{
         transform: open ? 'translateX(0)' : 'translateX(110%)',
         opacity: open ? 1 : 0,

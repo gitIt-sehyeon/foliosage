@@ -58,7 +58,8 @@ public class PublicController {
                 .map(f -> new PortfolioResponse.PortfolioFileDto(
                         f.getId(), f.getName(), f.getVaultsageFileId(),
                         f.getFileHash(), f.getMimeType(), f.getCertifiedAt(),
-                        f.getDescription()))
+                        f.getDescription(), f.getCategory(), f.getCategoryConfidence(),
+                        f.getCategoryReasoning(), f.getCategoryLocked()))
                 .toList();
 
         return new PortfolioResponse(

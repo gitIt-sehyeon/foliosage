@@ -7,9 +7,10 @@ interface Props {
   portfolioId: string
   onUploaded: (file: any) => void
   compact?: boolean
+  assignedCategory?: string
 }
 
-export default function FileUploadZone({ portfolioId, onUploaded, compact = false }: Props) {
+export default function FileUploadZone({ portfolioId, onUploaded, compact = false, assignedCategory }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState({ current: 0, total: 0 })
@@ -26,6 +27,11 @@ export default function FileUploadZone({ portfolioId, onUploaded, compact = fals
         const form = new FormData()
         form.append('file', file)
         const { data } = await api.post(`/api/portfolios/${portfolioId}/files`, form)
+        if (assignedCategory && data.fileId) {
+          await api.patch(`/api/portfolios/${portfolioId}/files/${data.fileId}/category`, {
+            category: assignedCategory,
+          })
+        }
         onUploaded(data)
       }
     } catch (err: any) {

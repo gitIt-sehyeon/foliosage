@@ -68,7 +68,8 @@ public class PortfolioService {
                 .map(f -> new PortfolioResponse.PortfolioFileDto(
                         f.getId(), f.getName(), f.getVaultsageFileId(),
                         f.getFileHash(), f.getMimeType(), f.getCertifiedAt(),
-                        f.getDescription()))
+                        f.getDescription(), f.getCategory(), f.getCategoryConfidence(),
+                        f.getCategoryReasoning(), f.getCategoryLocked()))
                 .toList();
         return toResponse(p, files);
     }
@@ -163,7 +164,8 @@ public class PortfolioService {
         return new PortfolioResponse.PortfolioFileDto(
                 file.getId(), file.getName(), file.getVaultsageFileId(),
                 file.getFileHash(), file.getMimeType(), file.getCertifiedAt(),
-                file.getDescription());
+                file.getDescription(), file.getCategory(), file.getCategoryConfidence(),
+                file.getCategoryReasoning(), file.getCategoryLocked());
     }
 
     private String sha256(byte[] bytes) throws Exception {

@@ -68,6 +68,43 @@ class OrganizeServiceTest {
     }
 
     @Test
+    void startAsync_runsLocalClassificationWithoutVaultSagePipeline() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setEmail("user@test.com");
+        Portfolio p = new Portfolio();
+        p.setId(id);
+        p.setUser(user);
+
+        when(portfolioRepo.findById(id)).thenReturn(Optional.of(p));
+
+        service.startAsync("user@test.com", id);
+
+        verify(smartOrganizer).classify(id, false);
+        verify(vaultSage, never()).generateTree(anyString());
+        verify(vaultSage, never()).applyOrganizer(anyString());
+        verify(vaultSage, never()).materialize(anyString());
+        assertThat(p.getOrganizeStatus()).isEqualTo("done");
+    }
+
+    @Test
+    void startAsync_forceClassifiesLockedFilesWhenRequested() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setEmail("user@test.com");
+        Portfolio p = new Portfolio();
+        p.setId(id);
+        p.setUser(user);
+
+        when(portfolioRepo.findById(id)).thenReturn(Optional.of(p));
+
+        service.startAsync("user@test.com", id, true);
+
+        verify(smartOrganizer).classify(id, true);
+        assertThat(p.getOrganizeStatus()).isEqualTo("done");
+    }
+
+    @Test
     void runPipeline_scopesOrganizerToPortfolioDirectoryBeforeGeneratingTree() {
         UUID id = UUID.randomUUID();
         User user = new User();

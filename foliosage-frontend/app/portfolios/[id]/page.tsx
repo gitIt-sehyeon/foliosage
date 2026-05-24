@@ -1,7 +1,8 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { DndContext, DragEndEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -19,6 +20,7 @@ import {
   Folder,
   FolderOpen,
   Globe2,
+  GripVertical,
   ImageIcon,
   Archive,
   Layers,
@@ -50,11 +52,167 @@ function FileTypeIcon({ mimeType, className = 'size-6' }: { mimeType: string; cl
   return <Icon className={className} />
 }
 
-function StatusIcon({ status }: { status: string }) {
-  if (status === 'done') return <CheckCircle2 className="size-4" />
-  if (status === 'failed') return <XCircle className="size-4" />
-  if (['generating', 'applying', 'materializing'].includes(status)) return <Bot className="size-4" />
-  return <CirclePause className="size-4" />
+const FILE_CATEGORIES = [
+  { key: 'system', label: '시스템', detail: '토큰 · 가이드 · 코드', tone: 'violet' },
+  { key: 'visual', label: '비주얼', detail: '이미지 · 영상 · 디자인', tone: 'cyan' },
+  { key: 'document', label: '문서', detail: '리서치 · 노트 · 기획', tone: 'amber' },
+  { key: 'deliverable', label: '산출물', detail: '최종본 · 납품 · 아카이브', tone: 'emerald' },
+] as const
+
+function normalizeCategory(category: string | null | undefined, mimeType?: string): string {
+  if (FILE_CATEGORIES.some(item => item.key === category)) return category as string
+  if (mimeType?.includes('image') || mimeType?.includes('video')) return 'visual'
+  if (mimeType?.includes('zip') || mimeType?.includes('archive')) return 'deliverable'
+  return 'document'
+}
+
+function PortfolioFileCard({
+  file,
+  categoryKey,
+  categoryIndex,
+  itemIndex,
+  editingDesc,
+  setEditingDesc,
+  saveDescription,
+  moveFileToCategory,
+  setDeleteConfirm,
+}: {
+  file: any
+  categoryKey: string
+  categoryIndex: number
+  itemIndex: number
+  editingDesc: { id: string; value: string } | null
+  setEditingDesc: (value: { id: string; value: string } | null) => void
+  saveDescription: (fileId: string, description: string) => void
+  moveFileToCategory: (fileId: string, category: string) => void
+  setDeleteConfirm: (fileId: string) => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: file.id,
+    data: { category: categoryKey },
+  })
+
+  return (
+    <div ref={setNodeRef} id={`file-${file.id}`}
+      className="group relative rounded-xl border border-white/10 bg-white/[0.035] p-3 transition-all hover:border-[#6d28d9]/70 hover:bg-white/[0.06] animate-slide-up"
+      style={{
+        animationDelay: `${(categoryIndex + itemIndex) * 0.04}s`,
+        opacity: isDragging ? 0.45 : 1,
+        transform: CSS.Translate.toString(transform),
+      }}>
+      <div className="flex items-start gap-3">
+        <button type="button" {...attributes} {...listeners}
+          className="mt-0.5 flex size-9 shrink-0 cursor-grab items-center justify-center rounded-lg border border-violet-300/15 bg-violet-300/[0.07] text-violet-200 active:cursor-grabbing"
+          aria-label={`${file.name} 드래그`}>
+          <GripVertical className="size-4" />
+        </button>
+        <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-slate-300">
+          <FileTypeIcon mimeType={file.mimeType} className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="truncate text-sm font-medium text-white">{file.name}</p>
+            {file.categoryLocked && <span className="shrink-0 rounded-full bg-emerald-300/[0.08] px-1.5 py-0.5 text-[10px] text-emerald-200">수동</span>}
+          </div>
+          {editingDesc?.id === file.id ? (
+            <input autoFocus value={editingDesc!.value}
+              onChange={e => setEditingDesc({ id: file.id, value: e.target.value })}
+              onBlur={() => saveDescription(file.id, editingDesc!.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') saveDescription(file.id, editingDesc!.value)
+                if (e.key === 'Escape') setEditingDesc(null)
+              }}
+              maxLength={200} placeholder="설명 입력..."
+              className="mt-1 w-full rounded-lg border border-[#6d28d9] bg-[#0f172a] px-2 py-1 text-xs text-slate-300 outline-none" />
+          ) : (
+            <p onClick={() => setEditingDesc({ id: file.id, value: file.description ?? '' })}
+              className="mt-1 min-h-[16px] cursor-pointer truncate text-xs text-slate-500 transition-colors hover:text-slate-300">
+              {file.description || '+ 설명 추가'}
+            </p>
+          )}
+          <div className="mt-2 flex flex-wrap gap-1">
+            {FILE_CATEGORIES.filter(item => item.key !== categoryKey).map(item => (
+              <button key={item.key}
+                onClick={() => moveFileToCategory(file.id, item.key)}
+                className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-slate-500 transition-colors hover:border-violet-300/30 hover:text-violet-200">
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex shrink-0 flex-col items-center gap-2">
+          <ShieldCheck className="size-4 text-emerald-400" />
+          <button onClick={() => setDeleteConfirm(file.id)}
+            className="rounded p-1 text-rose-400 opacity-70 transition-all hover:bg-rose-400/10 hover:opacity-100"
+            aria-label={`${file.name} 삭제`}>
+            <Trash2 className="size-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CategoryDropZone({
+  category,
+  categoryIndex,
+  portfolioId,
+  editingDesc,
+  setEditingDesc,
+  saveDescription,
+  moveFileToCategory,
+  setDeleteConfirm,
+  loadPortfolio,
+}: {
+  category: any
+  categoryIndex: number
+  portfolioId: string
+  editingDesc: { id: string; value: string } | null
+  setEditingDesc: (value: { id: string; value: string } | null) => void
+  saveDescription: (fileId: string, description: string) => void
+  moveFileToCategory: (fileId: string, category: string) => void
+  setDeleteConfirm: (fileId: string) => void
+  loadPortfolio: () => void
+}) {
+  const { isOver, setNodeRef } = useDroppable({ id: category.key })
+
+  return (
+    <div ref={setNodeRef}
+      className={`min-h-[260px] rounded-2xl border p-3 backdrop-blur-sm transition-colors ${
+        isOver ? 'border-violet-300/45 bg-violet-300/[0.07]' : 'border-white/10 bg-[#0b1020]/80'
+      }`}>
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-white">{category.label}</p>
+          <p className="mt-0.5 text-[11px] text-slate-500">{category.detail}</p>
+        </div>
+        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] text-slate-400">
+          {category.files.length}
+        </span>
+      </div>
+      <FileUploadZone portfolioId={portfolioId} assignedCategory={category.key} onUploaded={loadPortfolio} compact />
+      <div className="mt-3 space-y-2">
+        {category.files.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-white/10 px-3 py-6 text-center text-xs text-slate-600">
+            파일을 업로드하거나 여기로 드래그하세요
+          </div>
+        ) : category.files.map((file: any, i: number) => (
+          <PortfolioFileCard
+            key={file.id}
+            file={file}
+            categoryKey={category.key}
+            categoryIndex={categoryIndex}
+            itemIndex={i}
+            editingDesc={editingDesc}
+            setEditingDesc={setEditingDesc}
+            saveDescription={saveDescription}
+            moveFileToCategory={moveFileToCategory}
+            setDeleteConfirm={setDeleteConfirm}
+          />
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export default function PortfolioPage() {
@@ -65,7 +223,6 @@ export default function PortfolioPage() {
   const [stats, setStats] = useState({ viewCount: 0, downloadCount: 0, todayViews: 0 })
   const [organizeStatus, setOrganizeStatus] = useState({ status: 'idle', message: '분류 전' })
   const [isOrganizing, setIsOrganizing] = useState(false)
-  const [organizeTree, setOrganizeTree] = useState<any>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [editingDesc, setEditingDesc] = useState<{ id: string; value: string } | null>(null)
   const [publishError, setPublishError] = useState('')
@@ -86,6 +243,7 @@ export default function PortfolioPage() {
   const [storySaving, setStorySaving] = useState(false)
   const [storyError, setStoryError] = useState('')
   const [tab, setTab] = useState<'story' | 'files' | 'activity'>('story')
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   const loadPortfolio = useCallback(async () => {
     try {
@@ -127,14 +285,9 @@ export default function PortfolioPage() {
       setTimeout(pollOrganizeStatus, 3000)
     } else {
       setIsOrganizing(false)
-      if (data.status === 'done') {
-        try {
-          const { data: tree } = await api.get(`/api/portfolios/${id}/organize/tree`)
-          setOrganizeTree(tree)
-        } catch { /* tree is non-critical */ }
-      }
+      if (data.status === 'done') loadPortfolio()
     }
-  }, [id])
+  }, [id, loadPortfolio])
 
   useEffect(() => {
     if (!isLoggedIn()) { router.push('/login'); return }
@@ -147,10 +300,35 @@ export default function PortfolioPage() {
   const startOrganize = async () => {
     if (isOrganizing) return
     setIsOrganizing(true)
+    setOrganizeStatus({ status: 'generating', message: 'AI is analyzing your files...' })
     try {
-      await api.post(`/api/portfolios/${id}/organize`)
+      await api.post(`/api/portfolios/${id}/organize`, null, { params: { force: true } })
       pollOrganizeStatus()
     } catch { setIsOrganizing(false) }
+  }
+
+  const moveFileToCategory = async (fileId: string, category: string) => {
+    setPortfolio((prev: any) => ({
+      ...prev,
+      files: (prev.files ?? []).map((file: any) =>
+        file.id === fileId ? { ...file, category, categoryLocked: true, categoryConfidence: 100 } : file
+      ),
+    }))
+    try {
+      await api.patch(`/api/portfolios/${id}/files/${fileId}/category`, { category })
+      loadPortfolio()
+    } catch {
+      loadPortfolio()
+    }
+  }
+
+  const handleFileDragEnd = (event: DragEndEvent) => {
+    const fileId = String(event.active.id)
+    const targetCategory = typeof event.over?.id === 'string' ? event.over.id : ''
+    const sourceCategory = event.active.data.current?.category
+    if (!FILE_CATEGORIES.some(item => item.key === targetCategory)) return
+    if (sourceCategory === targetCategory) return
+    moveFileToCategory(fileId, targetCategory)
   }
 
   const publish = async () => {
@@ -271,6 +449,10 @@ export default function PortfolioPage() {
 
   const files = portfolio.files ?? []
   const describedFiles = files.filter((file: any) => file.description && file.description.trim()).length
+  const filesByCategory = FILE_CATEGORIES.map(category => ({
+    ...category,
+    files: files.filter((file: any) => normalizeCategory(file.category, file.mimeType) === category.key),
+  }))
   const storyReady = readiness?.storyReady ?? Boolean(portfolio.story?.summary)
   const readinessItems = [
     { label: 'Story', done: storyReady, detail: storyReady ? '면접용 스토리 준비됨' : 'Generate Portfolio Story 실행' },
@@ -622,50 +804,48 @@ export default function PortfolioPage() {
             {/* ── Files tab ── */}
             {tab === 'files' && (
               <div className="space-y-4">
-                <FileUploadZone portfolioId={id} onUploaded={() => loadPortfolio()} compact />
                 {files.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-white/10 bg-[#0b1020]/70 py-16 text-center">
-                    <UploadCloud className="mx-auto mb-3 size-10 text-slate-600" />
-                    <p className="text-sm text-slate-400">파일을 업로드하면 여기에 표시됩니다.</p>
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-[#0b1020]/70 p-4">
+                    <div className="mb-4 text-center">
+                      <UploadCloud className="mx-auto mb-3 size-10 text-slate-600" />
+                      <p className="text-sm text-slate-400">원하는 분야 칸에서 파일을 바로 추가하세요.</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+                      {filesByCategory.map((category, categoryIndex) => (
+                        <CategoryDropZone
+                          key={category.key}
+                          category={category}
+                          categoryIndex={categoryIndex}
+                          portfolioId={id}
+                          editingDesc={editingDesc}
+                          setEditingDesc={setEditingDesc}
+                          saveDescription={saveDescription}
+                          moveFileToCategory={moveFileToCategory}
+                          setDeleteConfirm={setDeleteConfirm}
+                          loadPortfolio={loadPortfolio}
+                        />
+                      ))}
+                    </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {files.map((file: any, i: number) => (
-                      <div key={file.id} id={`file-${file.id}`}
-                        className="group relative rounded-2xl border border-white/10 bg-[#0b1020]/90 p-4 backdrop-blur-sm transition-all hover:border-[#6d28d9]/70 hover:bg-[#111827] animate-slide-up"
-                        style={{ animationDelay: `${i * 0.06}s` }}>
-                        <button onClick={() => setDeleteConfirm(file.id)}
-                          className="absolute right-3 top-3 rounded p-1 text-rose-400 opacity-0 transition-all hover:bg-rose-400/10 group-hover:opacity-100">
-                          <Trash2 className="size-3.5" />
-                        </button>
-                        <div className="flex items-center gap-3">
-                          <span className="flex size-10 items-center justify-center rounded-xl border border-violet-300/15 bg-violet-300/[0.07] text-violet-200">
-                            <FileCheck2 className="size-5" />
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate pr-6 text-sm font-medium text-white">{file.name}</p>
-                            {editingDesc?.id === file.id ? (
-                              <input autoFocus value={editingDesc!.value}
-                                onChange={e => setEditingDesc({ id: file.id, value: e.target.value })}
-                                onBlur={() => saveDescription(file.id, editingDesc!.value)}
-                                onKeyDown={e => {
-                                  if (e.key === 'Enter') saveDescription(file.id, editingDesc!.value)
-                                  if (e.key === 'Escape') setEditingDesc(null)
-                                }}
-                                maxLength={200} placeholder="설명 입력..."
-                                className="mt-1 w-full rounded-lg border border-[#6d28d9] bg-[#0f172a] px-2 py-1 text-xs text-slate-300 outline-none" />
-                            ) : (
-                              <p onClick={() => setEditingDesc({ id: file.id, value: file.description ?? '' })}
-                                className="mt-1 min-h-[16px] cursor-pointer truncate text-xs text-slate-500 transition-colors hover:text-slate-300">
-                                {file.description || '+ 설명 추가'}
-                              </p>
-                            )}
-                          </div>
-                          <ShieldCheck className="size-4 shrink-0 text-emerald-400" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <DndContext sensors={sensors} onDragEnd={handleFileDragEnd}>
+                    <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+                      {filesByCategory.map((category, categoryIndex) => (
+                        <CategoryDropZone
+                          key={category.key}
+                          category={category}
+                          categoryIndex={categoryIndex}
+                          portfolioId={id}
+                          editingDesc={editingDesc}
+                          setEditingDesc={setEditingDesc}
+                          saveDescription={saveDescription}
+                          moveFileToCategory={moveFileToCategory}
+                          setDeleteConfirm={setDeleteConfirm}
+                          loadPortfolio={loadPortfolio}
+                        />
+                      ))}
+                    </div>
+                  </DndContext>
                 )}
               </div>
             )}
@@ -730,11 +910,11 @@ export default function PortfolioPage() {
                  <CirclePause className="size-4" />}
                 <span className="flex-1 truncate text-xs">{organizeStatus.message}</span>
               </div>
-              {files.length > 0 && (organizeStatus.status === 'idle' || organizeStatus.status === 'failed' || organizeStatus.status === 'done') && (
+              {files.length > 0 && !['generating','applying','materializing'].includes(organizeStatus.status) && (
                 <button onClick={startOrganize} disabled={isOrganizing}
                   className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#6d28d9] bg-violet-900/30 py-2.5 text-xs text-violet-200 transition-colors hover:bg-violet-900/50 disabled:opacity-40">
                   <Bot className="size-3.5" />
-                  {isOrganizing ? '분석 중...' : 'AI 분류 시작'}
+                  {isOrganizing ? '분석 중...' : organizeStatus.status === 'done' ? 'AI로 다시 분류' : 'AI 분류 시작'}
                 </button>
               )}
             </div>

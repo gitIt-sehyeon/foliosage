@@ -37,9 +37,27 @@ public class OrganizeService {
     private final Map<UUID, String> statusCache = new ConcurrentHashMap<>();
 
     public void startAsync(String userEmail, UUID portfolioId) {
+        startAsync(userEmail, portfolioId, false);
+    }
+
+    public void startAsync(String userEmail, UUID portfolioId, boolean force) {
         getPortfolioForUser(userEmail, portfolioId);
         persistStatus(portfolioId, "generating");
-        self.runPipeline(portfolioId);
+        self.runClassification(portfolioId, force);
+    }
+
+    @Async
+    public void runClassification(UUID portfolioId, boolean force) {
+        try {
+            log.info("Smart organizer classification started for portfolio={} force={}", portfolioId, force);
+            persistStatus(portfolioId, "generating");
+            smartOrganizerService.classify(portfolioId, force);
+            persistStatus(portfolioId, "done");
+            log.info("Smart organizer classification completed for portfolio={}", portfolioId);
+        } catch (Exception e) {
+            log.error("Smart organizer classification failed for portfolio={}", portfolioId, e);
+            persistStatus(portfolioId, "failed");
+        }
     }
 
     @Async

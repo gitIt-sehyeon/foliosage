@@ -16,6 +16,7 @@ import {
   Sparkles,
   Video,
   ClipboardCheck,
+  X,
   XCircle,
 } from 'lucide-react'
 import ChatPanel from '@/components/ChatPanel'
@@ -32,6 +33,10 @@ type FileItem = {
   description: string | null
   certifiedAt: string
   fileHash: string
+  category: string | null
+  categoryConfidence: number | null
+  categoryReasoning: string | null
+  categoryLocked: boolean | null
 }
 
 type Portfolio = {
@@ -70,6 +75,24 @@ function creatorInitials(name: string | null | undefined) {
     .join('')
     .toUpperCase()
     .slice(0, 2)
+}
+
+const FILE_CATEGORIES = [
+  { key: 'system', label: '시스템' },
+  { key: 'visual', label: '비주얼' },
+  { key: 'document', label: '문서' },
+  { key: 'deliverable', label: '산출물' },
+] as const
+
+function categoryLabel(category: string | null | undefined) {
+  return FILE_CATEGORIES.find(item => item.key === category)?.label ?? '문서'
+}
+
+function normalizeCategory(category: string | null | undefined, mimeType?: string): string {
+  if (FILE_CATEGORIES.some(item => item.key === category)) return category as string
+  if (mimeType?.includes('image') || mimeType?.includes('video')) return 'visual'
+  if (mimeType?.includes('zip') || mimeType?.includes('archive')) return 'deliverable'
+  return 'document'
 }
 
 export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
@@ -153,8 +176,16 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
 
   const bentoFiles = (portfolio?.files ?? []).map((f, i) => ({
     ...f,
+    category: normalizeCategory(f.category, f.mimeType),
     ...BENTO_PATTERNS[i % BENTO_PATTERNS.length],
   }))
+
+  const categoryCounts = FILE_CATEGORIES
+    .map(category => ({
+      ...category,
+      count: (portfolio?.files ?? []).filter(file => normalizeCategory(file.category, file.mimeType) === category.key).length,
+    }))
+    .filter(category => category.count > 0)
 
   const isPdfFile = (f: FileItem) =>
     f.mimeType?.toLowerCase().includes('pdf') || f.name.toLowerCase().endsWith('.pdf')
@@ -167,14 +198,14 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
   }
 
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden bg-[#060912] text-white">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#060912] text-white">
       {/* Void background */}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.055)_1px,transparent_1px)] bg-[size:44px_44px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(124,58,237,0.22),transparent_28%),radial-gradient(circle_at_80%_22%,rgba(20,184,166,0.12),transparent_26%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.25),rgba(6,9,18,0.92)_48%,rgba(6,9,18,0.65))]" />
 
       {/* ── Top bar ── */}
-      <header className="relative z-20 flex h-16 shrink-0 items-center justify-between border-b border-white/10 bg-[#070b15]/90 px-5 backdrop-blur-xl">
+      <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b border-white/10 bg-[#070b15]/90 px-5 backdrop-blur-xl">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="flex size-7 items-center justify-center rounded-lg border border-violet-400/25 bg-violet-400/10 text-violet-200">
@@ -229,18 +260,10 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
       </header>
 
       {/* ── Main: article + chat sidebar ── */}
-      <div
-        className="relative z-10 min-h-0 flex-1 overflow-hidden transition-[grid-template-columns]"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: chatOpen ? '1fr 400px' : '1fr',
-          gridTemplateRows: '1fr',
-          transitionDuration: '0.5s',
-          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-        }}>
+      <div className="relative z-10">
 
         {/* ── Magazine article ── */}
-        <article className="min-h-0 overflow-y-auto" style={{ padding: '40px 32px 120px', maxWidth: 880, margin: '0 auto', width: '100%' }}>
+        <article style={{ padding: '40px 32px 120px', maxWidth: 880, margin: '0 auto', width: '100%' }}>
 
           {loading ? (
             <div className="space-y-4">
@@ -337,6 +360,16 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                     <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">근거 파일 · {portfolio.files.length}개</p>
                     <span className="text-[11px] text-slate-600">모두 해시 + 타임스탬프 인증</span>
                   </div>
+                  {categoryCounts.length > 0 && (
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      {categoryCounts.map(category => (
+                        <span key={category.key}
+                          className="rounded-full border border-white/10 bg-white/[0.035] px-2.5 py-1 text-[11px] text-slate-400">
+                          {category.label} {category.count}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '110px' }}>
                     {bentoFiles.map((f) => {
                       const tone = FILE_TONES[f.tone as ToneKey]
@@ -356,9 +389,14 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                                 style={{ background: tone.bg, color: tone.fg }}>
                                 <FileCheck2 className="size-4" />
                               </span>
-                              <span className="font-mono text-[10px] text-slate-600">
-                                .{f.name.split('.').pop()?.toLowerCase() ?? 'file'}
-                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="rounded-full border border-white/10 bg-black/10 px-1.5 py-0.5 text-[10px] text-slate-400">
+                                  {categoryLabel(f.category)}
+                                </span>
+                                <span className="font-mono text-[10px] text-slate-600">
+                                  .{f.name.split('.').pop()?.toLowerCase() ?? 'file'}
+                                </span>
+                              </div>
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-white">{f.name.replace(/\.[^.]+$/, '')}</p>
@@ -396,13 +434,31 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
           ) : null}
         </article>
 
-        {/* ── Chat sidebar ── */}
-        {chatOpen && (
-          <aside className="min-h-0 overflow-hidden border-l border-white/10 bg-[#070b15]/95 backdrop-blur-xl">
-            <ChatPanel shareCode={shareCode} dark suggestedQuestions={suggestedQuestions} />
-          </aside>
-        )}
       </div>
+
+      {/* ── Floating assistant panel ── */}
+      {chatOpen && (
+        <>
+          <button
+            aria-label="AI 채팅 닫기 배경"
+            className="fixed inset-0 z-20 bg-black/30 backdrop-blur-[2px] sm:hidden"
+            onClick={() => setChatOpen(false)}
+          />
+          <aside className="fixed inset-x-3 bottom-3 top-20 z-30 overflow-hidden rounded-2xl border border-white/12 bg-[#070b15]/95 shadow-[0_24px_80px_rgba(0,0,0,0.45),0_0_0_1px_rgba(167,139,250,0.06)] backdrop-blur-2xl sm:inset-x-auto sm:right-5 sm:top-24 sm:bottom-5 sm:w-[390px] lg:right-8">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(124,58,237,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_18%)]" />
+            <button
+              aria-label="AI 채팅 닫기"
+              onClick={() => setChatOpen(false)}
+              className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-lg border border-white/10 bg-[#0b1020]/80 text-slate-400 transition-colors hover:bg-white/[0.07] hover:text-white"
+            >
+              <X className="size-4" />
+            </button>
+            <div className="relative h-full">
+              <ChatPanel shareCode={shareCode} dark suggestedQuestions={suggestedQuestions} />
+            </div>
+          </aside>
+        </>
+      )}
 
       {/* ── File lightbox modal ── */}
       {modalOpen && selectedFile && (

@@ -303,6 +303,24 @@ export default function DefenseRoom({
                 면접 질문 {currentTurn.questionIndex + 1}
               </p>
               <p className="text-sm leading-6 text-white">{currentTurn.question}</p>
+              <div className="mt-4 flex gap-2">
+                <textarea
+                  value={answer}
+                  onChange={e => setAnswer(e.target.value)}
+                  placeholder="답변을 입력하세요..."
+                  rows={3}
+                  className="min-h-[92px] flex-1 resize-none rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white outline-none placeholder:text-[#64748b] focus:border-[#6d28d9]"
+                  disabled={loading}
+                />
+                <button
+                  onClick={submit}
+                  disabled={loading || !answer.trim()}
+                  className="self-stretch rounded-xl bg-[#6d28d9] px-4 text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-45"
+                  aria-label="답변 제출"
+                >
+                  {loading ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                </button>
+              </div>
             </div>
           )}
 
@@ -310,6 +328,13 @@ export default function DefenseRoom({
             {session.turns.filter(t => t.answered).map(turn => (
               <div key={turn.id} className="rounded-xl border border-white/10 bg-[#0b1020] p-3">
                 <p className="text-xs font-medium text-[#c4b5fd]">Q{turn.questionIndex + 1}. {turn.question}</p>
+                {turn.answer && (
+                  <div className="mt-3 rounded-lg border border-violet-300/15 bg-violet-300/[0.045] px-3 py-2">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-violet-200">내 답변</p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#e2e8f0]">{turn.answer}</p>
+                  </div>
+                )}
+                <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.16em] text-[#94a3b8]">AI 피드백</p>
                 <FeedbackText value={turn.feedback} />
                 {turn.evidence.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -324,27 +349,6 @@ export default function DefenseRoom({
               </div>
             ))}
           </div>
-
-          {currentTurn && (
-            <div className="flex gap-2">
-              <textarea
-                value={answer}
-                onChange={e => setAnswer(e.target.value)}
-                placeholder="답변을 입력하세요..."
-                rows={3}
-                className="min-h-[92px] flex-1 resize-none rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white outline-none placeholder:text-[#475569] focus:border-[#6d28d9]"
-                disabled={loading}
-              />
-              <button
-                onClick={submit}
-                disabled={loading || !answer.trim()}
-                className="self-stretch rounded-xl bg-[#6d28d9] px-4 text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-45"
-                aria-label="답변 제출"
-              >
-                {loading ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-              </button>
-            </div>
-          )}
         </div>
       )}
 

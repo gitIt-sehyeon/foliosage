@@ -12,5 +12,7 @@ public record PortfolioResponse(
 ) {
     public record PortfolioFileDto(UUID id, String name, String vaultsageFileId,
                                    String fileHash, String mimeType, OffsetDateTime certifiedAt,
-                                   String description) {}
+                                   String description, String category,
+                                   Integer categoryConfidence, String categoryReasoning,
+                                   Boolean categoryLocked) {}
 }
