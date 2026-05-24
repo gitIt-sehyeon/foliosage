@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import OrganizerBanner from './OrganizerBanner'
@@ -13,6 +14,7 @@ interface Props { portfolioId: string }
 export default function SmartOrganizerView({ portfolioId }: Props) {
   const router = useRouter()
   const { data, error, startOrganize, updateLocalCategory } = useOrganizerResult(portfolioId)
+  const [isConfirming, setIsConfirming] = useState(false)
 
   const isDone = data?.status === 'done'
   const isRunning = data?.status === 'running'
@@ -49,6 +51,8 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
   }
 
   const handleConfirm = async () => {
+    if (isConfirming) return
+    setIsConfirming(true)
     try {
       await api.post(`/api/portfolios/${portfolioId}/organize/confirm`)
     } catch {
@@ -94,7 +98,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
             건너뛰기
           </button>
           <button
-            disabled={!isDone}
+            disabled={!isDone || isConfirming}
             onClick={handleConfirm}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
