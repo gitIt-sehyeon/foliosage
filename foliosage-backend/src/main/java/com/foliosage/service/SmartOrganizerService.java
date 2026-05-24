@@ -91,9 +91,63 @@ public class SmartOrganizerService {
         return getResult(userEmail, portfolioId);
     }
 
-    // no-op stub — real classify logic added in Task 5
     @Transactional
     public void classify(UUID portfolioId) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow();
+        List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
+
+        for (PortfolioFile file : files) {
+            if (Boolean.TRUE.equals(file.getCategoryLocked())) continue;
+            String ext = extractExt(file.getName());
+            String category = classifyByExtensionAndName(file.getName(), ext, file.getMimeType());
+            file.setCategory(category);
+            file.setCategoryConfidence(calculateConfidence(file.getName(), ext, file.getMimeType(), category));
+            file.setCategoryReasoning(generateReasoning(file.getName(), ext, category));
+        }
+        fileRepository.saveAll(files);
+    }
+
+    String classifyByExtensionAndName(String name, String ext, String mimeType) {
+        String n = name.toLowerCase();
+
+        if (Set.of("zip","tar","gz","7z","rar","tgz").contains(ext)) return "deliverable";
+        if (n.matches(".*\\b(final|deliver|export|완성|납품|handoff)\\b.*")) return "deliverable";
+
+        if (Set.of("json","yaml","yml","css","ts","tsx","js","jsx","mjs","cjs").contains(ext)) return "system";
+        if (n.matches(".*\\b(system|token|guide|component|spec|brand|style.?guide)\\b.*")) return "system";
+
+        if (Set.of("png","jpg","jpeg","gif","webp","svg","fig","sketch","psd","ai","xd","mp4","mov","avi","webm").contains(ext)) return "visual";
+        if (mimeType != null && mimeType.startsWith("image/")) return "visual";
+        if (mimeType != null && mimeType.startsWith("video/")) return "visual";
+
+        if (Set.of("pdf","md","txt","docx","doc","pptx","ppt","key","xlsx","xls","rtf","pages","numbers").contains(ext)) return "document";
+
+        return "document";
+    }
+
+    int calculateConfidence(String name, String ext, String mimeType, String category) {
+        return switch (category) {
+            case "deliverable" -> Set.of("zip","tar","gz","7z","rar","tgz").contains(ext) ? 97 : 83;
+            case "system"      -> Set.of("json","yaml","yml","css","ts","tsx","js","jsx").contains(ext) ? 94 : 79;
+            case "visual"      -> Set.of("png","jpg","jpeg","gif","webp","svg","fig","sketch","psd","ai").contains(ext) ? 95 : 81;
+            case "document"    -> Set.of("pdf","md","txt","docx","pptx","key").contains(ext) ? 91 : 73;
+            default            -> 70;
+        };
+    }
+
+    String generateReasoning(String name, String ext, String category) {
+        return switch (category) {
+            case "system"      -> "." + ext + " 파일은 코드·설정·토큰으로 시스템 카테고리에 분류됩니다.";
+            case "visual"      -> "." + ext + " 파일은 이미지·디자인 에셋으로 비주얼 카테고리에 분류됩니다.";
+            case "document"    -> "." + ext + " 파일은 문서·노트로 문서 카테고리에 분류됩니다.";
+            case "deliverable" -> "." + ext + " 파일은 최종 납품물로 산출물 카테고리에 분류됩니다.";
+            default            -> "파일명과 확장자를 기반으로 분류되었습니다.";
+        };
+    }
+
+    private String extractExt(String filename) {
+        if (filename == null || !filename.contains(".")) return "";
+        return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
     }
 
     private String toResultStatus(String orgStatus) {

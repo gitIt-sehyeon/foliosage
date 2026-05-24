@@ -23,12 +23,13 @@ class OrganizeServiceTest {
     PortfolioFileRepository fileRepo = mock(PortfolioFileRepository.class);
     UserRepository userRepo = mock(UserRepository.class);
     VaultSageService vaultSage = mock(VaultSageService.class);
+    SmartOrganizerService smartOrganizer = mock(SmartOrganizerService.class);
 
     OrganizeService service;
 
     @BeforeEach
     void setUp() {
-        service = new OrganizeService(portfolioRepo, fileRepo, userRepo, vaultSage);
+        service = new OrganizeService(portfolioRepo, fileRepo, userRepo, vaultSage, smartOrganizer);
         // inject self (normally done by Spring @Lazy)
         service.setSelf(service);
     }

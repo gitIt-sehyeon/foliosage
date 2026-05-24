@@ -30,6 +30,7 @@ public class OrganizeService {
     private final PortfolioFileRepository fileRepository;
     private final UserRepository userRepository;
     private final VaultSageService vaultSageService;
+    private final SmartOrganizerService smartOrganizerService;
 
     @Setter
     @Lazy @Autowired
@@ -70,6 +71,7 @@ public class OrganizeService {
             pollUntilDone(() -> vaultSageService.getMaterializeStatus(orgId, materializeJobId), "materializing", portfolioId);
 
             persistStatus(portfolioId, "done");
+            smartOrganizerService.classify(portfolioId);
             log.info("Organize pipeline completed for portfolio={}", portfolioId);
         } catch (Exception e) {
             log.error("Organize pipeline failed at status={} for portfolio={}", statusCache.get(portfolioId), portfolioId, e);
