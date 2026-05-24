@@ -52,5 +52,6 @@ class SmartOrganizerServiceTest {
     void generateReasoning_containsExtensionAndCategory() {
         String r = service.generateReasoning("tokens.json", "json", "system");
         assertThat(r).contains("json");
+        assertThat(r).contains("시스템");
     }
 }
