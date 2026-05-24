@@ -39,6 +39,23 @@ Most portfolio sites show polished outputs but do not prove how the work was mad
 
 FolioSage connects portfolio storytelling, AI review, public Q&A, file hashes, timestamps, and certificates into one workflow.
 
+### Product Walkthrough
+
+| Public Portfolio | Smart Organizer |
+| --- | --- |
+| ![Public portfolio page showing project story and AI guide chat panel](docs/screenshots/01-public-portfolio.png) | ![Smart organizer with file lanes for System and Visual categories and AI reclassification](docs/screenshots/02-smart-organizer.png) |
+| Visitors read the full portfolio story and chat with the AI guide, which answers questions grounded in the uploaded evidence files. | Files are organized into four evidence lanes (System, Visual, Document, Deliverable). AI reclassifies files automatically; manual lock preserves creator intent. |
+
+| Portfolio Story | AI Portfolio Review |
+| --- | --- |
+| ![Story tab showing summary, role, impact, evidence highlights linked to files, and interview questions](docs/screenshots/03-story-generator.png) | ![AI review results with five category scores, cited evidence files, missing proof alerts, and improvement feedback](docs/screenshots/04-ai-review2.png) |
+| AI generates a structured story (Summary, Role, Problem, Solution, Impact) with Evidence Highlights linked to concrete uploaded files and predicted Interview Questions. | AI scores creator answers across five dimensions and returns cited evidence, missing proof alerts, and targeted improvement feedback. |
+
+| Public Portfolio — Evidence & AI Chat | Dashboard |
+| --- | --- |
+| ![Public portfolio lower section showing evidence file grid, visitor AI chat, and AI review scores](docs/screenshots/01-public-portfolio2.png) | ![Creator dashboard showing 3 portfolios, 3 published, 26 uploaded files with portfolio status cards](docs/screenshots/05-dashboard.png) |
+| Visitors browse the evidence file grid, view AI review scores, and ask the AI guide questions answered from the shared files — no login required. | Creator workspace overview with portfolio count, published status, and uploaded file count. Each card shows story, evidence, and review readiness at a glance. |
+
 ### Judge Demo Path
 
 Start from the deployed service:
@@ -249,6 +266,23 @@ FolioSage는 취업 준비생, 디자이너, 개발자, 크리에이터가 흩�
 대부분의 포트폴리오 사이트는 완성된 결과물은 보여주지만, 그 작업이 어떻게 만들어졌는지는 증명하지 못합니다. 리뷰어는 작성자의 실제 기여도, 기획과 과정의 근거 파일, 의사결정과 보완점을 설명할 수 있는지, 방문자가 모든 파일을 직접 열지 않고도 질문할 수 있는지를 확인해야 합니다.
 
 FolioSage는 포트폴리오 스토리텔링, AI 리뷰, 공개 Q&A, 파일 해시, 타임스탬프, 인증서를 하나의 흐름으로 연결합니다.
+
+### 제품 화면
+
+| 공개 포트폴리오 | AI 파일 정리 |
+| --- | --- |
+| ![프로젝트 스토리와 AI 가이드 채팅 패널이 보이는 공개 포트폴리오 화면](docs/screenshots/01-public-portfolio.png) | ![시스템·비주얼 레인에 파일을 배치하고 AI 재분류가 실행 중인 Smart Organizer 화면](docs/screenshots/02-smart-organizer.png) |
+| 방문자는 포트폴리오 전체 스토리를 읽고, 업로드된 증거 파일을 근거로 AI 가이드에게 자유롭게 질문할 수 있습니다. | 파일을 시스템·비주얼·문서·산출물 4개 레인으로 정리합니다. AI가 자동 재분류하고, 수동 고정으로 작성자 의도를 보존합니다. |
+
+| Portfolio Story | AI 포트폴리오 리뷰 |
+| --- | --- |
+| ![요약·역할·임팩트·파일 연결 핵심근거·면접질문이 포함된 스토리 생성 화면](docs/screenshots/03-story-generator.png) | ![5개 항목 점수·인용 파일·부족한 증거·개선 피드백이 보이는 AI 리뷰 결과 화면](docs/screenshots/04-ai-review2.png) |
+| AI가 Summary, 역할, 문제, 해결, 임팩트를 생성하고, 실제 파일에 연결된 핵심 근거와 예상 면접 질문까지 한 화면에 제공합니다. | AI가 답변을 5개 항목으로 점수화하고 인용 파일, 부족한 증거, 구체적 개선 피드백을 제시합니다. |
+
+| 공개 포트폴리오 — 증거 파일 & AI 채팅 | 대시보드 |
+| --- | --- |
+| ![증거 파일 그리드·방문자 AI 채팅·AI 리뷰 점수가 보이는 공개 페이지 하단 화면](docs/screenshots/01-public-portfolio2.png) | ![포트폴리오 3개·공개 3개·파일 26개와 상태 카드가 보이는 작성자 대시보드 화면](docs/screenshots/05-dashboard.png) |
+| 방문자는 증거 파일 그리드를 탐색하고, AI 리뷰 점수를 확인하며, 공개된 파일을 근거로 AI에게 질문합니다. 로그인 없이 접근 가능합니다. | 작성자 워크스페이스 개요로 포트폴리오 수·공개 상태·파일 수를 한눈에 확인합니다. 각 카드에서 스토리·증거·리뷰 준비 상태를 표시합니다. |
 
 ### 심사용 데모 경로
 
