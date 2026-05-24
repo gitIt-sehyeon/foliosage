@@ -128,6 +128,20 @@ public class PortfolioService {
         if (name.endsWith(".webp")) return "image/webp";
         if (name.endsWith(".gif")) return "image/gif";
         if (name.endsWith(".mp4")) return "video/mp4";
+        if (name.endsWith(".json")) return "application/json";
+        if (name.endsWith(".txt") || name.endsWith(".md")) return "text/plain";
+        if (name.endsWith(".zip") || name.endsWith(".gz") || name.endsWith(".tar")) return "application/zip";
+        if (name.endsWith(".pptx")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        if (name.endsWith(".ppt")) return "application/vnd.ms-powerpoint";
+        if (name.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        if (name.endsWith(".doc")) return "application/msword";
+        if (name.endsWith(".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        if (name.endsWith(".csv")) return "text/csv";
+        if (name.endsWith(".java") || name.endsWith(".py") || name.endsWith(".ts") || name.endsWith(".js")
+                || name.endsWith(".kt") || name.endsWith(".go") || name.endsWith(".rs") || name.endsWith(".cpp")
+                || name.endsWith(".c") || name.endsWith(".cs") || name.endsWith(".html") || name.endsWith(".css")
+                || name.endsWith(".xml") || name.endsWith(".yaml") || name.endsWith(".yml")
+                || name.endsWith(".sh") || name.endsWith(".sql")) return "text/plain";
         return contentType != null && !contentType.isBlank() ? contentType : "application/octet-stream";
     }
 

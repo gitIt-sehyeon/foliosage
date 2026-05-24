@@ -60,7 +60,7 @@ public class PortfolioStoryService {
         try {
             String raw = portfolio.isPublished() && portfolio.getShareCode() != null && !portfolio.getShareCode().isBlank()
                     ? callPublishedStoryGeneration(portfolio, files)
-                    : "";
+                    : callPrivateStoryGeneration(portfolio, files);
             draft = parseDraft(raw, files).orElseGet(() -> fallbackDraft(portfolio, files));
             story.setStatus("ready");
             story.setErrorMessage(null);
@@ -180,6 +180,14 @@ public class PortfolioStoryService {
                 readStringList(node.path("missingProof").isMissingNode() ? node.path("missing_proof") : node.path("missingProof")),
                 readStringList(node.path("interviewQuestions").isMissingNode() ? node.path("interview_questions") : node.path("interviewQuestions"))
         ));
+    }
+
+    private String callPrivateStoryGeneration(Portfolio portfolio, List<PortfolioFile> files) {
+        List<String> fileIds = files.stream()
+                .map(PortfolioFile::getVaultsageFileId)
+                .filter(id -> id != null && !id.isBlank())
+                .toList();
+        return vaultSageService.privateChat(buildPrompt(portfolio, files), fileIds);
     }
 
     private String callPublishedStoryGeneration(Portfolio portfolio, List<PortfolioFile> files) {

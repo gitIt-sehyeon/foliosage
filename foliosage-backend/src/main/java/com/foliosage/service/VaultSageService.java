@@ -385,6 +385,32 @@ public class VaultSageService {
                 .block();
     }
 
+    public String privateChat(String prompt, List<String> vaultsageFileIds) {
+        Map<String, Object> message = new HashMap<>();
+        message.put("content", prompt);
+        message.put("actor", "user");
+        message.put("file_ids", vaultsageFileIds.isEmpty() ? null : vaultsageFileIds);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("messages", List.of(message));
+        body.put("contextual_file_ids", vaultsageFileIds.isEmpty() ? null : vaultsageFileIds);
+        body.put("persist", false);
+
+        String response = vaultSageClient.post()
+                .uri("/api/v1/chat/message/v2")
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        try {
+            JsonNode node = objectMapper.readTree(response);
+            return node.path("result").asText(response);
+        } catch (Exception e) {
+            return response;
+        }
+    }
+
     // ── Parsers ────────────────────────────────────────────────────────
 
     public String extractFileId(String json) {
