@@ -51,14 +51,14 @@ export function useOrganizerResult(portfolioId: string) {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [fetchResult])
 
-  const updateLocalCategory = useCallback((fileId: string, newCategoryKey: string) => {
+  const updateLocalCategory = useCallback((fileId: string, newCategoryKey: string, locked = true) => {
     setData(prev => {
       if (!prev) return prev
       let movedFile: FileClassification | undefined
       const categoriesWithout = prev.categories.map(cat => {
         const idx = cat.files.findIndex(f => f.fileId === fileId)
         if (idx === -1) return cat
-        movedFile = { ...cat.files[idx], locked: true }
+        movedFile = { ...cat.files[idx], locked }
         return { ...cat, files: cat.files.filter(f => f.fileId !== fileId), fileCount: cat.fileCount - 1 }
       })
       if (!movedFile) return prev
@@ -75,6 +75,7 @@ export function useOrganizerResult(portfolioId: string) {
 
   const startOrganize = useCallback(async () => {
     await api.post(`/api/portfolios/${portfolioId}/organize`)
+    if (intervalRef.current) clearInterval(intervalRef.current)
     fetchResult()
     intervalRef.current = setInterval(fetchResult, 1500)
   }, [portfolioId, fetchResult])

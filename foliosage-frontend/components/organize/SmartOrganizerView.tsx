@@ -20,13 +20,22 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
+  const CATEGORY_KEYS = ['system', 'visual', 'document', 'deliverable']
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
-    if (!over || !data) return
+    if (!over || !data || data.status !== 'done') return
     const fileId = active.id as string
-    const newCategoryKey = over.id as string
+    const overId = over.id as string
+    const newCategoryKey = CATEGORY_KEYS.includes(overId)
+      ? overId
+      : data.categories.find(c => c.files.some(f => f.fileId === overId))?.key
+    if (!newCategoryKey) return
     const oldCategory = data.categories.find(c => c.files.some(f => f.fileId === fileId))
     if (!oldCategory || oldCategory.key === newCategoryKey) return
+
+    const originalFile = data.categories.flatMap(c => c.files).find(f => f.fileId === fileId)
+    const originalLocked = originalFile?.locked ?? false
 
     updateLocalCategory(fileId, newCategoryKey)
 
@@ -35,7 +44,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
         category: newCategoryKey,
       })
     } catch {
-      updateLocalCategory(fileId, oldCategory.key)
+      updateLocalCategory(fileId, oldCategory.key, originalLocked)
     }
   }
 
