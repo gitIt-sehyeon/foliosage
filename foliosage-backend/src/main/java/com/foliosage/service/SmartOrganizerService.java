@@ -30,6 +30,7 @@ public class SmartOrganizerService {
         new CategoryDef("deliverable", "산출물", "최종 산출물 · 납품")
     );
 
+    @Transactional(readOnly = true)
     public OrganizerResultDto getResult(String userEmail, UUID portfolioId) {
         Portfolio portfolio = getPortfolioForUser(userEmail, portfolioId);
         List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
@@ -85,6 +86,7 @@ public class SmartOrganizerService {
         );
     }
 
+    @Transactional(readOnly = true)
     public OrganizerResultDto confirm(String userEmail, UUID portfolioId) {
         return getResult(userEmail, portfolioId);
     }
