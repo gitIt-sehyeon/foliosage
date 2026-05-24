@@ -235,3 +235,8 @@
 .landing-progress {
   animation: progress-fill 1.7s ease 0.4s both;
 }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

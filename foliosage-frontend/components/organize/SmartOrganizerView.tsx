@@ -120,7 +120,50 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
           </div>
         )}
 
-        {isIdle && (
+        {data === null && !error && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 20 }}>
+            {[0,1,2,3].map(i => (
+              <div key={i} style={{
+                borderRadius: 18, border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.02)', minHeight: 200,
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }}>
+                <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ height: 14, width: '40%', borderRadius: 6, background: 'rgba(255,255,255,0.06)', marginBottom: 6 }} />
+                      <div style={{ height: 10, width: '60%', borderRadius: 6, background: 'rgba(255,255,255,0.04)' }} />
+                    </div>
+                  </div>
+                </div>
+                <div style={{ padding: '10px 12px', display: 'grid', gap: 5 }}>
+                  {[0,1].map(j => (
+                    <div key={j} style={{ height: 38, borderRadius: 10, background: 'rgba(255,255,255,0.03)' }} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isIdle && data?.totalFiles === 0 && (
+          <div style={{ textAlign: 'center', padding: '80px 0' }}>
+            <p style={{ color: '#64748b', fontSize: 15 }}>업로드된 파일이 없습니다.</p>
+            <button
+              onClick={() => router.push(`/portfolios/${portfolioId}`)}
+              style={{
+                marginTop: 16, padding: '10px 24px', borderRadius: 8, fontSize: 14,
+                background: 'rgba(255,255,255,0.06)', color: '#94a3b8',
+                border: 'none', cursor: 'pointer',
+              }}
+            >
+              파일 업로드 페이지로
+            </button>
+          </div>
+        )}
+
+        {isIdle && data !== null && (data?.totalFiles ?? 0) > 0 && (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
             <p style={{ color: '#64748b', marginBottom: 24 }}>아직 AI 분류가 실행되지 않았습니다.</p>
             <button
@@ -159,6 +202,24 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
             </DndContext>
             <OrganizerReasoning reasoning={data.reasoning} />
           </>
+        )}
+
+        {data?.status === 'failed' && (
+          <div style={{ textAlign: 'center', padding: '60px 0' }}>
+            <p style={{ color: '#fca5a5', fontSize: 15, marginBottom: 16 }}>
+              AI 분류 중 오류가 발생했습니다.
+            </p>
+            <button
+              onClick={startOrganize}
+              style={{
+                padding: '10px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600,
+                background: 'rgba(239,68,68,0.15)', color: '#fca5a5',
+                border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer',
+              }}
+            >
+              다시 시도
+            </button>
+          </div>
         )}
       </div>
     </div>
