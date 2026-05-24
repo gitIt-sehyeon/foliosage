@@ -299,8 +299,8 @@ public class DefenseService {
 
     String buildQuestionPrompt(Portfolio portfolio, List<PortfolioFile> files) {
         return """
+                %s
                 당신은 AI 포트폴리오 심사위원입니다. 이 포트폴리오에 대한 방어 질문을 정확히 5개 생성하세요.
-                반드시 자연스러운 한국어로만 작성하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
                 JSON만 반환하세요: {"questions":["..."]}.
                 질문은 작성자 본인성, 디자인/기술 의사결정, 측정 가능한 임팩트, 근거 강도, 독창성, 부족한 증거를 다뤄야 합니다.
                 질문을 고를 때 전체 파일 목록을 사용하세요. 첫 번째 파일에만 집중하지 말고, 가능하면 서로 다른 파일 3개 이상을 다루세요.
@@ -311,13 +311,18 @@ public class DefenseService {
                 %s
                 파일:
                 %s
-                """.formatted(portfolio.getTitle(), nullToEmpty(portfolio.getDescription()), storyContext(portfolio), fileManifest(files));
+                """.formatted(
+                AiLanguageInstructions.KOREAN_ONLY,
+                portfolio.getTitle(),
+                nullToEmpty(portfolio.getDescription()),
+                storyContext(portfolio),
+                fileManifest(files));
     }
 
     private String buildEvaluationPrompt(String question, String answer, Portfolio portfolio, List<PortfolioFile> files) {
         return """
+                %s
                 공유된 포트폴리오 파일을 기준으로 작성자의 답변을 평가하세요.
-                반드시 자연스러운 한국어로만 작성하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
                 JSON만 반환하세요: {"feedback":"...", "evidenceFiles":["exact filename or file id"], "missingProof":"..."}.
                 질문: %s
                 답변: %s
@@ -325,7 +330,12 @@ public class DefenseService {
                 %s
                 사용 가능한 파일:
                 %s
-                """.formatted(question, answer, storyContext(portfolio), fileManifest(files));
+                """.formatted(
+                AiLanguageInstructions.KOREAN_ONLY,
+                question,
+                answer,
+                storyContext(portfolio),
+                fileManifest(files));
     }
 
     private String buildScorecardPrompt(List<PortfolioDefenseTurn> turns, Portfolio portfolio, List<PortfolioFile> files) {
@@ -336,8 +346,8 @@ public class DefenseService {
             transcript.append("Feedback: ").append(nullToEmpty(turn.getFeedback())).append("\n\n");
         }
         return """
+                %s
                 최종 포트폴리오 방어 평가표를 만드세요.
-                반드시 자연스러운 한국어로만 작성하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
                 JSON만 반환하세요: {"overallScore":0-100,"categories":[{"name":"독창성","score":0-100,"rationale":"..."}],"missingProof":["..."],"summary":"..."}.
                 필수 카테고리: 독창성, 기술 깊이, 근거 강도, 스토리 명확성, 부족한 증거.
                 대화 기록:
@@ -346,7 +356,11 @@ public class DefenseService {
                 %s
                 파일:
                 %s
-                """.formatted(transcript, storyContext(portfolio), fileManifest(files));
+                """.formatted(
+                AiLanguageInstructions.KOREAN_ONLY,
+                transcript,
+                storyContext(portfolio),
+                fileManifest(files));
     }
 
     private String storyContext(Portfolio portfolio) {

@@ -148,8 +148,8 @@ public class PortfolioStoryService {
 
     String buildPrompt(Portfolio portfolio, List<PortfolioFile> files) {
         return """
+                %s
                 당신은 취업 준비자가 프로젝트 파일을 면접에서 설명 가능한 근거 기반 포트폴리오로 정리하도록 돕는 AI입니다.
-                반드시 자연스러운 한국어로만 작성하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
                 아래 JSON 형태만 반환하세요:
                 {"summary":"...","role":"...","problem":"...","solution":"...","impact":"...","evidenceHighlights":[{"fileId":"database uuid","vaultsageFileId":"VaultSage id","fileName":"exact file name","reason":"..."}],"missingProof":["..."],"interviewQuestions":["..."]}.
                 각 JSON 값은 간결하고 구체적인 한국어 문장으로 작성하고, 필요하면 1인칭을 사용하세요.
@@ -158,7 +158,11 @@ public class PortfolioStoryService {
                 포트폴리오 설명: %s
                 파일 목록:
                 %s
-                """.formatted(portfolio.getTitle(), nullToEmpty(portfolio.getDescription()), fileManifest(files));
+                """.formatted(
+                AiLanguageInstructions.KOREAN_ONLY,
+                portfolio.getTitle(),
+                nullToEmpty(portfolio.getDescription()),
+                fileManifest(files));
     }
 
     Optional<StoryDraft> parseDraft(String raw, List<PortfolioFile> files) {

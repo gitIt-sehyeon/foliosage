@@ -16,6 +16,7 @@ import com.foliosage.service.DefenseService;
 import com.foliosage.service.StatsService;
 import com.foliosage.service.PortfolioStoryService;
 import com.foliosage.service.VaultSageService;
+import com.foliosage.service.AiLanguageInstructions;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -223,13 +224,12 @@ public class PublicController {
 
     private String koreanChatMessage(String userMessage) {
         return """
-                [응답 언어 지시]
-                항상 자연스러운 한국어로 답하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
+                %s
                 포트폴리오 파일 근거에 기반해 답하고, 확실하지 않은 내용은 추측하지 말고 한국어로 한계를 설명하세요.
 
                 [사용자 질문]
                 %s
-                """.formatted(userMessage == null ? "" : userMessage);
+                """.formatted(AiLanguageInstructions.KOREAN_ONLY, userMessage == null ? "" : userMessage);
     }
 
     @GetMapping("/users/{username}")
