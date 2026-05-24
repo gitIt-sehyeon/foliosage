@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: foliosage-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-foliosage}
+      POSTGRES_USER: ${POSTGRES_USER:-foliosage}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-foliosage}
+    ports:
+      - "${POSTGRES_BIND:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - foliosage-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-foliosage} -d ${POSTGRES_DB:-foliosage}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./foliosage-backend
+    container_name: foliosage-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-foliosage}
+      DB_USERNAME: ${POSTGRES_USER:-foliosage}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-foliosage}
+      JWT_SECRET: ${JWT_SECRET:-replace-this-with-a-strong-256-bit-secret}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      VAULTSAGE_API_KEY: ${VAULTSAGE_API_KEY:-}
+      VAULTSAGE_BASE_URL: ${VAULTSAGE_BASE_URL:-https://api.vaultsage.ai}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL:-http://localhost:3000}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+
+  frontend:
+    build:
+      context: ./foliosage-frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    container_name: foliosage-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+
+volumes:
+  foliosage-postgres-data:

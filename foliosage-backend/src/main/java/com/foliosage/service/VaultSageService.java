@@ -176,15 +176,33 @@ public class VaultSageService {
 
     // ── Smart Organizers ───────────────────────────────────────────────
 
-    public String createOrganizer(String name) {
+    public String createOrganizer(String name, String scopeDirectoryId) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", name);
+        if (scopeDirectoryId != null && !scopeDirectoryId.isBlank()) {
+            body.put("scope_directory_id", scopeDirectoryId);
+        }
         String response = vaultSageClient.post()
                 .uri("/api/v1/smart-organizers/")
-                .bodyValue(Map.of("name", name))
+                .bodyValue(body)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
         if (response == null) throw new RuntimeException("Empty response from VaultSage");
         return extractId(response);
+    }
+
+    public void updateOrganizerScope(String organizerId, String scopeDirectoryId) {
+        if (organizerId == null || organizerId.isBlank()
+                || scopeDirectoryId == null || scopeDirectoryId.isBlank()) {
+            return;
+        }
+        vaultSageClient.patch()
+                .uri("/api/v1/smart-organizers/{id}", organizerId)
+                .bodyValue(Map.of("scope_directory_id", scopeDirectoryId))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 
     public String generateTree(String organizerId) {

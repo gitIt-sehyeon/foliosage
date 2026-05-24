@@ -31,8 +31,8 @@ public class PortfolioService {
     @Transactional
     public PortfolioResponse create(String userEmail, CreatePortfolioRequest req) {
         User user = getUser(userEmail);
-        String organizerId = vaultSageService.createOrganizer(req.title());
         String directoryId = vaultSageService.createDirectory(req.title());
+        String organizerId = vaultSageService.createOrganizer(req.title(), directoryId);
         Portfolio portfolio = portfolioRepository.save(Portfolio.builder()
                 .user(user).title(req.title()).description(req.description())
                 .organizerId(organizerId).directoryId(directoryId).build());

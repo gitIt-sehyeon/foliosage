@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: ./foliosage-backend
+    container_name: foliosage-backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://${RDS_HOST}:5432/${POSTGRES_DB:-foliosage}
+      DB_USERNAME: ${POSTGRES_USER:-foliosage}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      VAULTSAGE_API_KEY: ${VAULTSAGE_API_KEY}
+      VAULTSAGE_BASE_URL: ${VAULTSAGE_BASE_URL:-https://api.vaultsage.ai}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://foliosage.cloud}
+      APP_BASE_URL: ${APP_BASE_URL:-https://foliosage.cloud}
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL:-https://foliosage.cloud}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-dummy}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy}
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"

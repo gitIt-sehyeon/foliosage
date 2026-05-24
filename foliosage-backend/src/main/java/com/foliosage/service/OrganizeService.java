@@ -54,9 +54,8 @@ public class OrganizeService {
             persistStatus(portfolioId, "generating");
 
             if (!fileIds.isEmpty()) {
+                vaultSageService.updateOrganizerScope(orgId, portfolio.getDirectoryId());
                 waitForFilesReady(fileIds, portfolioId);
-                String rootNodeId = vaultSageService.createNode(orgId, portfolio.getTitle());
-                vaultSageService.assignFilesToNode(orgId, rootNodeId, fileIds);
             }
 
             String generateJobId = vaultSageService.generateTree(orgId);
