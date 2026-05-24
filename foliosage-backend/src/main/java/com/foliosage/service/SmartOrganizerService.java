@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -96,6 +97,7 @@ public class SmartOrganizerService {
         Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow();
         List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
 
+        List<PortfolioFile> toSave = new ArrayList<>();
         for (PortfolioFile file : files) {
             if (Boolean.TRUE.equals(file.getCategoryLocked())) continue;
             String ext = extractExt(file.getName());
@@ -103,8 +105,9 @@ public class SmartOrganizerService {
             file.setCategory(category);
             file.setCategoryConfidence(calculateConfidence(file.getName(), ext, file.getMimeType(), category));
             file.setCategoryReasoning(generateReasoning(file.getName(), ext, category));
+            toSave.add(file);
         }
-        fileRepository.saveAll(files);
+        fileRepository.saveAll(toSave);
     }
 
     String classifyByExtensionAndName(String name, String ext, String mimeType) {

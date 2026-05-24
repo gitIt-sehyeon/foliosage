@@ -6,7 +6,6 @@ import com.foliosage.entity.PortfolioFile;
 import com.foliosage.entity.User;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
-import com.foliosage.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +20,6 @@ class OrganizeServiceTest {
 
     PortfolioRepository portfolioRepo = mock(PortfolioRepository.class);
     PortfolioFileRepository fileRepo = mock(PortfolioFileRepository.class);
-    UserRepository userRepo = mock(UserRepository.class);
     VaultSageService vaultSage = mock(VaultSageService.class);
     SmartOrganizerService smartOrganizer = mock(SmartOrganizerService.class);
 
@@ -29,7 +27,7 @@ class OrganizeServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new OrganizeService(portfolioRepo, fileRepo, userRepo, vaultSage, smartOrganizer);
+        service = new OrganizeService(portfolioRepo, fileRepo, vaultSage, smartOrganizer);
         // inject self (normally done by Spring @Lazy)
         service.setSelf(service);
     }

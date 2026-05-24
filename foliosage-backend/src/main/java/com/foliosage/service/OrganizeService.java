@@ -5,7 +5,6 @@ import com.foliosage.entity.Portfolio;
 import com.foliosage.entity.PortfolioFile;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
-import com.foliosage.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,6 @@ public class OrganizeService {
 
     private final PortfolioRepository portfolioRepository;
     private final PortfolioFileRepository fileRepository;
-    private final UserRepository userRepository;
     private final VaultSageService vaultSageService;
     private final SmartOrganizerService smartOrganizerService;
 
@@ -70,8 +68,8 @@ public class OrganizeService {
             String materializeJobId = vaultSageService.materialize(orgId);
             pollUntilDone(() -> vaultSageService.getMaterializeStatus(orgId, materializeJobId), "materializing", portfolioId);
 
-            persistStatus(portfolioId, "done");
             smartOrganizerService.classify(portfolioId);
+            persistStatus(portfolioId, "done");
             log.info("Organize pipeline completed for portfolio={}", portfolioId);
         } catch (Exception e) {
             log.error("Organize pipeline failed at status={} for portfolio={}", statusCache.get(portfolioId), portfolioId, e);
