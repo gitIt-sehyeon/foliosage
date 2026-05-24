@@ -1,0 +1,325 @@
+/* FolioSage Design System — colors, type, motion tokens
+ * Import this once at the top of any HTML file.
+ *
+ *   <link rel="stylesheet" href="../colors_and_type.css">
+ *
+ * It loads Inter from Google Fonts, defines all design tokens as CSS
+ * custom properties, registers all keyframes, and exposes a tiny set of
+ * helper classes you'll use on every page (.fs-stage, .fs-grid,
+ * .fs-aurora, .fs-card, .fs-shimmer-text, .fs-glow, .fs-eyebrow).
+ *
+ * NOTE: Inter font files are not vendored. If you need offline metrics,
+ * download Inter VF from Google Fonts and drop it in fonts/, then swap
+ * the @import below for an @font-face declaration.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  /* ─── Surfaces (dark — the canonical FolioSage theme) ─── */
+  --fs-bg:           #060912; /* page void */
+  --fs-bg-deep:      #070b15; /* top bars, side panels, modal scrim */
+  --fs-surface:      #0b1020; /* default card */
+  --fs-surface-hi:   #111827; /* card hover */
+  --fs-surface-tint: #1e0a3c; /* selected / violet-tinted card */
+
+  --fs-inset-1:  rgba(255, 255, 255, 0.035); /* default inset surface */
+  --fs-inset-2:  rgba(255, 255, 255, 0.05);  /* hover */
+  --fs-inset-3:  rgba(255, 255, 255, 0.07);  /* pressed / selected */
+  --fs-inset-4:  rgba(255, 255, 255, 0.08);  /* active tab */
+
+  /* ─── Borders ─── */
+  --fs-border:        rgba(255, 255, 255, 0.10);
+  --fs-border-soft:   rgba(255, 255, 255, 0.15);
+  --fs-border-strong: rgba(255, 255, 255, 0.20);
+  --fs-border-violet:  rgba(167, 139, 250, 0.35); /* violet-300/35 */
+  --fs-border-cyan:    rgba(103, 232, 249, 0.20);
+  --fs-border-emerald: rgba(110, 231, 183, 0.20);
+  --fs-border-amber:   rgba(252, 211, 77,  0.20);
+  --fs-border-rose:    rgba(252, 165, 165, 0.20);
+
+  /* ─── Brand colors ─── */
+  --fs-violet-50:  #ede9fe;
+  --fs-violet-200: #c4b5fd;
+  --fs-violet-300: #a78bfa;
+  --fs-violet-400: #8b5cf6;
+  --fs-violet-500: #7c3aed;
+  --fs-violet-600: #6d28d9;
+  --fs-violet-700: #5b21b6;
+
+  --fs-cyan-100:   #cffafe;
+  --fs-cyan-200:   #a5f3fc;
+  --fs-cyan-300:   #67e8f9;
+  --fs-cyan-400:   #22d3ee;
+
+  --fs-amber-100:  #fef3c7;
+  --fs-amber-200:  #fde68a;
+  --fs-amber-300:  #fcd34d;
+
+  --fs-emerald-200:#a7f3d0;
+  --fs-emerald-300:#6ee7b7;
+  --fs-emerald-400:#34d399;
+
+  --fs-rose-200:   #fecaca;
+  --fs-rose-400:   #f87171;
+
+  /* ─── Text ladder (on dark surfaces) ─── */
+  --fs-fg-1: #ffffff;          /* h1, primary stats */
+  --fs-fg-2: #e2e8f0;          /* slate-200 — body emphasis */
+  --fs-fg-3: #cbd5e1;          /* slate-300 — body */
+  --fs-fg-4: #94a3b8;          /* slate-400 — muted body */
+  --fs-fg-5: #64748b;          /* slate-500 — captions */
+  --fs-fg-6: #475569;          /* slate-600 — placeholder, disabled */
+
+  /* ─── Semantic ─── */
+  --fs-primary:    var(--fs-violet-600);
+  --fs-primary-hi: var(--fs-violet-500);
+  --fs-accent:     var(--fs-cyan-300);
+  --fs-success:    var(--fs-emerald-400);
+  --fs-warn:       var(--fs-amber-300);
+  --fs-danger:     var(--fs-rose-400);
+
+  /* ─── Type ─── */
+  --fs-font-sans: "Inter", ui-sans-serif, system-ui, -apple-system,
+                  BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --fs-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  /* Sizes (base 16) */
+  --fs-text-xs:     0.75rem;   /* 12 */
+  --fs-text-sm:     0.875rem;  /* 14 */
+  --fs-text-base:   1rem;      /* 16 */
+  --fs-text-lg:     1.125rem;  /* 18 */
+  --fs-text-xl:     1.25rem;   /* 20 */
+  --fs-text-2xl:    1.5rem;    /* 24 */
+  --fs-text-3xl:    1.875rem;  /* 30 */
+  --fs-text-4xl:    2.25rem;   /* 36 */
+  --fs-text-5xl:    3rem;      /* 48 */
+  --fs-text-6xl:    3.75rem;   /* 60 */
+  --fs-text-7xl:    4.5rem;    /* 72 */
+
+  /* Tracking */
+  --fs-tracking-tight: -0.01em;
+  --fs-tracking-wide:  0.24em;  /* eyebrow default */
+  --fs-tracking-wider: 0.26em;  /* logo wordmark */
+  --fs-tracking-widest:0.28em;  /* hero eyebrow */
+
+  /* ─── Radii (shadcn ladder, base 10px) ─── */
+  --fs-radius:    0.625rem;
+  --fs-radius-sm: calc(var(--fs-radius) * 0.6);   /* 6  */
+  --fs-radius-md: calc(var(--fs-radius) * 0.8);   /* 8  */
+  --fs-radius-lg: var(--fs-radius);               /* 10 */
+  --fs-radius-xl: calc(var(--fs-radius) * 1.4);   /* 14 */
+  --fs-radius-2xl:calc(var(--fs-radius) * 1.8);   /* 18 */
+  --fs-radius-3xl:calc(var(--fs-radius) * 2.2);   /* 22 */
+  --fs-radius-4xl:calc(var(--fs-radius) * 2.6);   /* 26 */
+
+  /* ─── Spacing ladder (Tailwind 0.25rem grid) ─── */
+  --fs-space-1: 0.25rem;
+  --fs-space-2: 0.5rem;
+  --fs-space-3: 0.75rem;
+  --fs-space-4: 1rem;
+  --fs-space-5: 1.25rem;
+  --fs-space-6: 1.5rem;
+  --fs-space-8: 2rem;
+
+  /* ─── Shadows ─── */
+  --fs-shadow-card:  0 16px 48px rgba(0, 0, 0, 0.28);
+  --fs-shadow-deep:  0 24px 64px rgba(0, 0, 0, 0.40);
+  --fs-glow-violet:  0 0 28px rgba(124, 58, 237, 0.28);
+  --fs-glow-violet-soft: 0 0 18px rgba(124, 58, 237, 0.18);
+  --fs-glow-cyan:    0 0 18px rgba(103, 232, 249, 0.40);
+  --fs-glow-emerald: 0 0 18px rgba(110, 231, 183, 0.90);
+
+  /* ─── Motion ─── */
+  --fs-ease:        cubic-bezier(0.4, 0, 0.2, 1);
+  --fs-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Base type ─── */
+html, body { font-family: var(--fs-font-sans); }
+body {
+  background: var(--fs-bg);
+  color: var(--fs-fg-2);
+  font-size: var(--fs-text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─── Semantic type primitives ─── */
+.fs-h1 { font-size: clamp(2.5rem, 5.5vw, 4.5rem); font-weight: 600; line-height: 0.98; color: var(--fs-fg-1); letter-spacing: var(--fs-tracking-tight); }
+.fs-h2 { font-size: var(--fs-text-3xl); font-weight: 600; line-height: 1.15; color: var(--fs-fg-1); }
+.fs-h3 { font-size: var(--fs-text-xl); font-weight: 600; line-height: 1.25; color: var(--fs-fg-1); }
+.fs-h4 { font-size: var(--fs-text-base); font-weight: 600; line-height: 1.3; color: var(--fs-fg-1); }
+.fs-body { font-size: var(--fs-text-base); line-height: 1.75; color: var(--fs-fg-3); }
+.fs-body-sm { font-size: var(--fs-text-sm); line-height: 1.6; color: var(--fs-fg-3); }
+.fs-caption { font-size: var(--fs-text-xs); color: var(--fs-fg-5); }
+.fs-eyebrow {
+  font-size: 0.6875rem; font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--fs-tracking-wide);
+  color: var(--fs-cyan-300);
+}
+.fs-eyebrow--muted { color: var(--fs-fg-5); }
+.fs-mono   { font-family: var(--fs-font-mono); }
+.fs-stat   { font-size: var(--fs-text-2xl); font-weight: 600; color: var(--fs-fg-1); letter-spacing: var(--fs-tracking-tight); }
+.fs-stat-lg{ font-size: var(--fs-text-3xl); font-weight: 600; color: var(--fs-fg-1); letter-spacing: var(--fs-tracking-tight); }
+
+/* ─── Stage / void background ─── */
+.fs-stage   { position: relative; min-height: 100vh; background: var(--fs-bg); color: var(--fs-fg-2); overflow: hidden; }
+.fs-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(148,163,184,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+.fs-aurora {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(124, 58, 237, 0.22), transparent 28%),
+    radial-gradient(circle at 80% 22%, rgba(20, 184, 166, 0.14), transparent 26%),
+    radial-gradient(circle at 56% 86%, rgba(245, 158, 11, 0.10), transparent 24%);
+}
+.fs-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.25), rgba(6, 9, 18, 0.92) 48%, rgba(6, 9, 18, 0.65));
+}
+
+/* ─── Cards ─── */
+.fs-card {
+  border-radius: var(--fs-radius-2xl);
+  border: 1px solid var(--fs-border);
+  background: rgba(11, 16, 32, 0.90);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: var(--fs-space-6);
+  color: var(--fs-fg-2);
+}
+.fs-card--inset {
+  border-radius: var(--fs-radius-xl);
+  border: 1px solid var(--fs-border);
+  background: var(--fs-inset-1);
+  padding: var(--fs-space-4);
+}
+.fs-card--floating { box-shadow: var(--fs-shadow-card); }
+.fs-card--deep     { box-shadow: var(--fs-shadow-deep);  }
+
+/* ─── Buttons ─── */
+.fs-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
+  height: 2.75rem; padding: 0 1.25rem;
+  border-radius: var(--fs-radius-lg);
+  border: 1px solid transparent;
+  font-size: var(--fs-text-sm); font-weight: 600;
+  white-space: nowrap; cursor: pointer; user-select: none;
+  transition: background-color 0.15s var(--fs-ease), color 0.15s var(--fs-ease),
+              border-color 0.15s var(--fs-ease), box-shadow 0.2s var(--fs-ease),
+              transform 0.05s var(--fs-ease);
+}
+.fs-btn:active:not([aria-haspopup]) { transform: translateY(1px); }
+.fs-btn--primary {
+  background: var(--fs-violet-600); color: #fff;
+  border-color: rgba(196, 181, 253, 0.20);
+  box-shadow: var(--fs-glow-violet);
+}
+.fs-btn--primary:hover { background: var(--fs-violet-500); }
+.fs-btn--secondary {
+  background: #fff; color: #020617;
+}
+.fs-btn--secondary:hover { background: var(--fs-cyan-100); }
+.fs-btn--ghost {
+  background: transparent; color: var(--fs-fg-3); border-color: transparent;
+}
+.fs-btn--ghost:hover { background: var(--fs-inset-2); color: var(--fs-fg-1); }
+.fs-btn--outline {
+  background: var(--fs-inset-1); color: var(--fs-fg-3); border-color: var(--fs-border);
+}
+.fs-btn--outline:hover { background: var(--fs-inset-3); color: var(--fs-fg-1); }
+.fs-btn--sm { height: 2rem; padding: 0 0.625rem; font-size: var(--fs-text-xs); border-radius: var(--fs-radius-md); }
+
+/* ─── Pills / status ─── */
+.fs-pill {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  padding: 0.25rem 0.625rem; border-radius: 9999px;
+  border: 1px solid var(--fs-border);
+  background: var(--fs-inset-1);
+  font-size: 0.6875rem; color: var(--fs-fg-4);
+}
+.fs-pill--violet  { border-color: rgba(167,139,250,0.20); background: rgba(167,139,250,0.08); color: var(--fs-violet-200); }
+.fs-pill--cyan    { border-color: var(--fs-border-cyan);    background: rgba(103,232,249,0.07); color: var(--fs-cyan-200); }
+.fs-pill--emerald { border-color: var(--fs-border-emerald); background: rgba(110,231,183,0.07); color: var(--fs-emerald-200); }
+.fs-pill--amber   { border-color: var(--fs-border-amber);   background: rgba(252,211,77,0.06);  color: var(--fs-amber-200); }
+.fs-pill--rose    { border-color: var(--fs-border-rose);    background: rgba(252,165,165,0.06); color: var(--fs-rose-200); }
+
+/* ─── Inputs ─── */
+.fs-input {
+  width: 100%; height: 2.75rem;
+  padding: 0 0.875rem; border-radius: var(--fs-radius-lg);
+  background: rgba(255,255,255,0.04); border: 1px solid var(--fs-border);
+  color: var(--fs-fg-1); font-size: var(--fs-text-sm);
+  outline: none; transition: border-color 0.15s var(--fs-ease);
+}
+.fs-input::placeholder { color: var(--fs-fg-6); }
+.fs-input:focus { border-color: var(--fs-violet-600); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+.fs-label { display: block; font-size: var(--fs-text-xs); font-weight: 500; color: var(--fs-fg-4); margin-bottom: 0.375rem; }
+
+/* ─── Brand lockup ─── */
+.fs-logo { display: inline-flex; align-items: center; gap: 0.5rem; }
+.fs-logo__mark {
+  width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--fs-radius-md);
+  border: 1px solid rgba(167,139,250,0.25);
+  background: rgba(167,139,250,0.10);
+  color: var(--fs-violet-200);
+  box-shadow: var(--fs-glow-violet-soft);
+}
+.fs-logo__word {
+  font-size: var(--fs-text-sm); font-weight: 700;
+  letter-spacing: var(--fs-tracking-wider);
+  color: var(--fs-violet-200);
+}
+
+/* ─── Glow / shimmer text ─── */
+.fs-glow-violet { box-shadow: var(--fs-glow-violet); }
+.fs-glow-cyan   { box-shadow: var(--fs-glow-cyan); }
+.fs-glow-emerald{ box-shadow: var(--fs-glow-emerald); }
+
+.fs-shimmer-text {
+  background: linear-gradient(90deg, #a78bfa 0%, #ffffff 40%, #6d28d9 60%, #a78bfa 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: fs-shimmer 3s linear infinite;
+}
+
+/* ─── Keyframes (lifted from app/globals.css) ─── */
+@keyframes fs-aurora      { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
+@keyframes fs-shimmer     { 0%{background-position:-200% center}100%{background-position:200% center} }
+@keyframes fs-float       { 0%,100%{transform:translateY(0);opacity:0.6}50%{transform:translateY(-10px);opacity:1} }
+@keyframes fs-glow-pulse  { 0%,100%{box-shadow:0 0 16px rgba(109,40,217,0.30)}50%{box-shadow:0 0 28px rgba(109,40,217,0.70),0 0 48px rgba(109,40,217,0.30)} }
+@keyframes fs-slide-up    { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes fs-spring-in   { from{transform:scale(0.92) translateY(8px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+@keyframes fs-skeleton    { 0%{background-position:-200% center}100%{background-position:200% center} }
+@keyframes fs-answer-reveal { 0%{clip-path:inset(0 100% 0 0);opacity:0.45} 100%{clip-path:inset(0 0 0 0);opacity:1} }
+@keyframes fs-progress    { from{width:18%} to{width:92%} }
+
+.fs-anim-aurora     { animation: fs-aurora 8s ease infinite; }
+.fs-anim-float      { animation: fs-float 3.5s ease-in-out infinite; }
+.fs-anim-pulse      { animation: fs-glow-pulse 2.5s ease-in-out infinite; }
+.fs-anim-slide-up   { animation: fs-slide-up 0.5s ease both; }
+.fs-anim-spring-in  { animation: fs-spring-in 0.5s var(--fs-ease-spring) both; }
+.fs-anim-progress   { animation: fs-progress 1.7s ease 0.4s both; }
+.fs-anim-answer     { animation: fs-answer-reveal 1.2s ease 0.8s both; }
+
+.fs-skeleton {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200% auto;
+  animation: fs-skeleton 1.5s linear infinite;
+  border-radius: var(--fs-radius-lg);
+}
+
+/* ─── Utility ─── */
+.fs-z-10 { position: relative; z-index: 10; }

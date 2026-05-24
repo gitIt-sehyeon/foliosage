@@ -49,6 +49,7 @@
 }
 
 :root {
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -180,6 +181,11 @@
 @keyframes progress-fill {
   from { width: 18%; }
   to   { width: 92%; }
+}
+
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 /* ─── Utility Classes ─── */

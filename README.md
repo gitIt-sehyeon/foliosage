@@ -12,15 +12,58 @@ FolioSage는 취업 준비생, 디자이너, 개발자, 크리에이터가 흩�
 
 공모전 제출작: **NURIE.AI Visionary AI 2026 Cross-Platform Innovation Awards**
 
-## 심사용 한 줄 소개
+## Submission Overview
 
 **FolioSage는 포트폴리오를 예쁘게 보여주는 데서 끝나지 않고, 실제 작업 파일을 근거로 역할과 과정, 완성도를 설명하고 검증할 수 있게 해주는 AI 포트폴리오 플랫폼입니다.**
 
-흩어진 기획서, 발표자료, 이미지, PDF, 코드 파일을 업로드하면 AI가 파일을 정리하고, 포트폴리오 스토리와 면접 질문을 생성하며, 방문자는 공개 링크에서 파일 근거 기반으로 AI에게 질문할 수 있습니다.
+FolioSage turns scattered project files into an evidence-backed portfolio. A creator can upload proposals, presentation decks, PDFs, images, code files, and process artifacts. The system then organizes the files, generates an interview-ready story, reviews the creator's answers with AI, and publishes a public portfolio where visitors can ask questions grounded in the uploaded files.
 
-## 빠른 데모 하이라이트
+| Item | Description |
+| --- | --- |
+| Competition | NURIE.AI Visionary AI 2026 Cross-Platform Innovation Awards |
+| Category | Web (Browser-based), with REST API and public share links |
+| Target users | Job seekers, designers, developers, creators, portfolio reviewers |
+| Core value | AI-generated portfolio content with real source-file evidence |
+| External AI layer | VaultSage Files, Smart Organizer, Share, Public Chat APIs |
 
-시간이 짧다면 아래 5개 장면만 보면 FolioSage의 핵심을 확인할 수 있습니다.
+## Why It Matters
+
+Most portfolio sites show polished outputs but do not prove how the work was made. Reviewers still need to ask:
+
+- Did this person actually contribute to the project?
+- Which files prove the planning, process, and final result?
+- Can the creator explain trade-offs, impact, and missing evidence?
+- Can a visitor ask questions without manually opening every file?
+
+FolioSage answers these questions by connecting portfolio storytelling, AI review, public Q&A, file hashes, timestamps, and certificates into one workflow.
+
+## Product Screenshots
+
+> Screenshot placeholders are intentionally left as text so images can be added later without broken README links.
+
+| Screen | Screenshot Slot | What Judges Should Notice |
+| --- | --- | --- |
+| Dashboard | `docs/screenshots/01-dashboard.png` | Portfolio count, published count, uploaded file count |
+| File Upload | `docs/screenshots/02-upload.png` | Multiple evidence files can be uploaded, not only final outputs |
+| AI Organizer | `docs/screenshots/03-ai-organizer.png` | VaultSage Smart Organizer classifies files into a proof structure |
+| Portfolio Story | `docs/screenshots/04-story.png` | Summary, role, problem, solution, impact, evidence highlights |
+| Readiness | `docs/screenshots/05-readiness.png` | Checklist for Story, Evidence, AI Review, Public Link |
+| AI Review | `docs/screenshots/06-ai-review.png` | Interview questions, feedback, scorecard, missing proof, cited files |
+| Public Page | `docs/screenshots/07-public-page.png` | Shareable portfolio page with story and evidence grid |
+| Public AI Chat | `docs/screenshots/08-public-chat.png` | Visitor questions answered from uploaded file evidence |
+| Stats / Certificate | `docs/screenshots/09-certificate-stats.png` | View/download statistics and file certificate |
+
+After adding screenshots, replace the slots above or add image links like this:
+
+```md
+![Dashboard](docs/screenshots/01-dashboard.png)
+![AI Story](docs/screenshots/04-story.png)
+![Public AI Chat](docs/screenshots/08-public-chat.png)
+```
+
+## Judge Demo Path
+
+If evaluation time is short, the following five scenes show the core innovation:
 
 1. **파일 업로드**: 결과물뿐 아니라 기획서, 발표자료, 코드, 이미지 같은 과정 파일까지 증거로 관리합니다.
 2. **AI 스토리 생성**: Summary, 역할, 문제, 해결, 임팩트를 업로드 파일 기준으로 자동 작성합니다.
@@ -28,7 +71,7 @@ FolioSage는 취업 준비생, 디자이너, 개발자, 크리에이터가 흩�
 4. **공개 링크 발급**: `/p/{shareCode}` 공개 페이지로 포트폴리오를 공유합니다.
 5. **방문자 AI 채팅**: 방문자가 질문하면 실제 업로드 파일을 근거로 답변합니다.
 
-## 데모 시나리오
+## Full Demo Scenario
 
 | 순서 | 화면 | 보여줄 내용 | 핵심 설명 |
 | --- | --- | --- | --- |
@@ -52,51 +95,19 @@ FolioSage는 취업 준비생, 디자이너, 개발자, 크리에이터가 흩�
 - 가장 중요한 증거 파일 3개를 설명해 주세요.
 - 심사자 관점에서 보완할 점은 무엇인가요?
 
-## 스크린샷 가이드
+## Core Features
 
-GitHub README를 발표 자료처럼 제출하려면 실제 화면 캡처를 `docs/screenshots/`에 넣고, 아래 순서로 배치하는 것을 권장합니다.
-
-| 파일명 | 캡처할 화면 |
+| Feature | What It Does | Evidence / AI Value |
 | --- | --- |
-| `01-dashboard.png` | 로그인 후 대시보드, 포트폴리오 수/공개 수/파일 수 |
-| `02-upload.png` | 포트폴리오 상세의 파일 업로드 및 파일 목록 |
-| `03-ai-organizer.png` | AI 파일 정리 상태 또는 정리된 파일 트리 |
-| `04-story.png` | Summary, 역할, 문제, 해결, 임팩트와 Evidence Highlights |
-| `05-readiness.png` | Story, Evidence, AI Review, Public Link 준비 상태 |
-| `06-ai-review.png` | AI 질문, 답변 피드백, scorecard, 인용 파일 |
-| `07-public-page.png` | `/p/{shareCode}` 공개 포트폴리오 페이지 |
-| `08-public-chat.png` | 방문자 AI 채팅과 근거 파일 표시 |
-| `09-certificate-stats.png` | 통계와 파일 인증서 다운로드 |
-
-스크린샷을 추가한 뒤에는 이 섹션 아래에 이미지 링크를 넣으면 됩니다.
-
-```md
-![Dashboard](docs/screenshots/01-dashboard.png)
-![AI story](docs/screenshots/04-story.png)
-![Public AI chat](docs/screenshots/08-public-chat.png)
-```
-
-## 핵심 아이디어
-
-일반 포트폴리오는 결과물 이미지만 보여주기 쉽습니다. FolioSage는 결과물 뒤에 있는 기획서, 리서치, 코드, 시안, 발표 자료 같은 작업 증거를 함께 다루어 다음 질문에 답합니다.
-
-- 이 사람이 실제로 어떤 역할을 했는가?
-- 결과물의 근거 파일과 작업 과정이 남아 있는가?
-- 면접관이나 심사자가 직접 파일을 뒤지지 않고도 내용을 검증할 수 있는가?
-- 제출자가 자신의 작업을 설명하고 방어할 준비가 되어 있는가?
-
-FolioSage는 VaultSage API를 evidence layer로 사용해 파일 저장, 스마트 정리, 공개 공유, 공개 채팅을 연결합니다.
-
-## 주요 기능
-
-- **AI 파일 정리**: 업로드한 파일을 VaultSage Smart Organizer로 프로젝트/근거 구조에 맞게 자동 분류합니다.
-- **포트폴리오 스토리 생성**: 역할, 문제, 해결, 임팩트, 증거 중심의 포트폴리오 설명을 생성하고 편집할 수 있습니다.
-- **공개 포트폴리오 링크**: 로그인 없이 볼 수 있는 `/p/{shareCode}` 페이지를 발급합니다.
-- **근거 기반 AI 채팅**: 방문자가 포트폴리오에 대해 질문하면 공개된 파일을 기반으로 답변합니다.
-- **AI Defense Review**: 제출자가 AI 면접 질문에 답하면 근거 인용과 함께 점수표를 생성합니다.
-- **파일 인증서**: 업로드 파일마다 SHA-256 해시와 타임스탬프를 담은 PDF 인증서를 발급합니다.
-- **방문/다운로드 통계**: 공개 포트폴리오 조회수와 파일 다운로드 수를 집계합니다.
-- **공개 프로필**: 사용자별 공개 포트폴리오 목록을 `/u/{username}`에서 보여줍니다.
+| Multi-file evidence upload | Upload PDFs, images, decks, code files, ZIPs, and process artifacts | Stores file metadata, SHA-256 hash, timestamp, and VaultSage file id |
+| AI file organization | Runs VaultSage Smart Organizer for project evidence structure | Makes scattered files easier to inspect and explain |
+| Portfolio Story generation | Generates summary, role, problem, solution, impact | Turns uploaded evidence into interview-ready copy |
+| Evidence Highlights | Links generated claims to concrete uploaded files | Helps reviewers inspect the proof behind the story |
+| Interview Questions | Creates likely defense questions from the portfolio context | Helps creators prepare for interviews and judging |
+| AI Portfolio Review | Scores creator answers and returns feedback, missing proof, cited files | Reviews are grounded in actual portfolio files |
+| Public portfolio page | Publishes `/p/{shareCode}` for visitors | Judges can inspect story, file grid, preview, download |
+| Visitor AI chat | Lets visitors ask questions about the portfolio | AI answers from the public file context |
+| Certificate / stats | Provides file certificates and view/download statistics | Supports trust, ownership, and post-share tracking |
 
 ## VaultSage 활용 지점
 
@@ -109,7 +120,7 @@ FolioSage는 VaultSage를 단순 파일 저장소가 아니라 포트폴리오 �
 | Share API | 공개 포트폴리오 접근 범위 생성 |
 | Public Chat API | 공개된 파일에 근거한 방문자 질의응답 |
 
-## 시스템 구조
+## Architecture
 
 ```text
 Creator / Visitor
@@ -135,6 +146,29 @@ Spring Boot 3.4 Backend
        +--> VaultSage API
               files, smart organizers, shares, public chat
 ```
+
+## Test Instructions for Judges
+
+1. Clone the repository.
+2. Prepare `.env` from `.env.docker.example`.
+3. Set at least `JWT_SECRET`, `POSTGRES_PASSWORD`, and `VAULTSAGE_API_KEY`.
+4. Run the full stack:
+
+```bash
+docker compose up --build
+```
+
+5. Open `http://localhost:3000`.
+6. Sign up or log in.
+7. Create a portfolio.
+8. Upload sample project files such as a PDF, image, presentation deck, source code file, or ZIP.
+9. Run AI file organization.
+10. Generate the Portfolio Story.
+11. Publish the portfolio and open `/p/{shareCode}`.
+12. Ask the public AI guide a question.
+13. Return to the admin screen, run AI Portfolio Review, answer the generated questions, and inspect the scorecard.
+
+Required external dependency: a valid VaultSage API key.
 
 ## 기술 스택
 
@@ -169,6 +203,8 @@ foliosage/
 │   ├── components/          # UI 및 포트폴리오 컴포넌트
 │   └── lib/                 # API client, auth helper
 ├── docs/
+│   ├── screenshots/         # README 심사용 화면 캡처 이미지
+│   ├── submission/          # 공모전 제출 폼 초안
 │   ├── vaultsage-openapi.json
 │   └── superpowers/         # 설계 문서 및 구현 계획
 ├── docker-compose.yml
