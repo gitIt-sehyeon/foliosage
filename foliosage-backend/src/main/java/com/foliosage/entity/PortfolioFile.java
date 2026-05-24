@@ -41,4 +41,17 @@ public class PortfolioFile {
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "category", length = 32)
+    private String category;
+
+    @Column(name = "category_confidence")
+    private Integer categoryConfidence;
+
+    @Column(name = "category_reasoning", columnDefinition = "TEXT")
+    private String categoryReasoning;
+
+    @Column(name = "category_locked", nullable = false)
+    @Builder.Default
+    private Boolean categoryLocked = false;
 }
