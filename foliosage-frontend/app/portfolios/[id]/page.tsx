@@ -59,6 +59,54 @@ const FILE_CATEGORIES = [
   { key: 'deliverable', label: '산출물', detail: '최종본 · 납품 · 아카이브', tone: 'emerald' },
 ] as const
 
+const CATEGORY_TONES: Record<string, {
+  ring: string
+  soft: string
+  text: string
+  dot: string
+  glow: string
+}> = {
+  system: {
+    ring: 'border-violet-300/20',
+    soft: 'bg-violet-300/[0.07]',
+    text: 'text-violet-200',
+    dot: 'bg-violet-300',
+    glow: 'rgba(167,139,250,0.18)',
+  },
+  visual: {
+    ring: 'border-cyan-300/20',
+    soft: 'bg-cyan-300/[0.07]',
+    text: 'text-cyan-200',
+    dot: 'bg-cyan-300',
+    glow: 'rgba(34,211,238,0.16)',
+  },
+  document: {
+    ring: 'border-amber-300/20',
+    soft: 'bg-amber-300/[0.07]',
+    text: 'text-amber-200',
+    dot: 'bg-amber-300',
+    glow: 'rgba(251,191,36,0.14)',
+  },
+  deliverable: {
+    ring: 'border-emerald-300/20',
+    soft: 'bg-emerald-300/[0.07]',
+    text: 'text-emerald-200',
+    dot: 'bg-emerald-300',
+    glow: 'rgba(52,211,153,0.16)',
+  },
+}
+
+function fileFingerprint(hash?: string | null) {
+  return hash ? hash.slice(0, 10) : 'pending'
+}
+
+function formatFileSize(size?: number | null) {
+  if (!size || size <= 0) return 'size n/a'
+  const mb = size / 1024 / 1024
+  if (mb >= 1) return `${mb.toFixed(mb >= 10 ? 0 : 1)} MB`
+  return `${Math.max(1, Math.round(size / 1024))} KB`
+}
+
 function normalizeCategory(category: string | null | undefined, mimeType?: string): string {
   if (FILE_CATEGORIES.some(item => item.key === category)) return category as string
   if (mimeType?.includes('image') || mimeType?.includes('video')) return 'visual'
@@ -91,28 +139,57 @@ function PortfolioFileCard({
     id: file.id,
     data: { category: categoryKey },
   })
+  const tone = CATEGORY_TONES[categoryKey] ?? CATEGORY_TONES.document
+  const confidence = typeof file.categoryConfidence === 'number' ? file.categoryConfidence : null
 
   return (
     <div ref={setNodeRef} id={`file-${file.id}`}
-      className="group relative rounded-xl border border-white/10 bg-white/[0.035] p-3 transition-all hover:border-[#6d28d9]/70 hover:bg-white/[0.06] animate-slide-up"
+      className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#0d1426]/88 p-3 shadow-[0_16px_48px_rgba(0,0,0,0.18)] transition-all hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111a30] animate-slide-up"
       style={{
         animationDelay: `${(categoryIndex + itemIndex) * 0.04}s`,
         opacity: isDragging ? 0.45 : 1,
         transform: CSS.Translate.toString(transform),
       }}>
-      <div className="flex items-start gap-3">
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent opacity-60" />
+      <div aria-hidden className="pointer-events-none absolute -right-10 -top-12 size-24 rounded-full blur-2xl transition-opacity group-hover:opacity-100"
+        style={{ background: tone.glow, opacity: 0.45 }} />
+      <div className="relative flex items-start gap-3">
         <button type="button" {...attributes} {...listeners}
-          className="mt-0.5 flex size-9 shrink-0 cursor-grab items-center justify-center rounded-lg border border-violet-300/15 bg-violet-300/[0.07] text-violet-200 active:cursor-grabbing"
+          className={`mt-0.5 flex size-9 shrink-0 cursor-grab items-center justify-center rounded-lg border ${tone.ring} ${tone.soft} ${tone.text} active:cursor-grabbing`}
           aria-label={`${file.name} 드래그`}>
           <GripVertical className="size-4" />
         </button>
-        <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-slate-300">
+        <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-200">
           <FileTypeIcon mimeType={file.mimeType} className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-medium text-white">{file.name}</p>
-            {file.categoryLocked && <span className="shrink-0 rounded-full bg-emerald-300/[0.08] px-1.5 py-0.5 text-[10px] text-emerald-200">수동</span>}
+          <div className="flex min-w-0 items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-white">{file.name}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-2 py-0.5 text-[10px] font-medium text-emerald-200">
+                  <ShieldCheck className="size-3" />
+                  certified
+                </span>
+                <span className="rounded-full border border-white/10 bg-white/[0.035] px-2 py-0.5 text-[10px] text-slate-500">
+                  sha {fileFingerprint(file.fileHash)}
+                </span>
+                <span className="rounded-full border border-white/10 bg-white/[0.035] px-2 py-0.5 text-[10px] text-slate-500">
+                  {formatFileSize(file.fileSize)}
+                </span>
+                {confidence !== null && (
+                  <span className={`rounded-full border ${tone.ring} ${tone.soft} px-2 py-0.5 text-[10px] ${tone.text}`}>
+                    AI {confidence}%
+                  </span>
+                )}
+                {file.categoryLocked && <span className="rounded-full bg-emerald-300/[0.08] px-2 py-0.5 text-[10px] text-emerald-200">수동 고정</span>}
+              </div>
+            </div>
+            <button onClick={() => setDeleteConfirm(file.id)}
+              className="shrink-0 rounded-lg p-1.5 text-slate-600 transition-all hover:bg-rose-400/10 hover:text-rose-300"
+              aria-label={`${file.name} 삭제`}>
+              <Trash2 className="size-3.5" />
+            </button>
           </div>
           {editingDesc?.id === file.id ? (
             <input autoFocus value={editingDesc!.value}
@@ -123,30 +200,22 @@ function PortfolioFileCard({
                 if (e.key === 'Escape') setEditingDesc(null)
               }}
               maxLength={200} placeholder="설명 입력..."
-              className="mt-1 w-full rounded-lg border border-[#6d28d9] bg-[#0f172a] px-2 py-1 text-xs text-slate-300 outline-none" />
+              className="mt-3 w-full rounded-lg border border-violet-300/40 bg-[#070b15] px-3 py-2 text-xs text-slate-200 outline-none" />
           ) : (
             <p onClick={() => setEditingDesc({ id: file.id, value: file.description ?? '' })}
-              className="mt-1 min-h-[16px] cursor-pointer truncate text-xs text-slate-500 transition-colors hover:text-slate-300">
+              className="mt-3 min-h-[34px] cursor-pointer rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-xs leading-5 text-slate-400 transition-colors line-clamp-2 hover:border-white/10 hover:text-slate-200">
               {file.description || '+ 설명 추가'}
             </p>
           )}
-          <div className="mt-2 flex flex-wrap gap-1">
+          <div className="mt-3 flex flex-wrap gap-1.5">
             {FILE_CATEGORIES.filter(item => item.key !== categoryKey).map(item => (
               <button key={item.key}
                 onClick={() => moveFileToCategory(file.id, item.key)}
-                className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-slate-500 transition-colors hover:border-violet-300/30 hover:text-violet-200">
+                className="rounded-full border border-white/10 bg-white/[0.02] px-2 py-1 text-[10px] text-slate-500 transition-colors hover:border-violet-300/30 hover:bg-violet-300/[0.06] hover:text-violet-200">
                 {item.label}
               </button>
             ))}
           </div>
-        </div>
-        <div className="flex shrink-0 flex-col items-center gap-2">
-          <ShieldCheck className="size-4 text-emerald-400" />
-          <button onClick={() => setDeleteConfirm(file.id)}
-            className="rounded p-1 text-rose-400 opacity-70 transition-all hover:bg-rose-400/10 hover:opacity-100"
-            aria-label={`${file.name} 삭제`}>
-            <Trash2 className="size-3.5" />
-          </button>
         </div>
       </div>
     </div>
@@ -175,26 +244,38 @@ function CategoryDropZone({
   loadPortfolio: () => void
 }) {
   const { isOver, setNodeRef } = useDroppable({ id: category.key })
+  const tone = CATEGORY_TONES[category.key] ?? CATEGORY_TONES.document
 
   return (
     <div ref={setNodeRef}
-      className={`min-h-[260px] rounded-2xl border p-3 backdrop-blur-sm transition-colors ${
-        isOver ? 'border-violet-300/45 bg-violet-300/[0.07]' : 'border-white/10 bg-[#0b1020]/80'
+      className={`min-h-[320px] overflow-hidden rounded-2xl border p-3 backdrop-blur-sm transition-all ${
+        isOver ? `${tone.ring} ${tone.soft} shadow-[0_0_0_1px_rgba(255,255,255,0.05)]` : 'border-white/10 bg-[#0b1020]/82'
       }`}>
-      <div className="mb-3 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold text-white">{category.label}</p>
-          <p className="mt-0.5 text-[11px] text-slate-500">{category.detail}</p>
+      <div className="relative mb-3 overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 py-3">
+        <div aria-hidden className="absolute -right-6 -top-10 size-24 rounded-full blur-2xl"
+          style={{ background: tone.glow }} />
+        <div className="relative flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className={`flex items-center gap-2 text-sm font-semibold ${tone.text}`}>
+              <span className={`size-2 rounded-full ${tone.dot}`} />
+              {category.label}
+            </p>
+            <p className="mt-1 truncate text-[11px] text-slate-500">{category.detail}</p>
+          </div>
+          <div className="text-right">
+            <span className={`inline-flex min-w-9 justify-center rounded-full border ${tone.ring} ${tone.soft} px-2.5 py-1 text-xs font-semibold ${tone.text}`}>
+              {category.files.length}
+            </span>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-slate-600">files</p>
+          </div>
         </div>
-        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] text-slate-400">
-          {category.files.length}
-        </span>
       </div>
       <FileUploadZone portfolioId={portfolioId} assignedCategory={category.key} onUploaded={loadPortfolio} compact />
       <div className="mt-3 space-y-2">
         {category.files.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 px-3 py-6 text-center text-xs text-slate-600">
-            파일을 업로드하거나 여기로 드래그하세요
+          <div className={`rounded-xl border border-dashed ${tone.ring} bg-white/[0.018] px-3 py-8 text-center`}>
+            <FolderOpen className={`mx-auto mb-2 size-5 ${tone.text} opacity-70`} />
+            <p className="text-xs text-slate-500">파일을 업로드하거나 여기로 드래그하세요</p>
           </div>
         ) : category.files.map((file: any, i: number) => (
           <PortfolioFileCard
@@ -467,8 +548,8 @@ export default function PortfolioPage() {
         value={storyForm[key]}
         onChange={e => setStoryForm(prev => ({ ...prev, [key]: e.target.value }))}
         placeholder={placeholder}
-        rows={key === 'summary' ? 4 : 3}
-        className="w-full resize-none rounded-xl border border-white/10 bg-[#0b1020] px-3 py-2.5 text-sm leading-6 text-white outline-none placeholder:text-[#475569] focus:border-[#6d28d9]"
+        rows={key === 'summary' || key === 'impact' ? 5 : 4}
+        className="min-h-[132px] w-full resize-none rounded-xl border border-white/10 bg-[#0b1020] px-3 py-3 text-sm leading-6 text-white outline-none placeholder:text-[#475569] focus:border-[#6d28d9]"
       />
     </label>
   )

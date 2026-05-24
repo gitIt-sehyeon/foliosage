@@ -115,6 +115,45 @@ function FeedbackText({ value }: { value: string | null }) {
   )
 }
 
+function ReviewTurnHistory({ turns }: { turns: DefenseTurn[] }) {
+  const answeredTurns = turns.filter(t => t.answered)
+  if (answeredTurns.length === 0) return null
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#94a3b8]">리뷰 대화 기록</p>
+        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] text-[#64748b]">
+          {answeredTurns.length} answers
+        </span>
+      </div>
+      {answeredTurns.map(turn => (
+        <div key={turn.id} className="rounded-xl border border-white/10 bg-[#0b1020] p-3">
+          <p className="text-xs font-medium text-[#c4b5fd]">Q{turn.questionIndex + 1}. {turn.question}</p>
+          {turn.answer && (
+            <div className="mt-3 rounded-lg border border-violet-300/15 bg-violet-300/[0.045] px-3 py-2">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-violet-200">내 답변</p>
+              <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#e2e8f0]">{turn.answer}</p>
+            </div>
+          )}
+          <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.16em] text-[#94a3b8]">AI 피드백</p>
+          <FeedbackText value={turn.feedback} />
+          {turn.evidence.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {turn.evidence.map(item => (
+                <span key={`${turn.id}-${item.fileId}`} className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/[0.07] px-2.5 py-1 text-[11px] text-emerald-200">
+                  <FileCheck2 className="size-3" />
+                  <span className="truncate">{item.name}</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 type WorkingStage = 'thinking' | 'reading' | 'scoring'
 
 function AIWorkingMascot({ stage }: { stage: WorkingStage }) {
@@ -284,6 +323,15 @@ export default function DefenseRoom({
               </div>
             ))}
           </div>
+          {session.scorecard.missingProof.length > 0 && (
+            <div className="rounded-xl border border-amber-300/15 bg-amber-300/[0.045] p-3">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">부족한 증거</p>
+              <ul className="mt-2 space-y-1 text-xs leading-5 text-amber-100">
+                {session.scorecard.missingProof.map(item => <li key={item}>- {item}</li>)}
+              </ul>
+            </div>
+          )}
+          <ReviewTurnHistory turns={session.turns} />
           <button
             onClick={start}
             disabled={loading}
@@ -324,31 +372,7 @@ export default function DefenseRoom({
             </div>
           )}
 
-          <div className="space-y-3">
-            {session.turns.filter(t => t.answered).map(turn => (
-              <div key={turn.id} className="rounded-xl border border-white/10 bg-[#0b1020] p-3">
-                <p className="text-xs font-medium text-[#c4b5fd]">Q{turn.questionIndex + 1}. {turn.question}</p>
-                {turn.answer && (
-                  <div className="mt-3 rounded-lg border border-violet-300/15 bg-violet-300/[0.045] px-3 py-2">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-violet-200">내 답변</p>
-                    <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#e2e8f0]">{turn.answer}</p>
-                  </div>
-                )}
-                <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.16em] text-[#94a3b8]">AI 피드백</p>
-                <FeedbackText value={turn.feedback} />
-                {turn.evidence.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {turn.evidence.map(item => (
-                      <span key={`${turn.id}-${item.fileId}`} className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/[0.07] px-2.5 py-1 text-[11px] text-emerald-200">
-                        <FileCheck2 className="size-3" />
-                        <span className="truncate">{item.name}</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <ReviewTurnHistory turns={session.turns} />
         </div>
       )}
 
