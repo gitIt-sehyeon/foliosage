@@ -48,6 +48,15 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
     }
   }
 
+  const handleConfirm = async () => {
+    try {
+      await api.post(`/api/portfolios/${portfolioId}/organize/confirm`)
+    } catch {
+      // navigate even on failure — data is already persisted
+    }
+    router.push(`/portfolios/${portfolioId}`)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#070b15', color: '#fff' }}>
       {/* Top nav */}
@@ -86,7 +95,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
           </button>
           <button
             disabled={!isDone}
-            onClick={() => router.push(`/portfolios/${portfolioId}`)}
+            onClick={handleConfirm}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
