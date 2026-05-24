@@ -127,10 +127,10 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
     ] : []
   const story = portfolio?.story
   const storySections = portfolio ? [
-    { label: 'Role', value: story?.role },
-    { label: 'Problem', value: story?.problem },
-    { label: 'Solution', value: story?.solution },
-    { label: 'Impact', value: story?.impact },
+    { label: '역할', value: story?.role },
+    { label: '문제', value: story?.problem },
+    { label: '해결', value: story?.solution },
+    { label: '임팩트', value: story?.impact },
   ].filter(item => item.value && item.value.trim()) : []
 
   const BENTO_PATTERNS = [
@@ -260,20 +260,20 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-300/20 bg-violet-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-violet-200">
                     <span className="size-1.5 rounded-full bg-violet-300" />
-                    Live
+                    공개 중
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-cyan-200">
                     <Sparkles className="size-3" />
-                    AI reviewed
+                    AI 리뷰 완료
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-emerald-200">
                     <ShieldCheck className="size-3" />
-                    {portfolio.files.filter(f => f.certifiedAt).length} verified
+                    인증 파일 {portfolio.files.filter(f => f.certifiedAt).length}개
                   </span>
                 </div>
 
                 <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-slate-500">
-                  Portfolio · {portfolio.ownerName ?? ''}
+                  포트폴리오 · {portfolio.ownerName ?? ''}
                 </p>
 
                 <h1 className="mt-3 text-6xl font-semibold leading-none sm:text-7xl"
@@ -297,11 +297,11 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                     <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 text-xs font-bold text-white">
                       {creatorInitials(portfolio.ownerName)}
                     </span>
-                    <span className="font-semibold text-slate-200">{portfolio.ownerName ?? 'Creator'}</span>
+                    <span className="font-semibold text-slate-200">{portfolio.ownerName ?? '작성자'}</span>
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Eye className="size-3.5" />
-                    {portfolio.viewCount.toLocaleString()} views
+                    조회 {portfolio.viewCount.toLocaleString()}회
                   </span>
                   <span>{portfolio.files.length}개 파일</span>
                 </div>
@@ -312,7 +312,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
               {/* ── Story section ── */}
               {storySections.length > 0 && (
                 <section className="mt-14">
-                  <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">The story</p>
+                  <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">스토리</p>
                   <div className="space-y-3">
                     {storySections.map(({ label, value }, i) => (
                       <div key={label}
@@ -334,7 +334,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
               {portfolio.files.length > 0 && (
                 <section className="mt-14">
                   <div className="mb-4 flex items-baseline justify-between">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">Evidence · {portfolio.files.length} files</p>
+                    <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">근거 파일 · {portfolio.files.length}개</p>
                     <span className="text-[11px] text-slate-600">모두 해시 + 타임스탬프 인증</span>
                   </div>
                   <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '110px' }}>
@@ -362,7 +362,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-white">{f.name.replace(/\.[^.]+$/, '')}</p>
-                              <p className="mt-1 line-clamp-2 text-xs text-slate-400">{f.description || 'Certified source file'}</p>
+                              <p className="mt-1 line-clamp-2 text-xs text-slate-400">{f.description || '인증된 원본 파일'}</p>
                             </div>
                           </div>
                         </button>
@@ -377,7 +377,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                 style={{ background: 'linear-gradient(140deg, rgba(124,58,237,0.20), rgba(11,16,32,0.70) 70%)' }}>
                 <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">이 포트폴리오에 대해</p>
                 <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-                  AI Guide에게 무엇이든 물어보세요
+                  AI 가이드에게 무엇이든 물어보세요
                 </h2>
                 <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-400">
                   {portfolio.files.length}개 파일을 기반으로 답변하며, 인용한 소스를 항상 표기합니다.

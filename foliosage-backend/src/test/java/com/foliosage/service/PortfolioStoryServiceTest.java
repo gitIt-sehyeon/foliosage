@@ -31,7 +31,7 @@ class PortfolioStoryServiceTest {
         String prompt = service.buildPrompt(portfolio, files);
 
         assertThat(prompt).contains("case-study.pdf", "vs-1", "metrics.csv", "vs-2");
-        assertThat(prompt).contains("interview-ready evidence portfolio");
+        assertThat(prompt).contains("반드시 자연스러운 한국어로만 작성하세요");
     }
 
     @Test
@@ -93,5 +93,6 @@ class PortfolioStoryServiceTest {
         assertThat(response.status()).isEqualTo("ready");
         assertThat(response.summary()).isEqualTo("A portfolio project");
         assertThat(response.evidenceHighlights()).hasSize(1);
+        assertThat(response.interviewQuestions().get(0)).contains("본인이 직접 맡은 역할");
     }
 }

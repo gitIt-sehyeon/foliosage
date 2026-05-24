@@ -399,7 +399,7 @@ export default function PortfolioPage() {
                 {readiness?.aiReviewReady && (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-cyan-200">
                     <Sparkles className="size-3" />
-                    AI reviewed
+                    AI 리뷰 완료
                   </span>
                 )}
               </div>
@@ -520,7 +520,7 @@ export default function PortfolioPage() {
                 <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-6 backdrop-blur-xl">
                   <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-violet-200">Portfolio story</p>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-violet-200">포트폴리오 스토리</p>
                       <h3 className="mt-1 text-base font-semibold text-white">프로젝트 파일을 면접용 증거 스토리로 정리하세요</h3>
                       {portfolio.story?.generatedAt && (
                         <p className="mt-1 text-xs text-slate-500">
@@ -532,7 +532,7 @@ export default function PortfolioPage() {
                       <button onClick={generateStory} disabled={storyGenerating || files.length === 0}
                         className="inline-flex items-center gap-2 rounded-lg bg-violet-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-400 disabled:opacity-45">
                         {storyGenerating ? <Loader2 className="size-4 animate-spin" /> : <Bot className="size-4" />}
-                        {portfolio.story ? '다시 생성' : 'Generate Story'}
+                        {portfolio.story ? '다시 생성' : '스토리 생성'}
                       </button>
                       <button onClick={saveStory} disabled={storySaving}
                         className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:bg-white/[0.07] disabled:opacity-45">
@@ -548,12 +548,12 @@ export default function PortfolioPage() {
                     </p>
                   )}
                   <div className="grid gap-3 lg:grid-cols-2">
-                    {storyField('summary', 'Summary', '이 프로젝트를 한 문단으로 설명하세요.')}
-                    {storyField('role', 'My Role', '본인이 맡은 역할과 책임을 적으세요.')}
-                    {storyField('problem', 'Problem', '해결하려던 문제나 맥락을 적으세요.')}
-                    {storyField('solution', 'Solution', '접근 방식과 핵심 결정을 적으세요.')}
+                    {storyField('summary', '요약', '이 프로젝트를 한 문단으로 설명하세요.')}
+                    {storyField('role', '내 역할', '본인이 맡은 역할과 책임을 적으세요.')}
+                    {storyField('problem', '문제', '해결하려던 문제나 맥락을 적으세요.')}
+                    {storyField('solution', '해결', '접근 방식과 핵심 결정을 적으세요.')}
                     <div className="lg:col-span-2">
-                      {storyField('impact', 'Impact', '결과, 배운 점, 측정 가능한 임팩트를 적으세요.')}
+                      {storyField('impact', '임팩트', '결과, 배운 점, 측정 가능한 임팩트를 적으세요.')}
                     </div>
                   </div>
                 </div>
@@ -561,7 +561,7 @@ export default function PortfolioPage() {
                 {/* Evidence highlights + interview questions */}
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-5 backdrop-blur-xl">
-                    <p className="mb-3 text-sm font-semibold text-white">Evidence Highlights</p>
+                    <p className="mb-3 text-sm font-semibold text-white">핵심 근거</p>
                     {storyForm.evidenceHighlights.length === 0 ? (
                       <p className="text-xs text-slate-500">스토리를 생성하면 핵심 증거 파일이 여기에 표시됩니다.</p>
                     ) : (
@@ -581,7 +581,7 @@ export default function PortfolioPage() {
                     )}
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-5 backdrop-blur-xl">
-                    <p className="mb-3 text-sm font-semibold text-white">Interview Questions</p>
+                    <p className="mb-3 text-sm font-semibold text-white">면접 질문</p>
                     {storyForm.interviewQuestions.length === 0 ? (
                       <p className="text-xs text-slate-500">생성된 면접 질문이 여기에 표시됩니다.</p>
                     ) : (

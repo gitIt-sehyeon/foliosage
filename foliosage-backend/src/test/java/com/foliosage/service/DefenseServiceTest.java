@@ -47,7 +47,8 @@ class DefenseServiceTest {
 
         String prompt = service.buildQuestionPrompt(portfolio, files);
 
-        assertThat(prompt).contains("Do not focus on only the first file; cover at least 3 distinct files when available.");
+        assertThat(prompt).contains("반드시 자연스러운 한국어로만 작성하세요");
+        assertThat(prompt).contains("첫 번째 파일에만 집중하지 말고");
         assertThat(prompt).contains("[1/3] Brand system.pdf");
         assertThat(prompt).contains("[2/3] Research notes.md");
         assertThat(prompt).contains("[3/3] Prototype demo.mov");

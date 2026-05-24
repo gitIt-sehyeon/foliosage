@@ -204,12 +204,12 @@ public class DefenseService {
                         || containsFilenameToken(joinedHints, name);
             }
             if (matched && seen.add(file.getId())) {
-                matches.add(toEvidenceChip(file, reason.isBlank() ? "Referenced by AI defense review" : reason));
+                matches.add(toEvidenceChip(file, reason.isBlank() ? "AI 포트폴리오 리뷰에서 참조한 근거입니다." : reason));
             }
         }
         if (fallbackToFirstFile && matches.isEmpty() && !files.isEmpty()) {
             PortfolioFile file = files.get(0);
-            matches.add(toEvidenceChip(file, "AI response referenced portfolio files but did not return a precise citation"));
+            matches.add(toEvidenceChip(file, "AI 응답이 포트폴리오 파일을 참조했지만 정확한 인용 파일을 반환하지 않았습니다."));
         }
         return matches.size() > 4 ? matches.subList(0, 4) : matches;
     }
@@ -233,18 +233,18 @@ public class DefenseService {
                         clampScore(node.path("overallScore").asInt(node.path("overall_score").asInt(average(categories)))),
                         categories,
                         readStringList(node.path("missingProof").isMissingNode() ? node.path("missing_proof") : node.path("missingProof")),
-                        node.path("summary").asText("AI review complete.")
+                        node.path("summary").asText("AI 리뷰가 완료되었습니다.")
                 );
             }
         }
         List<ScoreCategoryDto> categories = List.of(
-                new ScoreCategoryDto("Originality", 78, "The defense explains the creator's intent but needs more explicit originality proof."),
-                new ScoreCategoryDto("Technical Depth", 76, "Technical choices are present and can be strengthened with implementation artifacts."),
-                new ScoreCategoryDto("Evidence Strength", 72, "Uploaded files support the story, with room for more process evidence."),
-                new ScoreCategoryDto("Story Clarity", 80, "The narrative is coherent and ready for public review."),
-                new ScoreCategoryDto("Missing Proof", 68, "Add source files, drafts, or result metrics to close proof gaps.")
+                new ScoreCategoryDto("독창성", 78, "창작 의도는 설명되어 있으나 본인만의 기여를 더 직접적으로 증명할 필요가 있습니다."),
+                new ScoreCategoryDto("기술 깊이", 76, "기술적 선택은 드러나지만 구현 산출물로 더 강화할 수 있습니다."),
+                new ScoreCategoryDto("근거 강도", 72, "업로드된 파일이 스토리를 뒷받침하지만 과정 증거를 더 보강할 여지가 있습니다."),
+                new ScoreCategoryDto("스토리 명확성", 80, "전체 서사는 일관적이며 공개 검토에 활용할 수 있습니다."),
+                new ScoreCategoryDto("부족한 증거", 68, "원본 파일, 초안, 결과 지표를 추가하면 증거 공백을 줄일 수 있습니다.")
         );
-        return new DefenseScorecardDto(average(categories), categories, List.of("Add more process artifacts or measurable outcomes."), raw);
+        return new DefenseScorecardDto(average(categories), categories, List.of("작업 과정 산출물이나 측정 가능한 결과를 더 추가하세요."), raw);
     }
 
     private DefenseSessionResponse toSessionResponse(PortfolioDefenseSession session) {
@@ -299,29 +299,31 @@ public class DefenseService {
 
     String buildQuestionPrompt(Portfolio portfolio, List<PortfolioFile> files) {
         return """
-                You are an AI portfolio judge. Generate exactly 5 defense questions for this portfolio.
-                Return JSON only: {"questions":["..."]}.
-                Cover authorship, design/technical decisions, measurable impact, evidence strength, originality, and missing proof.
-                Use the full file manifest when selecting questions. Do not focus on only the first file; cover at least 3 distinct files when available.
-                Mention the most relevant file names in the questions so the creator must defend evidence across multiple uploaded files.
-                Portfolio: %s
-                Description: %s
-                Generated story:
+                당신은 AI 포트폴리오 심사위원입니다. 이 포트폴리오에 대한 방어 질문을 정확히 5개 생성하세요.
+                반드시 자연스러운 한국어로만 작성하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
+                JSON만 반환하세요: {"questions":["..."]}.
+                질문은 작성자 본인성, 디자인/기술 의사결정, 측정 가능한 임팩트, 근거 강도, 독창성, 부족한 증거를 다뤄야 합니다.
+                질문을 고를 때 전체 파일 목록을 사용하세요. 첫 번째 파일에만 집중하지 말고, 가능하면 서로 다른 파일 3개 이상을 다루세요.
+                질문 안에 관련 파일명을 언급해 작성자가 여러 업로드 파일의 근거를 방어하게 하세요.
+                포트폴리오: %s
+                설명: %s
+                생성된 스토리:
                 %s
-                Files:
+                파일:
                 %s
                 """.formatted(portfolio.getTitle(), nullToEmpty(portfolio.getDescription()), storyContext(portfolio), fileManifest(files));
     }
 
     private String buildEvaluationPrompt(String question, String answer, Portfolio portfolio, List<PortfolioFile> files) {
         return """
-                Evaluate this creator answer against the shared portfolio files.
-                Return JSON only: {"feedback":"...", "evidenceFiles":["exact filename or file id"], "missingProof":"..."}.
-                Question: %s
-                Answer: %s
-                Generated story:
+                공유된 포트폴리오 파일을 기준으로 작성자의 답변을 평가하세요.
+                반드시 자연스러운 한국어로만 작성하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
+                JSON만 반환하세요: {"feedback":"...", "evidenceFiles":["exact filename or file id"], "missingProof":"..."}.
+                질문: %s
+                답변: %s
+                생성된 스토리:
                 %s
-                Available files:
+                사용 가능한 파일:
                 %s
                 """.formatted(question, answer, storyContext(portfolio), fileManifest(files));
     }
@@ -334,14 +336,15 @@ public class DefenseService {
             transcript.append("Feedback: ").append(nullToEmpty(turn.getFeedback())).append("\n\n");
         }
         return """
-                Create a final portfolio defense scorecard.
-                Return JSON only: {"overallScore":0-100,"categories":[{"name":"Originality","score":0-100,"rationale":"..."}],"missingProof":["..."],"summary":"..."}.
-                Required categories: Originality, Technical Depth, Evidence Strength, Story Clarity, Missing Proof.
-                Transcript:
+                최종 포트폴리오 방어 평가표를 만드세요.
+                반드시 자연스러운 한국어로만 작성하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
+                JSON만 반환하세요: {"overallScore":0-100,"categories":[{"name":"독창성","score":0-100,"rationale":"..."}],"missingProof":["..."],"summary":"..."}.
+                필수 카테고리: 독창성, 기술 깊이, 근거 강도, 스토리 명확성, 부족한 증거.
+                대화 기록:
                 %s
-                Generated story:
+                생성된 스토리:
                 %s
-                Files:
+                파일:
                 %s
                 """.formatted(transcript, storyContext(portfolio), fileManifest(files));
     }

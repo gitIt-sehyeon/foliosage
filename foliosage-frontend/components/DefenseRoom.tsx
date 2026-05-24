@@ -101,13 +101,13 @@ function FeedbackText({ value }: { value: string | null }) {
       {main && <p className="whitespace-pre-wrap text-sm leading-6 text-[#cbd5e1]">{main}</p>}
       {evidenceFiles.length > 0 && (
         <div className="rounded-lg border border-emerald-300/15 bg-emerald-300/[0.045] px-3 py-2">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-200">Evidence</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-200">근거 파일</p>
           <p className="mt-1 text-xs leading-5 text-emerald-100">{evidenceFiles.join(', ')}</p>
         </div>
       )}
       {missingProof.length > 0 && (
         <div className="rounded-lg border border-amber-300/15 bg-amber-300/[0.045] px-3 py-2">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">Missing proof</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">부족한 증거</p>
           <p className="mt-1 text-xs leading-5 text-amber-100">{missingProof.join(', ')}</p>
         </div>
       )}
@@ -233,7 +233,7 @@ export default function DefenseRoom({
         <div>
           <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#a78bfa]">
             <Gavel className="size-3.5" />
-            AI Portfolio Review
+            AI 포트폴리오 리뷰
           </p>
           <h3 className="mt-1 text-base font-semibold text-white">AI가 심사 질문을 만들고 증거 기반 피드백을 정리합니다</h3>
         </div>
@@ -269,7 +269,7 @@ export default function DefenseRoom({
           <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[0.06] p-4">
             <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
               <Award className="size-4" />
-              Proof Score {session.scorecard.overallScore}
+              근거 점수 {session.scorecard.overallScore}
             </p>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#cbd5e1]">
               {cleanDisplayText(session.scorecard.summary)}
@@ -300,7 +300,7 @@ export default function DefenseRoom({
             <div className="rounded-xl border border-violet-300/20 bg-[#1e0a3c]/55 p-4">
               <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#c4b5fd]">
                 <Bot className="size-4" />
-                Interview Question {currentTurn.questionIndex + 1}
+                면접 질문 {currentTurn.questionIndex + 1}
               </p>
               <p className="text-sm leading-6 text-white">{currentTurn.question}</p>
             </div>

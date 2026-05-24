@@ -76,9 +76,9 @@ export default function PublicDefensePanel({
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
               <ShieldCheck className="size-4" />
-              AI Review Scorecard
+              AI 리뷰 평가표
             </p>
-            <p className="text-xs text-[#64748b]">Evidence-backed review from this portfolio</p>
+            <p className="text-xs text-[#64748b]">이 포트폴리오 근거를 바탕으로 한 리뷰</p>
           </div>
           <button onClick={onClose} className="rounded-lg p-2 text-[#64748b] hover:bg-white/[0.06] hover:text-white" aria-label="닫기">
             <X className="size-4" />
@@ -100,11 +100,11 @@ export default function PublicDefensePanel({
               <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[0.07] p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
                   <Award className="size-4" />
-                  Overall {data.session.scorecard.overallScore}
+                  종합 점수 {data.session.scorecard.overallScore}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[#cbd5e1]">{cleanDisplayText(data.session.scorecard.summary)}</p>
                 <p className="mt-2 text-xs text-[#64748b]">
-                  {data.citedFileCount} cited files · {data.totalEvidenceCount} evidence matches
+                  인용 파일 {data.citedFileCount}개 · 근거 매칭 {data.totalEvidenceCount}개
                 </p>
               </div>
 

@@ -67,7 +67,7 @@ public class PortfolioStoryService {
         } catch (Exception e) {
             draft = fallbackDraft(portfolio, files);
             story.setStatus("ready");
-            story.setErrorMessage("AI returned an incomplete response, so FolioSage created a draft from portfolio metadata.");
+            story.setErrorMessage("AI 응답이 완전하지 않아 FolioSage가 포트폴리오 정보를 바탕으로 초안을 만들었습니다.");
         }
 
         applyDraft(story, draft);
@@ -120,11 +120,11 @@ public class PortfolioStoryService {
         if (evidenceReady) score += 25;
         if (aiReviewReady) score += 20;
         if (publicLinkReady) score += 25;
-        String nextAction = !evidenceReady ? "Upload project files"
-                : !storyReady ? "Generate Portfolio Story"
-                : !aiReviewReady ? "Run AI Portfolio Review"
-                : !publicLinkReady ? "Publish portfolio"
-                : "Ready to share";
+        String nextAction = !evidenceReady ? "프로젝트 파일 업로드"
+                : !storyReady ? "포트폴리오 스토리 생성"
+                : !aiReviewReady ? "AI 포트폴리오 리뷰 실행"
+                : !publicLinkReady ? "포트폴리오 공개"
+                : "공유 준비 완료";
         return new PortfolioReadinessResponse(score, storyReady, evidenceReady, aiReviewReady, publicLinkReady, nextAction);
     }
 
@@ -148,13 +148,15 @@ public class PortfolioStoryService {
 
     String buildPrompt(Portfolio portfolio, List<PortfolioFile> files) {
         return """
-                You are helping a job seeker turn project files into an interview-ready evidence portfolio.
-                Return JSON only using this exact shape:
+                당신은 취업 준비자가 프로젝트 파일을 면접에서 설명 가능한 근거 기반 포트폴리오로 정리하도록 돕는 AI입니다.
+                반드시 자연스러운 한국어로만 작성하세요. 파일명, 고유 ID, 기술명은 원문을 유지해도 됩니다.
+                아래 JSON 형태만 반환하세요:
                 {"summary":"...","role":"...","problem":"...","solution":"...","impact":"...","evidenceHighlights":[{"fileId":"database uuid","vaultsageFileId":"VaultSage id","fileName":"exact file name","reason":"..."}],"missingProof":["..."],"interviewQuestions":["..."]}.
-                Write concise, specific portfolio copy in first person where useful. Evidence highlights must cite real files from the manifest.
-                Portfolio title: %s
-                Portfolio description: %s
-                File manifest:
+                각 JSON 값은 간결하고 구체적인 한국어 문장으로 작성하고, 필요하면 1인칭을 사용하세요.
+                evidenceHighlights는 반드시 아래 파일 목록에 실제로 있는 파일만 인용해야 합니다.
+                포트폴리오 제목: %s
+                포트폴리오 설명: %s
+                파일 목록:
                 %s
                 """.formatted(portfolio.getTitle(), nullToEmpty(portfolio.getDescription()), fileManifest(files));
     }
@@ -195,23 +197,23 @@ public class PortfolioStoryService {
                 .limit(4)
                 .map(file -> new PortfolioStoryResponse.EvidenceHighlightDto(
                         file.getId(), file.getVaultsageFileId(), file.getName(),
-                        hasText(file.getDescription()) ? file.getDescription() : "Supports the project story with original source evidence."))
+                        hasText(file.getDescription()) ? file.getDescription() : "프로젝트 설명을 뒷받침하는 원본 근거 파일입니다."))
                 .toList();
-        String title = portfolio.getTitle() != null ? portfolio.getTitle() : "this project";
+        String title = portfolio.getTitle() != null ? portfolio.getTitle() : "이 프로젝트";
         return new StoryDraft(
-                hasText(portfolio.getDescription()) ? portfolio.getDescription() : "A focused portfolio story for " + title + ".",
-                "I contributed the planning, execution, and evidence collection shown in the uploaded files.",
-                "The project needed a clear explanation of the work, the decisions behind it, and proof that can stand up in an interview.",
-                "I organized the available artifacts into a portfolio narrative and connected each claim to supporting evidence.",
-                "The portfolio now gives reviewers a faster way to understand the project, inspect source files, and ask evidence-based questions.",
+                hasText(portfolio.getDescription()) ? portfolio.getDescription() : title + "를 설명하기 위한 포트폴리오 초안입니다.",
+                "업로드된 파일에 드러난 기획, 실행, 근거 정리를 담당했습니다.",
+                "이 프로젝트는 작업 내용과 의사결정 이유를 명확히 설명하고, 면접에서 확인 가능한 근거로 뒷받침할 필요가 있었습니다.",
+                "사용 가능한 산출물을 포트폴리오 흐름으로 정리하고 각 주장에 연결되는 근거 파일을 연결했습니다.",
+                "리뷰어가 프로젝트를 빠르게 이해하고 원본 파일을 확인하며 근거 기반 질문을 할 수 있게 되었습니다.",
                 highlights,
-                files.isEmpty() ? List.of("Upload source files, process artifacts, or measurable results.") : List.of("Add metrics, before/after comparisons, or process notes where available."),
+                files.isEmpty() ? List.of("원본 파일, 작업 과정 산출물, 측정 가능한 결과 자료를 업로드하세요.") : List.of("가능하다면 지표, 전후 비교, 작업 과정 메모를 추가하세요."),
                 List.of(
-                        "What was your specific role in this project?",
-                        "Which file best proves your strongest contribution, and why?",
-                        "What tradeoff did you make during the project?",
-                        "What measurable impact or outcome can you point to?",
-                        "What proof would you add next to make this portfolio stronger?"
+                        "이 프로젝트에서 본인이 직접 맡은 역할은 무엇이었나요?",
+                        "가장 강한 기여를 증명하는 파일은 무엇이며, 왜 그렇게 볼 수 있나요?",
+                        "프로젝트 진행 중 어떤 trade-off를 선택했나요?",
+                        "측정 가능한 성과나 결과로 제시할 수 있는 것은 무엇인가요?",
+                        "이 포트폴리오의 설득력을 높이기 위해 다음으로 어떤 근거를 추가하겠습니까?"
                 )
         );
     }
@@ -243,7 +245,7 @@ public class PortfolioStoryService {
                         matched.getId(),
                         matched.getVaultsageFileId(),
                         matched.getName(),
-                        item.path("reason").asText("Supports this portfolio story.")
+                        item.path("reason").asText("이 포트폴리오 설명을 뒷받침하는 근거입니다.")
                 ));
             }
         }

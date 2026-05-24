@@ -61,8 +61,8 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
               <MessageSquareText className="size-5" />
             </span>
             <div>
-              <p className="text-[#c4b5fd] font-semibold text-sm">AI Guide</p>
-              <p className="text-[#64748b] text-xs">Answers from this portfolio</p>
+              <p className="text-[#c4b5fd] font-semibold text-sm">AI 가이드</p>
+              <p className="text-[#64748b] text-xs">이 포트폴리오 근거로 답변합니다</p>
             </div>
           </div>
         </div>
@@ -70,7 +70,7 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
         <div className="flex-1 overflow-y-auto p-5 space-y-3 min-h-0">
           {suggestedQuestions.length > 0 && messages.length === 1 && (
             <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#64748b]">Try asking</p>
+              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#64748b]">추천 질문</p>
               <div className="space-y-1.5">
                 {suggestedQuestions.slice(0, 3).map(question => (
                   <button
@@ -147,9 +147,9 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
       <div className="px-4 py-3 border-b bg-gradient-to-r from-purple-600 to-pink-500">
         <p className="flex items-center gap-2 text-white font-semibold text-sm">
           <MessageSquareText className="size-4" />
-          Ask about this portfolio
+          이 포트폴리오에 대해 질문하기
         </p>
-        <p className="text-purple-100 text-xs">Powered by VaultSage AI</p>
+        <p className="text-purple-100 text-xs">VaultSage AI 기반 답변</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
@@ -193,7 +193,7 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder="Ask a question..."
+          placeholder="질문을 입력하세요..."
           className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-400"
           disabled={loading}
         />
