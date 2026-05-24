@@ -197,7 +197,7 @@ public class VaultSageService {
                 || scopeDirectoryId == null || scopeDirectoryId.isBlank()) {
             return;
         }
-        vaultSageClient.patch()
+        vaultSageClient.put()
                 .uri("/api/v1/smart-organizers/{id}", organizerId)
                 .bodyValue(Map.of("scope_directory_id", scopeDirectoryId))
                 .retrieve()
