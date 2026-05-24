@@ -5,16 +5,39 @@ import OrganizerBanner from './OrganizerBanner'
 import CategoryColumn from './CategoryColumn'
 import OrganizerReasoning from './OrganizerReasoning'
 import { useOrganizerResult } from './useOrganizerResult'
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import api from '@/lib/api'
 
 interface Props { portfolioId: string }
 
 export default function SmartOrganizerView({ portfolioId }: Props) {
   const router = useRouter()
-  const { data, error, startOrganize } = useOrganizerResult(portfolioId)
+  const { data, error, startOrganize, updateLocalCategory } = useOrganizerResult(portfolioId)
 
   const isDone = data?.status === 'done'
   const isRunning = data?.status === 'running'
   const isIdle = !data || data.status === 'idle'
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || !data) return
+    const fileId = active.id as string
+    const newCategoryKey = over.id as string
+    const oldCategory = data.categories.find(c => c.files.some(f => f.fileId === fileId))
+    if (!oldCategory || oldCategory.key === newCategoryKey) return
+
+    updateLocalCategory(fileId, newCategoryKey)
+
+    try {
+      await api.patch(`/api/portfolios/${portfolioId}/files/${fileId}/category`, {
+        category: newCategoryKey,
+      })
+    } catch {
+      updateLocalCategory(fileId, oldCategory.key)
+    }
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#070b15', color: '#fff' }}>
@@ -99,17 +122,19 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
               progressPercent={data.progressPercent}
               status={data.status}
             />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              {data.categories.map(cat => (
-                <CategoryColumn
-                  key={cat.key}
-                  categoryKey={cat.key}
-                  label={cat.label}
-                  subtitle={cat.subtitle}
-                  files={cat.files}
-                />
-              ))}
-            </div>
+            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {data.categories.map(cat => (
+                  <CategoryColumn
+                    key={cat.key}
+                    categoryKey={cat.key}
+                    label={cat.label}
+                    subtitle={cat.subtitle}
+                    files={cat.files}
+                  />
+                ))}
+              </div>
+            </DndContext>
             <OrganizerReasoning reasoning={data.reasoning} />
           </>
         )}

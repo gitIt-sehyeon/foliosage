@@ -1,4 +1,7 @@
-import { CheckCircle2 } from 'lucide-react'
+'use client'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { CheckCircle2, Lock } from 'lucide-react'
 
 interface Props {
   fileId: string
@@ -16,19 +19,25 @@ function formatSize(bytes: number | null): string {
 }
 
 export default function FileChip({ fileId, name, size, confidence, locked }: Props) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: fileId })
   return (
     <div
-      data-file-id={fileId}
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
       style={{
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '10px 12px', borderRadius: 10,
-        background: 'rgba(255,255,255,0.03)',
+        background: isDragging ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.03)',
         border: `1px solid ${locked ? 'rgba(167,139,250,0.30)' : 'rgba(255,255,255,0.04)'}`,
-        cursor: 'grab',
+        cursor: isDragging ? 'grabbing' : 'grab',
+        opacity: isDragging ? 0.5 : 1,
+        transform: CSS.Transform.toString(transform),
+        transition,
       }}
     >
-      <span style={{ color: '#6ee7b7', flexShrink: 0 }}>
-        <CheckCircle2 size={14} />
+      <span style={{ color: locked ? '#a78bfa' : '#6ee7b7', flexShrink: 0 }}>
+        {locked ? <Lock size={14} /> : <CheckCircle2 size={14} />}
       </span>
       <p style={{
         margin: 0, flex: 1, fontSize: 12.5, color: '#e2e8f0',

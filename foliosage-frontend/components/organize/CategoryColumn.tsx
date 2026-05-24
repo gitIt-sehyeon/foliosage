@@ -1,4 +1,7 @@
+'use client'
 import React from 'react'
+import { useDroppable } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Layers, ImageIcon, FileText, Archive, Sparkles } from 'lucide-react'
 import FileChip from './FileChip'
 
@@ -26,13 +29,19 @@ const CATEGORY_STYLE: Record<string, { icon: React.ReactNode; tone: string; bg: 
 
 export default function CategoryColumn({ categoryKey, label, subtitle, files }: Props) {
   const style = CATEGORY_STYLE[categoryKey] ?? CATEGORY_STYLE.document
+  const { setNodeRef, isOver } = useDroppable({ id: categoryKey })
 
   return (
-    <div style={{
-      borderRadius: 18, border: '1px solid rgba(255,255,255,0.06)',
-      background: 'rgba(255,255,255,0.02)',
-      minHeight: 200,
-    }}>
+    <div
+      ref={setNodeRef}
+      style={{
+        borderRadius: 18,
+        border: `1px solid ${isOver ? style.tone + '55' : 'rgba(255,255,255,0.06)'}`,
+        background: isOver ? style.bg : 'rgba(255,255,255,0.02)',
+        minHeight: 200,
+        transition: 'border-color 0.15s, background 0.15s',
+      }}
+    >
       <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{
@@ -58,16 +67,16 @@ export default function CategoryColumn({ categoryKey, label, subtitle, files }: 
           </span>
         </div>
       </div>
-      <div style={{ padding: '10px 12px', display: 'grid', gap: 5 }}>
-        {files.map(f => (
-          <FileChip key={f.fileId} {...f} />
-        ))}
-        {files.length === 0 && (
-          <p style={{ margin: '12px 0', fontSize: 12, color: '#334155', textAlign: 'center' }}>
-            파일 없음
-          </p>
-        )}
-      </div>
+      <SortableContext items={files.map(f => f.fileId)} strategy={verticalListSortingStrategy}>
+        <div style={{ padding: '10px 12px', display: 'grid', gap: 5 }}>
+          {files.map(f => <FileChip key={f.fileId} {...f} />)}
+          {files.length === 0 && (
+            <p style={{ margin: '12px 0', fontSize: 12, color: '#334155', textAlign: 'center' }}>
+              여기로 드래그
+            </p>
+          )}
+        </div>
+      </SortableContext>
     </div>
   )
 }
