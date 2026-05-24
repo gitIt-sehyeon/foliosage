@@ -31,8 +31,15 @@ public class PortfolioService {
     @Transactional
     public PortfolioResponse create(String userEmail, CreatePortfolioRequest req) {
         User user = getUser(userEmail);
-        String directoryId = vaultSageService.createDirectory(req.title());
-        String organizerId = vaultSageService.createOrganizer(req.title(), directoryId);
+        String directoryId;
+        String organizerId;
+        try {
+            directoryId = vaultSageService.createDirectory(req.title());
+            organizerId = vaultSageService.createOrganizer(req.title(), directoryId);
+        } catch (Exception e) {
+            log.error("Failed to create VaultSage workspace for user={}", userEmail, e);
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "VaultSage workspace creation failed", e);
+        }
         Portfolio portfolio = portfolioRepository.save(Portfolio.builder()
                 .user(user).title(req.title()).description(req.description())
                 .organizerId(organizerId).directoryId(directoryId).build());

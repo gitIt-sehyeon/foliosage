@@ -3,17 +3,20 @@ package com.foliosage.service;
 import com.foliosage.entity.Portfolio;
 import com.foliosage.entity.PortfolioFile;
 import com.foliosage.entity.User;
+import com.foliosage.dto.portfolio.CreatePortfolioRequest;
 import com.foliosage.repository.CertificateRepository;
 import com.foliosage.repository.PortfolioFileRepository;
 import com.foliosage.repository.PortfolioRepository;
 import com.foliosage.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class PortfolioServiceFileTest {
@@ -25,6 +28,24 @@ class PortfolioServiceFileTest {
     VaultSageService vaultSage = mock(VaultSageService.class);
 
     PortfolioService service = new PortfolioService(portfolioRepo, fileRepo, certRepo, userRepo, vaultSage, null, null, null);
+
+    @Test
+    void create_wrapsVaultSageFailureAsBadGateway() {
+        User user = new User();
+        user.setEmail("user@test.com");
+
+        when(userRepo.findByEmail("user@test.com")).thenReturn(Optional.of(user));
+        when(vaultSage.createDirectory("Demo Portfolio")).thenThrow(new RuntimeException("unauthorized"));
+
+        assertThatThrownBy(() -> service.create("user@test.com",
+                new CreatePortfolioRequest("Demo Portfolio", "demo")))
+                .isInstanceOfSatisfying(ResponseStatusException.class, ex -> {
+                    assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+                    assertThat(ex.getReason()).isEqualTo("VaultSage workspace creation failed");
+                });
+
+        verify(portfolioRepo, never()).save(any());
+    }
 
     @Test
     void deleteFile_throws403_whenFileDoesNotBelongToPortfolio() {
