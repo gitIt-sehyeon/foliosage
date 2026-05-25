@@ -20,6 +20,8 @@ FolioSage is a submission for **Visionary AI: NURIE.AI 2026 Cross-Platform Innov
 
 Live Demo: **https://foliosage.cloud**
 
+Live Page Sample : **https://www.foliosage.cloud/p/7WwwkQRJ**
+
 ### Submission Overview
 
 FolioSage turns scattered project files into an evidence-backed portfolio. A creator can upload proposals, presentation decks, PDFs, images, code files, and process artifacts. The system organizes those files, generates an interview-ready story, reviews the creator's answers with AI, and publishes a public portfolio where visitors can ask questions grounded in the uploaded files.
@@ -266,6 +268,8 @@ npm run build
 FolioSage는 **Visionary AI: NURIE.AI 2026 Cross-Platform Innovation Awards** 제출작입니다.
 
 라이브 데모: **https://foliosage.cloud**
+
+Live Page Sample : **https://www.foliosage.cloud/p/7WwwkQRJ**
 
 ### 제출작 개요
 
