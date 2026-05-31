@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.MessageDigest;
@@ -92,11 +93,17 @@ public class PortfolioService {
             String contentType = resolveUploadContentType(file.getOriginalFilename(), file.getContentType());
             vaultsageFileId = vaultSageService.uploadFile(
                     bytes,
-                    file.getOriginalFilename(),
+                    resolveVaultSageUploadFilename(file.getOriginalFilename(), contentType),
                     contentType,
                     portfolio.getDirectoryId());
             vaultSageService.requestPngPreview(vaultsageFileId);
+        } catch (WebClientResponseException e) {
+            log.warn("VaultSage upload failed for file='{}' status={} body={}",
+                    file.getOriginalFilename(), e.getStatusCode(), e.getResponseBodyAsString());
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "File upload to VaultSage failed", e);
         } catch (Exception e) {
+            log.warn("VaultSage upload failed for file='{}': {}",
+                    file.getOriginalFilename(), e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "File upload to VaultSage failed", e);
         }
 
@@ -128,7 +135,6 @@ public class PortfolioService {
         if (name.endsWith(".webp")) return "image/webp";
         if (name.endsWith(".gif")) return "image/gif";
         if (name.endsWith(".mp4")) return "video/mp4";
-        if (name.endsWith(".json")) return "application/json";
         if (name.endsWith(".txt") || name.endsWith(".md")) return "text/plain";
         if (name.endsWith(".zip") || name.endsWith(".gz") || name.endsWith(".tar")) return "application/zip";
         if (name.endsWith(".pptx")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
@@ -136,13 +142,33 @@ public class PortfolioService {
         if (name.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         if (name.endsWith(".doc")) return "application/msword";
         if (name.endsWith(".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        if (name.endsWith(".csv")) return "text/csv";
-        if (name.endsWith(".java") || name.endsWith(".py") || name.endsWith(".ts") || name.endsWith(".js")
+        if (name.endsWith(".json") || name.endsWith(".csv")) return "text/plain";
+        if (name.endsWith(".java") || name.endsWith(".py") || name.endsWith(".ts") || name.endsWith(".tsx")
+                || name.endsWith(".js") || name.endsWith(".jsx")
                 || name.endsWith(".kt") || name.endsWith(".go") || name.endsWith(".rs") || name.endsWith(".cpp")
-                || name.endsWith(".c") || name.endsWith(".cs") || name.endsWith(".html") || name.endsWith(".css")
+                || name.endsWith(".c") || name.endsWith(".h") || name.endsWith(".hpp")
+                || name.endsWith(".cs") || name.endsWith(".html") || name.endsWith(".css")
                 || name.endsWith(".xml") || name.endsWith(".yaml") || name.endsWith(".yml")
                 || name.endsWith(".sh") || name.endsWith(".sql")) return "text/plain";
         return contentType != null && !contentType.isBlank() ? contentType : "application/octet-stream";
+    }
+
+    private String resolveVaultSageUploadFilename(String filename, String contentType) {
+        if (filename == null || filename.isBlank()) return "upload";
+        String name = filename.toLowerCase(java.util.Locale.ROOT);
+        if (!"text/plain".equalsIgnoreCase(contentType)) return filename;
+        if (name.endsWith(".txt") || name.endsWith(".md")) return filename;
+        if (isSourceLikeFilename(name)) return filename + ".txt";
+        return filename;
+    }
+
+    private boolean isSourceLikeFilename(String name) {
+        return name.endsWith(".java") || name.endsWith(".py") || name.endsWith(".ts") || name.endsWith(".tsx")
+                || name.endsWith(".js") || name.endsWith(".jsx") || name.endsWith(".kt") || name.endsWith(".go")
+                || name.endsWith(".rs") || name.endsWith(".cpp") || name.endsWith(".c") || name.endsWith(".h")
+                || name.endsWith(".hpp") || name.endsWith(".cs") || name.endsWith(".html") || name.endsWith(".css")
+                || name.endsWith(".xml") || name.endsWith(".yaml") || name.endsWith(".yml")
+                || name.endsWith(".sh") || name.endsWith(".sql") || name.endsWith(".json") || name.endsWith(".csv");
     }
 
     @Transactional

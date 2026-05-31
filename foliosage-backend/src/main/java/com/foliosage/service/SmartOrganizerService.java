@@ -119,9 +119,11 @@ public class SmartOrganizerService {
         String n = name.toLowerCase();
 
         if (Set.of("zip","tar","gz","7z","rar","tgz").contains(ext)) return "deliverable";
-        if (n.matches(".*\\b(final|deliver|export|완성|납품|handoff)\\b.*")) return "deliverable";
+        if (hasDeliverableSignal(n)) return "deliverable";
 
-        if (Set.of("json","yaml","yml","css","ts","tsx","js","jsx","mjs","cjs").contains(ext)) return "system";
+        if (Set.of("java","py","kt","go","rs","cpp","c","h","hpp","cs",
+                "json","yaml","yml","xml","css","html","ts","tsx","js","jsx","mjs","cjs",
+                "sh","sql").contains(ext)) return "system";
         if (n.matches(".*\\b(system|token|guide|component|spec|brand|style.?guide)\\b.*")) return "system";
 
         if (Set.of("png","jpg","jpeg","gif","webp","svg","fig","sketch","psd","ai","xd","mp4","mov","avi","webm").contains(ext)) return "visual";
@@ -133,10 +135,33 @@ public class SmartOrganizerService {
         return "document";
     }
 
+    private boolean hasDeliverableSignal(String normalizedName) {
+        String padded = normalizedName
+                .replace('_', ' ')
+                .replace('-', ' ')
+                .replace('.', ' ');
+        boolean englishSignal = padded.matches(".*\\b(final|finalized|complete|completed|deliverable|deliverables|deliver|delivered|delivery|export|exported|handoff|submission|submit|submitted|release|released|launch|launched|ship|shipped|build|archive|package)\\b.*");
+        if (englishSignal) return true;
+        return normalizedName.contains("최종")
+                || normalizedName.contains("최종본")
+                || normalizedName.contains("완성")
+                || normalizedName.contains("완성본")
+                || normalizedName.contains("납품")
+                || normalizedName.contains("제출")
+                || normalizedName.contains("제출본")
+                || normalizedName.contains("산출물")
+                || normalizedName.contains("결과물")
+                || normalizedName.contains("배포")
+                || normalizedName.contains("릴리즈")
+                || normalizedName.contains("출시");
+    }
+
     int calculateConfidence(String name, String ext, String mimeType, String category) {
         return switch (category) {
             case "deliverable" -> Set.of("zip","tar","gz","7z","rar","tgz").contains(ext) ? 97 : 83;
-            case "system"      -> Set.of("json","yaml","yml","css","ts","tsx","js","jsx").contains(ext) ? 94 : 79;
+            case "system"      -> Set.of("java","py","kt","go","rs","cpp","c","h","hpp","cs",
+                    "json","yaml","yml","xml","css","html","ts","tsx","js","jsx","mjs","cjs",
+                    "sh","sql").contains(ext) ? 94 : 79;
             case "visual"      -> Set.of("png","jpg","jpeg","gif","webp","svg","fig","sketch","psd","ai").contains(ext) ? 95 : 81;
             case "document"    -> Set.of("pdf","md","txt","docx","pptx","key").contains(ext) ? 91 : 73;
             default            -> 70;
