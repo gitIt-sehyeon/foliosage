@@ -142,6 +142,16 @@ FolioSage uses VaultSage as a trust and AI layer for portfolio evidence.
 | Share API | Create controlled public access for portfolio evidence |
 | Public Chat API | Answer visitor questions from shared portfolio files |
 
+| VaultSage API endpoint | Used in FolioSage for | Backend entry point |
+| --- | --- | --- |
+| `POST /api/v1/directories/` | Create one evidence workspace per portfolio | `PortfolioService.create()` |
+| `POST /api/v1/files/` | Upload portfolio evidence files and store the returned `vaultsageFileId` | `PortfolioService.uploadFile()` |
+| `POST /api/v1/files/png-preview-reprocess/{id}` / `GET /api/v1/files/png-preview-download/{id}` | Generate and display file previews in the portfolio editor | `PortfolioService.uploadFile()`, `PortfolioController.preview()` |
+| `POST /api/v1/share/` | Create a public share code for published portfolio evidence | `PublishService.publish()` |
+| `GET /api/v1/files/stream-preview-anonymous` / `POST /api/v1/files/download` | Let visitors preview or download public evidence files | `PublicController.preview()`, `PublicController.rawFile()` |
+| `POST /api/v1/chat/public` | Power public AI chat and AI interview-style review questions from shared files | `PublicController.chat()`, `DefenseService` |
+| `POST /api/v1/chat/message/v2` | Generate private portfolio story and readiness feedback using uploaded evidence context | `PortfolioStoryService` |
+
 ### Competition Fit
 
 | Judging criterion | FolioSage focus |
@@ -390,6 +400,16 @@ FolioSage는 VaultSage를 포트폴리오 증거를 위한 신뢰 및 AI 계층�
 | 파일 메타데이터 + 로컬 Organizer | 파일별 카테고리, 신뢰도, 분류 이유, 수동 고정 상태 저장 |
 | Share API | 공개 포트폴리오 접근 범위 생성 |
 | Public Chat API | 공개된 파일에 근거한 방문자 질의응답 |
+
+| VaultSage API endpoint | FolioSage 사용 목적 | Backend 진입점 |
+| --- | --- | --- |
+| `POST /api/v1/directories/` | 포트폴리오별 증거 파일 workspace 생성 | `PortfolioService.create()` |
+| `POST /api/v1/files/` | 포트폴리오 증거 파일 업로드 및 `vaultsageFileId` 저장 | `PortfolioService.uploadFile()` |
+| `POST /api/v1/files/png-preview-reprocess/{id}` / `GET /api/v1/files/png-preview-download/{id}` | 포트폴리오 편집 화면의 파일 미리보기 생성 및 표시 | `PortfolioService.uploadFile()`, `PortfolioController.preview()` |
+| `POST /api/v1/share/` | 공개 포트폴리오 증거 파일용 share code 생성 | `PublishService.publish()` |
+| `GET /api/v1/files/stream-preview-anonymous` / `POST /api/v1/files/download` | 방문자의 공개 증거 파일 미리보기 및 다운로드 | `PublicController.preview()`, `PublicController.rawFile()` |
+| `POST /api/v1/chat/public` | 공개 AI 채팅 및 AI 면접형 리뷰 질문 생성 | `PublicController.chat()`, `DefenseService` |
+| `POST /api/v1/chat/message/v2` | 업로드된 증거 파일 맥락 기반 포트폴리오 스토리와 readiness 피드백 생성 | `PortfolioStoryService` |
 
 ### 공모전 적합성
 
