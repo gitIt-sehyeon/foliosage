@@ -3,15 +3,15 @@ import { MockAppNavbar, MockEyebrow, MockPill, MONO_FONT } from './mockup-primit
 
 export function LandingMockOrganize({ active }: { active: boolean }) {
   const cats = [
-    { label: '시스템',   icon: <Layers size={14} />,   tone: '#c4b5fd', bg: 'rgba(167,139,250,0.10)', files: ['Brand system.pdf', 'Color tokens.json'] },
-    { label: '비주얼',   icon: <ImageIcon size={14} />, tone: '#cffafe', bg: 'rgba(103,232,249,0.10)', files: ['Hero key visual.png', 'Concept board.jpg', 'Microsite hifi.fig'] },
-    { label: '문서',     icon: <FileText size={14} />,  tone: '#fde68a', bg: 'rgba(252,211,77,0.10)',  files: ['Process journal.md', 'Research notes.md'] },
-    { label: '아카이브', icon: <Archive size={14} />,   tone: '#a7f3d0', bg: 'rgba(110,231,183,0.10)', files: ['Final delivery.zip'] },
+    { label: 'System', icon: <Layers size={14} />, tone: '#c4b5fd', bg: 'rgba(167,139,250,0.10)', files: ['Brand system.pdf', 'Color tokens.json'] },
+    { label: 'Visual', icon: <ImageIcon size={14} />, tone: '#cffafe', bg: 'rgba(103,232,249,0.10)', files: ['Hero key visual.png', 'Concept board.jpg', 'Microsite hifi.fig'] },
+    { label: 'Document', icon: <FileText size={14} />, tone: '#fde68a', bg: 'rgba(252,211,77,0.10)', files: ['Process journal.md', 'Research notes.md'] },
+    { label: 'Deliverable', icon: <Archive size={14} />, tone: '#a7f3d0', bg: 'rgba(110,231,183,0.10)', files: ['Final delivery.zip'] },
   ]
 
   return (
     <div style={{ background: '#070b15', minHeight: 480 }}>
-      <MockAppNavbar right={<MockPill tone="violet" size="sm" dot>AI 정리 중</MockPill>} />
+      <MockAppNavbar right={<MockPill tone="violet" size="sm" dot>AI organizing</MockPill>} />
       <div style={{ padding: '18px 22px' }}>
         {/* Banner */}
         <div style={{
@@ -30,7 +30,7 @@ export function LandingMockOrganize({ active }: { active: boolean }) {
           </span>
           <div style={{ flex: 1 }}>
             <MockEyebrow color="#c4b5fd" tracking="0.22em">VaultSage Smart Organizer</MockEyebrow>
-            <p style={{ margin: '4px 0 0', fontSize: 14, fontWeight: 600, color: '#fff' }}>18개 파일을 프로젝트 근거 구조로 분류 중</p>
+            <p style={{ margin: '4px 0 0', fontSize: 14, fontWeight: 600, color: '#fff' }}>Classifying 18 files into an evidence structure</p>
           </div>
           <MockPill tone="cyan" size="sm" icon={<Sparkles size={10} />}>78%</MockPill>
         </div>
@@ -51,7 +51,7 @@ export function LandingMockOrganize({ active }: { active: boolean }) {
                   {c.icon}
                 </span>
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: '#fff' }}>{c.label}</p>
-                <span style={{ marginLeft: 'auto', fontSize: 10, color: '#64748b' }}>{c.files.length}개</span>
+                <span style={{ marginLeft: 'auto', fontSize: 10, color: '#64748b' }}>{c.files.length}</span>
               </div>
               <div style={{ display: 'grid', gap: 5 }}>
                 {c.files.map((f, fi) => (
@@ -72,7 +72,7 @@ export function LandingMockOrganize({ active }: { active: boolean }) {
         </div>
 
         <div style={{ marginTop: 12, fontSize: 11, color: '#64748b', textAlign: 'center' }}>
-          모든 파일은 의미별로 묶이며, 인용 가능한 "근거" 단위가 됩니다.
+          Files are grouped by meaning and become citable evidence units.
         </div>
       </div>
     </div>

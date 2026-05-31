@@ -226,11 +226,12 @@ public class PublicController {
     private String koreanChatMessage(String userMessage) {
         return """
                 %s
-                포트폴리오 파일 근거에 기반해 답하고, 확실하지 않은 내용은 추측하지 말고 한국어로 한계를 설명하세요.
+                Answer only from the portfolio files and story evidence. If the evidence is unclear or missing,
+                say that plainly instead of guessing. Keep the answer concise, structured, and easy to scan.
 
-                [사용자 질문]
+                [Visitor question]
                 %s
-                """.formatted(AiLanguageInstructions.KOREAN_ONLY, userMessage == null ? "" : userMessage);
+                """.formatted(AiLanguageInstructions.ENGLISH_ONLY, userMessage == null ? "" : userMessage);
     }
 
     @GetMapping("/users/{username}")

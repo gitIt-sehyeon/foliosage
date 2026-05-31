@@ -37,7 +37,7 @@ export default function FileLightbox({ name, fileHash, pdfUrl, imageUrl, onClose
             </div>
           ) : (
             <div className="flex h-full items-center justify-center text-slate-500">
-              <p className="text-sm">미리보기를 지원하지 않는 파일 형식입니다.</p>
+              <p className="text-sm">Preview is not available for this file type.</p>
             </div>
           )}
         </div>

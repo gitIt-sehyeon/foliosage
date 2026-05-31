@@ -268,12 +268,12 @@ function TopNav() {
         <div className="flex items-center gap-2">
           <Link href="/login">
             <Button variant="ghost" className="text-slate-300 hover:bg-white/5 hover:text-white">
-              로그인
+              Log in
             </Button>
           </Link>
           <Link href="/signup">
             <Button className="border border-violet-300/20 bg-violet-500 text-white shadow-[0_0_28px_rgba(124,58,237,0.28)] hover:bg-violet-400">
-              시작하기
+              Get started
             </Button>
           </Link>
         </div>
@@ -297,7 +297,7 @@ function Hero() {
           opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(14px)',
           transition: 'opacity 0.6s, transform 0.6s',
         }}>
-          <Pill tone="cyan" dot>작업 파일 → 인증된 포트폴리오 → AI 가이드</Pill>
+          <Pill tone="cyan" dot>Project files → verified portfolio → AI guide</Pill>
         </div>
 
         {/* H1 */}
@@ -328,8 +328,8 @@ function Hero() {
           opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(20px)',
           transition: 'opacity 0.7s 0.15s, transform 0.7s 0.15s',
         }}>
-          업로드한 프로젝트 파일을 AI가 정리해 면접에서 통하는 이야기로 만들어줍니다.
-          모든 파일은 해시로 인증되고, 방문자는 작품에 직접 질문할 수 있어요.
+          AI organizes your uploaded project files into an interview-ready story.
+          Every file is hash-certified, and visitors can ask questions about the work directly.
         </p>
 
         {/* CTAs */}
@@ -340,14 +340,14 @@ function Hero() {
         }}>
           <Link href="/signup">
             <Button size="lg" className="h-12 bg-violet-600 px-6 text-sm font-semibold text-white shadow-[0_0_28px_rgba(124,58,237,0.32)] hover:bg-violet-500">
-              포트폴리오 만들기
+              Create portfolio
               <ArrowRight className="size-4" />
             </Button>
           </Link>
           <Link href="/login">
             <Button size="lg" variant="outline" className="h-12 border-white/10 bg-white/[0.03] px-6 text-sm text-slate-200 hover:bg-white/[0.07] hover:text-white">
               <PlayCircle className="size-4" />
-              데모 둘러보기
+              Explore demo
             </Button>
           </Link>
         </div>
@@ -367,7 +367,7 @@ function Hero() {
           }}>
             <ArrowDown size={12} />
           </span>
-          스크롤해서 어떻게 사용하는지 보기
+          Scroll to see how it works
         </div>
       </div>
     </section>
@@ -394,16 +394,16 @@ function MomentsIntro() {
           fontSize: 'clamp(36px, 4.6vw, 68px)',
           fontWeight: 600, lineHeight: 1.02, letterSpacing: '-0.028em', color: '#fff',
         }}>
-          업로드부터 면접까지,<br />
+          From upload to interview,<br />
           <span style={{
             background: 'linear-gradient(120deg, #a78bfa, #67e8f9 60%, #fde68a)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>
-            일곱 장면.
+            in seven moments.
           </span>
         </h2>
         <p style={{ margin: '20px 0 0', fontSize: 17, color: '#94a3b8', lineHeight: 1.65, maxWidth: 680 }}>
-          전체 과정의 가장 강한 순간들. 실제 화면이 그대로 보입니다 — 작품이 어떻게 살아나는지.
+          The strongest moments in the workflow, shown with real product screens.
         </p>
       </div>
     </section>
@@ -415,10 +415,10 @@ function MomentsIntro() {
 function Capabilities() {
   const [ref, visible] = useReveal(0.18)
   const caps = [
-    { Icon: Files,             tone: 'violet' as const, fg: '#c4b5fd', t: '자동 정리된 아카이브',   d: '프로젝트, 보조 파일, 노트를 의미별로 묶어 깔끔한 포트폴리오 구조로.' },
-    { Icon: MessageSquareText, tone: 'cyan'   as const, fg: '#a5f3fc', t: '방문자용 AI 채팅',       d: '방문자가 역할 · 프로세스 · 파일 · 결과를 직접 물어볼 수 있어요.' },
-    { Icon: Fingerprint,       tone: 'amber'  as const, fg: '#fde68a', t: '모든 파일에 증명',       d: '타임스탬프 해시 인증서가 자동으로 붙습니다. 위·변조 방지.' },
-    { Icon: ShieldCheck,       tone: 'emerald' as const, fg: '#a7f3d0', t: '검증된 출처 인용',       d: 'AI 답변은 항상 인용한 원본 파일을 함께 표시합니다.' },
+    { Icon: Files,             tone: 'violet' as const, fg: '#c4b5fd', t: 'Automatically organized archive', d: 'Group project files, support materials, and notes into a clean portfolio structure.' },
+    { Icon: MessageSquareText, tone: 'cyan'   as const, fg: '#a5f3fc', t: 'Visitor AI chat', d: 'Visitors can ask directly about your role, process, files, and results.' },
+    { Icon: Fingerprint,       tone: 'amber'  as const, fg: '#fde68a', t: 'Proof on every file', d: 'Timestamped hash certificates are attached automatically.' },
+    { Icon: ShieldCheck,       tone: 'emerald' as const, fg: '#a7f3d0', t: 'Verified source citations', d: 'AI answers include the original evidence files they rely on.' },
   ]
 
   return (
@@ -427,18 +427,18 @@ function Capabilities() {
       style={{ position: 'relative', zIndex: 2, maxWidth: 1280, margin: '0 auto', padding: '80px 32px 56px' }}
     >
       <div style={{ marginBottom: 32 }}>
-        <Eyebrow tracking="0.28em">왜 FolioSage 인가</Eyebrow>
+        <Eyebrow tracking="0.28em">Why FolioSage</Eyebrow>
         <h2 style={{
           margin: '12px 0 0',
           fontSize: 'clamp(28px, 3.4vw, 48px)',
           fontWeight: 600, lineHeight: 1.05, letterSpacing: '-0.022em', color: '#fff', maxWidth: 760,
         }}>
-          단순한 갤러리가 아닙니다.{' '}
+          More than a gallery.{' '}
           <span style={{
             background: 'linear-gradient(120deg, #a78bfa, #67e8f9)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>
-            증거 기반의 포트폴리오 OS.
+            An evidence-backed portfolio OS.
           </span>
         </h2>
       </div>
@@ -485,30 +485,30 @@ function CapabilityCard({
 
 const PORTFOLIOS = [
   {
-    tag: 'Brand · Campaign', author: '민준 김', role: 'Lead designer',
+    tag: 'Brand · Campaign', author: 'Minjun Kim', role: 'Lead designer',
     title: 'Launch Campaign Portfolio',
-    desc: '9주의 스프린트로 봄 2026 캠페인 시각 시스템 구축. 18개 검증된 파일.',
-    stats: [['Files', '18'], ['AI 응답', '342'], ['Views', '1.2k']],
+    desc: 'A spring 2026 campaign visual system built across a nine-week sprint with 18 verified files.',
+    stats: [['Files', '18'], ['AI answers', '342'], ['Views', '1.2k']],
     mesh: 'linear-gradient(135deg, #1e1b4b, #0b1020 60%, #0f172a)',
     blobs: ['rgba(167,139,250,0.55)', 'rgba(34,211,238,0.40)', 'rgba(245,158,11,0.35)'],
     pills: [['emerald', '18 verified'], ['violet', 'AI reviewed'], ['cyan', 'Live']] as [string, string][],
     slug: 'launch',
   },
   {
-    tag: 'Product · UX', author: '서연 박', role: 'Product designer',
+    tag: 'Product · UX', author: 'Seoyeon Park', role: 'Product designer',
     title: 'Mobile Onboarding Study',
-    desc: '5가지 가설을 A/B 테스트로 검증. 사용자 인터뷰 노트 22개 인용.',
-    stats: [['Files', '11'], ['AI 응답', '128'], ['Views', '844']],
+    desc: 'Five hypotheses validated with A/B tests and 22 cited user interview notes.',
+    stats: [['Files', '11'], ['AI answers', '128'], ['Views', '844']],
     mesh: 'linear-gradient(135deg, #0c4a6e, #0b1020 55%, #075985)',
     blobs: ['rgba(34,211,238,0.50)', 'rgba(167,139,250,0.30)', 'rgba(110,231,183,0.30)'],
     pills: [['emerald', '11 verified'], ['violet', 'AI reviewed']] as [string, string][],
     slug: 'mobile',
   },
   {
-    tag: 'Frontend · System', author: '지호 이', role: 'Frontend engineer',
+    tag: 'Frontend · System', author: 'Jiho Lee', role: 'Frontend engineer',
     title: 'Editorial Site — Components',
-    desc: '42개 컴포넌트, 12개 디자인 토큰. 코드 + 디자인 결정 노트.',
-    stats: [['Files', '32'], ['AI 응답', '210'], ['Views', '564']],
+    desc: '42 components, 12 design tokens, and notes connecting code to design decisions.',
+    stats: [['Files', '32'], ['AI answers', '210'], ['Views', '564']],
     mesh: 'linear-gradient(135deg, #052e2b, #0b1020 60%, #064e3b)',
     blobs: ['rgba(110,231,183,0.50)', 'rgba(34,211,238,0.35)', 'rgba(252,211,77,0.25)'],
     pills: [['emerald', '32 verified'], ['cyan', 'Public']] as [string, string][],
@@ -536,15 +536,15 @@ function Gallery() {
             fontSize: 'clamp(32px, 3.8vw, 56px)',
             fontWeight: 600, lineHeight: 1.05, letterSpacing: '-0.022em', color: '#fff',
           }}>
-            이렇게 살아있어요.
+            See portfolios come alive.
           </h2>
           <p style={{ margin: '14px 0 0', fontSize: 15, color: '#94a3b8', lineHeight: 1.6, maxWidth: 540 }}>
-            실제 FolioSage 사용자들의 포트폴리오. 각 카드는 라이브 페이지로 연결됩니다.
+            Example FolioSage portfolios. Each card points to a live public page.
           </p>
         </div>
         <Link href="/signup">
           <Button variant="outline" className="border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.07]">
-            전체 갤러리 보기
+            View gallery
             <ArrowUpRight className="size-4" />
           </Button>
         </Link>
@@ -646,7 +646,7 @@ function GalleryCard({
         </div>
 
         <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#c4b5fd' }}>
-          라이브 페이지 열기 <ArrowUpRight size={13} />
+          Open live page <ArrowUpRight size={13} />
         </div>
       </div>
     </article>
@@ -690,7 +690,7 @@ function FinalCTA() {
         }} />
 
         <div style={{ position: 'relative' }}>
-          <Pill tone="cyan" dot>Free during beta · 5분 안에 첫 포트폴리오</Pill>
+          <Pill tone="cyan" dot>Free during beta · first portfolio in 5 minutes</Pill>
 
           <h2 style={{
             margin: '24px auto 0',
@@ -698,30 +698,30 @@ function FinalCTA() {
             fontWeight: 600, lineHeight: 0.95, letterSpacing: '-0.035em', color: '#fff',
             maxWidth: 1000,
           }}>
-            지금 가진 파일이<br />
+            The files you already have<br />
             <span style={{
               background: 'linear-gradient(120deg, #a78bfa 0%, #67e8f9 50%, #fde68a 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
             }}>
-              당신의 다음 합격이 됩니다.
+              become your next opportunity.
             </span>
           </h2>
 
           <p style={{ margin: '24px auto 0', maxWidth: 580, fontSize: 16, color: '#cbd5e1', lineHeight: 1.6 }}>
-            업로드 → 자동 정리 → AI 가이드 → 공개 링크. 한 시간이면 끝나요.
+            Upload, organize, generate an AI guide, and publish a link in under an hour.
           </p>
 
           <div style={{ marginTop: 36, display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/signup">
               <Button size="lg" className="h-12 bg-violet-600 px-6 text-sm font-semibold text-white shadow-[0_0_28px_rgba(124,58,237,0.32)] hover:bg-violet-500">
-                지금 시작하기
+                Start now
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
             <Link href="/login">
               <Button size="lg" variant="outline" className="h-12 border-white/10 bg-white/[0.03] px-6 text-sm text-slate-200 hover:bg-white/[0.07]">
                 <Globe2 className="size-4" />
-                샘플 페이지 보기
+                View sample page
               </Button>
             </Link>
           </div>
@@ -751,10 +751,10 @@ function Footer() {
         }}>
           <Sparkles size={14} />
         </span>
-        <span style={{ fontSize: 11, color: '#64748b' }}>당신의 포트폴리오가 말을 겁니다.</span>
+        <span style={{ fontSize: 11, color: '#64748b' }}>Your portfolio can speak for itself.</span>
       </div>
       <div style={{ display: 'flex', gap: 24, fontSize: 12, color: '#64748b' }}>
-        {[['가이드', '#'], ['가격', '#'], ['회사 소개', '#'], ['개인정보', '#']].map(([label, href]) => (
+        {[['Guide', '#'], ['Pricing', '#'], ['About', '#'], ['Privacy', '#']].map(([label, href]) => (
           <Link key={label} href={href} className="text-slate-500 transition-colors hover:text-slate-300">{label}</Link>
         ))}
       </div>
@@ -776,8 +776,8 @@ export default function LandingPage() {
       {/* H1 — Upload + Organize */}
       <MomentHero
         n="01" tag="Upload + Organize"
-        title="파일을 던지면, 의미로 묶입니다."
-        body="기획서·이미지·코드·PDF·압축 어떤 것이든. VaultSage가 시스템 / 비주얼 / 문서 / 아카이브로 자동 분류하고, 모든 파일을 SHA-256 해시로 인증합니다."
+        title="Drop files in. FolioSage groups them by meaning."
+        body="Plans, images, code, PDFs, and archives are classified into System, Visual, Document, and Deliverable lanes. Every file is certified with a SHA-256 hash."
         MockEl={<LandingMockOrganize active />}
         frameLabel="foliosage.app / smart-organizer"
         color="violet"
@@ -786,8 +786,8 @@ export default function LandingPage() {
       {/* Z1 — Certificate */}
       <MomentZoom
         n="02" tag="Creation certificate"
-        title="한 파일, 한 인증서."
-        body="업로드되는 순간 SHA-256 해시 + 타임스탬프로 봉인됩니다. 면접 5년 후에도 '이건 언제 만들었나요?'에 정확히 답할 수 있어요."
+        title="One file, one certificate."
+        body="Each upload is sealed with a SHA-256 hash and timestamp, so you can prove when the work was created."
         ZoomEl={<LandingZoomCertificate active />}
         color="emerald"
       />
@@ -796,7 +796,7 @@ export default function LandingPage() {
       <MomentHero
         n="03" tag="Generate Story"
         title="Summary · Role · Problem · Solution · Impact."
-        body="Generate Story를 누르면 핵심 5섹션이 자동으로 채워집니다. Evidence Highlights와 예상 면접 질문도 함께. AI 초안 + 당신의 최종 통제."
+        body="Generate Story fills the five core sections, evidence highlights, and likely interview questions while keeping the final edit under your control."
         MockEl={<LandingMockStory active />}
         frameLabel="foliosage.app / portfolio / story"
         color="cyan"
@@ -805,8 +805,8 @@ export default function LandingPage() {
       {/* Z2 — Readiness */}
       <MomentZoom
         n="04" tag="Readiness"
-        title="제출 가능한 상태인가요?"
-        body="Story · Evidence · AI Review · Public Link 네 가지가 한 점수로 보입니다. 무엇이 부족한지 한 줄로 — 면접 직전, 확신을 갖고 보내세요."
+        title="Is it ready to submit?"
+        body="Story, Evidence, AI Review, and Public Link readiness are summarized in one score so you know what still needs work."
         ZoomEl={<LandingZoomReadiness active />}
         color="violet"
         reverse
@@ -815,8 +815,8 @@ export default function LandingPage() {
       {/* H3 — AI Review */}
       <MomentHero
         n="05" tag="AI Portfolio Review"
-        title="단순 챗봇이 아닙니다. 업로드한 파일을 근거로 채점합니다."
-        body="AI가 면접 질문을 던지고 당신의 답변을 평가합니다. 부족한 근거와 인용 가능한 파일을 함께 알려줘요. Defense Room에서 미리 단련하세요."
+        title="Not just a chatbot. It reviews against your uploaded files."
+        body="AI asks interview-style questions, evaluates your answers, and points out cited evidence and missing proof."
         MockEl={<LandingMockReview active />}
         frameLabel="foliosage.app / defense-room"
         color="amber"
@@ -826,8 +826,8 @@ export default function LandingPage() {
       {/* Z3 — Share */}
       <MomentZoom
         n="06" tag="Live link"
-        title="한 줄의 링크. 살아있는 페이지."
-        body="공개로 전환하면 /p/<code>로 즉시 라이브. 검증된 파일, AI Guide, 인용 가능한 증거가 한 페이지에. SEO 메타도 자동으로."
+        title="One link. A living portfolio page."
+        body="Publish to /p/<code> with verified files, an AI Guide, cited evidence, and generated SEO metadata."
         ZoomEl={<LandingZoomShare active />}
         color="emerald"
       />
@@ -835,8 +835,8 @@ export default function LandingPage() {
       {/* H4 — Visitor + AI Chat */}
       <MomentHero
         n="07" tag="Visitor · AI Guide"
-        title="방문자는 묻고, 작품이 답합니다."
-        body="정리된 스토리와 파일 그리드. 우측의 AI Guide가 18개 파일을 근거로 어떤 질문에도 답합니다. 인용된 원본 파일까지 함께."
+        title="Visitors ask. Your work answers."
+        body="The AI Guide answers questions from the organized story and evidence grid, with source files attached where available."
         MockEl={<LandingMockVisitor active />}
         frameLabel="foliosage.com / p / 9k7m2-launch"
         color="cyan"

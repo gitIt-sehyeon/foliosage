@@ -20,7 +20,7 @@ export async function generateMetadata({
       ? `${API_URL}/api/public/${shareCode}/preview/${firstFile.vaultsageFileId}`
       : undefined
     const title = `${data.title} — FolioSage`
-    const description = data.description ?? `${data.ownerName ?? '포트폴리오'} on FolioSage`
+    const description = data.description ?? `${data.ownerName ?? 'Portfolio'} on FolioSage`
     return {
       title,
       description,

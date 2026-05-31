@@ -12,10 +12,10 @@ export function LandingMockVisitor({ active }: { active: boolean }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <MockLogoMark />
           <span style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.10)' }} />
-          <span style={{ fontSize: 10.5, color: '#64748b', letterSpacing: '0.18em', textTransform: 'uppercase' }}>방문자 화면 · 민준</span>
+          <span style={{ fontSize: 10.5, color: '#64748b', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Visitor view · Minjun</span>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          <MockPill tone="emerald" size="sm" icon={<CheckCircle2 size={10} />}>FolioSage 검증</MockPill>
+          <MockPill tone="emerald" size="sm" icon={<CheckCircle2 size={10} />}>FolioSage verified</MockPill>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 4, height: 24, padding: '0 9px',
             borderRadius: 7, border: '1px solid rgba(255,255,255,0.12)',
@@ -46,7 +46,7 @@ export function LandingMockVisitor({ active }: { active: boolean }) {
             }}>Portfolio.</span>
           </h1>
           <p style={{ margin: '12px 0 0', fontSize: 12, color: '#94a3b8', lineHeight: 1.6, maxWidth: 380 }}>
-            9주의 스프린트로 봄 2026 캠페인의 시각 시스템을 구축. 네이밍, 아트 디렉션, 자산 파이프라인, 런칭 마이크로사이트.
+            Built the spring 2026 campaign visual system across a nine-week sprint, including naming, art direction, asset pipeline, and launch microsite.
           </p>
 
           {/* Hero image placeholder */}
@@ -111,7 +111,7 @@ export function LandingMockVisitor({ active }: { active: boolean }) {
             </span>
             <div style={{ flex: 1 }}>
               <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: '#fff' }}>AI Guide</p>
-              <p style={{ margin: 0, fontSize: 10, color: '#64748b' }}>18개 파일에서 답변</p>
+              <p style={{ margin: 0, fontSize: 10, color: '#64748b' }}>Answers from 18 files</p>
             </div>
             <span style={{ width: 7, height: 7, borderRadius: 9999, background: '#6ee7b7', boxShadow: '0 0 12px #6ee7b7' }} />
           </div>
@@ -123,7 +123,7 @@ export function LandingMockVisitor({ active }: { active: boolean }) {
               fontSize: 10.5, lineHeight: 1.45, maxWidth: '90%',
               animation: active ? 'slide-up 0.4s ease 0.2s both' : 'none',
             }}>
-              가장 강한 증거 파일 3개?
+              Which three files are the strongest evidence?
             </div>
             <div style={{
               alignSelf: 'flex-start', padding: '8px 11px', borderRadius: 10, borderBottomLeftRadius: 3,
@@ -132,7 +132,7 @@ export function LandingMockVisitor({ active }: { active: boolean }) {
               color: '#e2e8f0', fontSize: 10.5, lineHeight: 1.55, maxWidth: '92%',
               animation: active ? 'answer-reveal 1s ease 0.6s both' : 'none',
             }}>
-              Brand system PDF, Campaign stills, Research notes — 세 파일이 시각 시스템·산출물 품질·의사결정의 근거를 보여줍니다.
+              Brand system PDF, Campaign stills, and Research notes show the visual system, deliverable quality, and decision evidence.
             </div>
             <div style={{
               display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 2,
@@ -148,7 +148,7 @@ export function LandingMockVisitor({ active }: { active: boolean }) {
             display: 'flex', gap: 6, padding: '6px 8px', borderRadius: 10,
             background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
           }}>
-            <span style={{ flex: 1, fontSize: 10.5, color: '#64748b', display: 'flex', alignItems: 'center' }}>무엇이든 물어보세요</span>
+            <span style={{ flex: 1, fontSize: 10.5, color: '#64748b', display: 'flex', alignItems: 'center' }}>Ask anything</span>
             <span style={{
               width: 24, height: 24, borderRadius: 7, display: 'inline-flex',
               alignItems: 'center', justifyContent: 'center',

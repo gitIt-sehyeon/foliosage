@@ -53,10 +53,10 @@ function FileTypeIcon({ mimeType, className = 'size-6' }: { mimeType: string; cl
 }
 
 const FILE_CATEGORIES = [
-  { key: 'system', label: '시스템', detail: '토큰 · 가이드 · 코드', tone: 'violet' },
-  { key: 'visual', label: '비주얼', detail: '이미지 · 영상 · 디자인', tone: 'cyan' },
-  { key: 'document', label: '문서', detail: '리서치 · 노트 · 기획', tone: 'amber' },
-  { key: 'deliverable', label: '산출물', detail: '최종본 · 납품 · 아카이브', tone: 'emerald' },
+  { key: 'system', label: 'System', detail: 'Code · configuration · components', tone: 'violet' },
+  { key: 'visual', label: 'Visual', detail: 'Images · video · design assets', tone: 'cyan' },
+  { key: 'document', label: 'Document', detail: 'Research · notes · planning', tone: 'amber' },
+  { key: 'deliverable', label: 'Deliverable', detail: 'Final outputs · handoff · archives', tone: 'emerald' },
 ] as const
 
 const CATEGORY_TONES: Record<string, {
@@ -156,7 +156,7 @@ function PortfolioFileCard({
       <div className="relative flex items-start gap-3">
         <button type="button" {...attributes} {...listeners}
           className={`mt-0.5 flex size-9 shrink-0 cursor-grab items-center justify-center rounded-lg border ${tone.ring} ${tone.soft} ${tone.text} active:cursor-grabbing`}
-          aria-label={`${file.name} 드래그`}>
+          aria-label={`Drag ${file.name}`}>
           <GripVertical className="size-4" />
         </button>
         <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-200">
@@ -182,12 +182,12 @@ function PortfolioFileCard({
                     AI {confidence}%
                   </span>
                 )}
-                {file.categoryLocked && <span className="rounded-full bg-emerald-300/[0.08] px-2 py-0.5 text-[10px] text-emerald-200">수동 고정</span>}
+                {file.categoryLocked && <span className="rounded-full bg-emerald-300/[0.08] px-2 py-0.5 text-[10px] text-emerald-200">manual lock</span>}
               </div>
             </div>
             <button onClick={() => setDeleteConfirm(file.id)}
               className="shrink-0 rounded-lg p-1.5 text-slate-600 transition-all hover:bg-rose-400/10 hover:text-rose-300"
-              aria-label={`${file.name} 삭제`}>
+              aria-label={`Delete ${file.name}`}>
               <Trash2 className="size-3.5" />
             </button>
           </div>
@@ -199,12 +199,12 @@ function PortfolioFileCard({
                 if (e.key === 'Enter') saveDescription(file.id, editingDesc!.value)
                 if (e.key === 'Escape') setEditingDesc(null)
               }}
-              maxLength={200} placeholder="설명 입력..."
+              maxLength={200} placeholder="Add a description..."
               className="mt-3 w-full rounded-lg border border-violet-300/40 bg-[#070b15] px-3 py-2 text-xs text-slate-200 outline-none" />
           ) : (
             <p onClick={() => setEditingDesc({ id: file.id, value: file.description ?? '' })}
               className="mt-3 min-h-[34px] cursor-pointer rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-xs leading-5 text-slate-400 transition-colors line-clamp-2 hover:border-white/10 hover:text-slate-200">
-              {file.description || '+ 설명 추가'}
+              {file.description || '+ Add description'}
             </p>
           )}
           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -275,7 +275,7 @@ function CategoryDropZone({
         {category.files.length === 0 ? (
           <div className={`rounded-xl border border-dashed ${tone.ring} bg-white/[0.018] px-3 py-8 text-center`}>
             <FolderOpen className={`mx-auto mb-2 size-5 ${tone.text} opacity-70`} />
-            <p className="text-xs text-slate-500">파일을 업로드하거나 여기로 드래그하세요</p>
+            <p className="text-xs text-slate-500">Upload files or drag them here</p>
           </div>
         ) : category.files.map((file: any, i: number) => (
           <PortfolioFileCard
@@ -302,7 +302,7 @@ export default function PortfolioPage() {
 
   const [portfolio, setPortfolio] = useState<any>(null)
   const [stats, setStats] = useState({ viewCount: 0, downloadCount: 0, todayViews: 0 })
-  const [organizeStatus, setOrganizeStatus] = useState({ status: 'idle', message: '분류 전' })
+  const [organizeStatus, setOrganizeStatus] = useState({ status: 'idle', message: 'Not classified yet' })
   const [isOrganizing, setIsOrganizing] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [editingDesc, setEditingDesc] = useState<{ id: string; value: string } | null>(null)
@@ -421,7 +421,7 @@ export default function PortfolioPage() {
       loadPortfolio()
       loadReadiness()
     } catch (e: any) {
-      setPublishError(e?.response?.data?.message ?? '공개 실패')
+      setPublishError(e?.response?.data?.message ?? 'Publish failed')
     } finally {
       setPublishBusy(false)
     }
@@ -436,7 +436,7 @@ export default function PortfolioPage() {
       loadPortfolio()
       loadReadiness()
     } catch (e: any) {
-      setPublishError(e?.response?.data?.message ?? '비공개 전환 실패')
+      setPublishError(e?.response?.data?.message ?? 'Unpublish failed')
     } finally {
       setPublishBusy(false)
     }
@@ -487,7 +487,7 @@ export default function PortfolioPage() {
       })
       loadReadiness()
     } catch (e: any) {
-      setStoryError(e?.response?.data?.message ?? '스토리 생성에 실패했습니다.')
+      setStoryError(e?.response?.data?.message ?? 'Could not generate the story.')
     } finally {
       setStoryGenerating(false)
     }
@@ -511,7 +511,7 @@ export default function PortfolioPage() {
       })
       loadReadiness()
     } catch (e: any) {
-      setStoryError(e?.response?.data?.message ?? '스토리 저장에 실패했습니다.')
+      setStoryError(e?.response?.data?.message ?? 'Could not save the story.')
     } finally {
       setStorySaving(false)
     }
@@ -536,10 +536,10 @@ export default function PortfolioPage() {
   }))
   const storyReady = readiness?.storyReady ?? Boolean(portfolio.story?.summary)
   const readinessItems = [
-    { label: 'Story', done: storyReady, detail: storyReady ? '면접용 스토리 준비됨' : 'Generate Portfolio Story 실행' },
-    { label: 'Evidence', done: readiness?.evidenceReady ?? files.length > 0, detail: files.length > 0 ? `${files.length}개 파일, ${describedFiles}개 설명` : '작업 증거 파일을 추가하세요' },
-    { label: 'AI Review', done: readiness?.aiReviewReady ?? false, detail: readiness?.aiReviewReady ? '리뷰 완료' : '스토리와 공개 링크 후 실행' },
-    { label: 'Public Link', done: readiness?.publicLinkReady ?? portfolio.published, detail: portfolio.published ? '방문자에게 공유 가능' : '공개 링크 생성 필요' },
+    { label: 'Story', done: storyReady, detail: storyReady ? 'Interview-ready story is ready' : 'Run Generate Portfolio Story' },
+    { label: 'Evidence', done: readiness?.evidenceReady ?? files.length > 0, detail: files.length > 0 ? `${files.length} files, ${describedFiles} descriptions` : 'Add project evidence files' },
+    { label: 'AI Review', done: readiness?.aiReviewReady ?? false, detail: readiness?.aiReviewReady ? 'Review complete' : 'Run after story and public link' },
+    { label: 'Public Link', done: readiness?.publicLinkReady ?? portfolio.published, detail: portfolio.published ? 'Ready to share with visitors' : 'Create a public link' },
   ]
   const storyField = (key: 'summary' | 'role' | 'problem' | 'solution' | 'impact', label: string, placeholder: string) => (
     <label className="block">
@@ -561,19 +561,19 @@ export default function PortfolioPage() {
   const activityItems = [
     organizeStatus.status === 'done' && {
       icon: <Bot className="size-3.5" />,
-      text: 'AI 분류 완료',
-      time: '방금 전',
+      text: 'AI classification complete',
+      time: 'Just now',
       color: 'text-violet-300',
     },
     portfolio.story?.generatedAt && {
       icon: <Wand2 className="size-3.5" />,
-      text: `Portfolio Story 생성됨`,
-      time: new Date(portfolio.story.generatedAt).toLocaleDateString('ko-KR'),
+      text: `Portfolio Story generated`,
+      time: new Date(portfolio.story.generatedAt).toLocaleDateString('en-US'),
       color: 'text-amber-300',
     },
     portfolio.published && {
       icon: <Globe2 className="size-3.5" />,
-      text: '포트폴리오 공개됨',
+      text: 'Portfolio published',
       time: '',
       color: 'text-emerald-300',
     },
@@ -599,25 +599,25 @@ export default function PortfolioPage() {
             <a href="/dashboard"
               className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-white">
               <ArrowLeft className="size-3.5" />
-              대시보드
+              Dashboard
             </a>
             <button onClick={copyLink}
               className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-slate-300 transition-colors hover:bg-white/[0.07] hover:text-white">
               {copied ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
-              {copied ? '복사됨' : '공유 링크'}
+              {copied ? 'Copied' : 'Share link'}
             </button>
             {portfolio.published && portfolio.shareCode ? (
               <a href={`/p/${portfolio.shareCode}`} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[#6d28d9] px-3 py-2 text-xs font-semibold text-white shadow-[0_0_16px_rgba(124,58,237,0.28)] transition-colors hover:bg-[#7c3aed]">
                 <PlayCircle className="size-3.5" />
-                라이브 페이지 열기
+                Open live page
                 <ArrowUpRight className="size-3.5" />
               </a>
             ) : (
               <button onClick={publish} disabled={publishBusy}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[#6d28d9] px-3 py-2 text-xs font-semibold text-white shadow-[0_0_16px_rgba(124,58,237,0.28)] transition-colors hover:bg-[#7c3aed] disabled:opacity-50">
                 <Globe2 className="size-3.5" />
-                {publishBusy ? '처리 중...' : '포트폴리오 공개'}
+                {publishBusy ? 'Working...' : 'Publish portfolio'}
               </button>
             )}
           </div>
@@ -653,16 +653,16 @@ export default function PortfolioPage() {
                     : 'border border-white/10 bg-white/[0.035] text-slate-400'
                 }`}>
                   <span className="size-1.5 rounded-full bg-current" />
-                  {portfolio.published ? 'Live · 공개됨' : '비공개'}
+                  {portfolio.published ? 'Live · Published' : 'Private'}
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-emerald-200">
                   <ShieldCheck className="size-3" />
-                  {files.length}개 소스
+                  {files.length} sources
                 </span>
                 {readiness?.aiReviewReady && (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-cyan-200">
                     <Sparkles className="size-3" />
-                    AI 리뷰 완료
+                    AI review complete
                   </span>
                 )}
               </div>
@@ -686,7 +686,7 @@ export default function PortfolioPage() {
 
               {/* Summary */}
               <p className="max-w-2xl text-base leading-relaxed text-slate-300">
-                {portfolio.story?.summary || '포트폴리오 스토리를 생성하면 요약이 여기에 표시됩니다.'}
+                {portfolio.story?.summary || 'Generate a portfolio story to show the summary here.'}
               </p>
 
               {/* CTAs */}
@@ -695,7 +695,7 @@ export default function PortfolioPage() {
                   <a href={`/p/${portfolio.shareCode}`} target="_blank" rel="noopener noreferrer"
                     className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#6d28d9] px-5 text-sm font-semibold text-white shadow-[0_0_28px_rgba(124,58,237,0.28)] transition-colors hover:bg-[#7c3aed]">
                     <PlayCircle className="size-4" />
-                    라이브 페이지 열기
+                    Open live page
                     <ArrowUpRight className="size-4" />
                   </a>
                 )}
@@ -703,13 +703,13 @@ export default function PortfolioPage() {
                   <button onClick={publish} disabled={publishBusy}
                     className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#6d28d9] px-5 text-sm font-semibold text-white shadow-[0_0_28px_rgba(124,58,237,0.28)] transition-colors hover:bg-[#7c3aed] disabled:opacity-50">
                     <Globe2 className="size-4" />
-                    {publishBusy ? '처리 중...' : '포트폴리오 공개'}
+                    {publishBusy ? 'Working...' : 'Publish portfolio'}
                   </button>
                 )}
                 <button onClick={copyLink}
                   className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 text-sm text-slate-200 transition-colors hover:bg-white/[0.07]">
                   {copied ? <CheckCircle2 className="size-4" /> : <Copy className="size-4" />}
-                  {copied ? '복사됨' : '공유 링크'}
+                  {copied ? 'Copied' : 'Share link'}
                 </button>
               </div>
               {publishError && <p className="mt-3 text-xs text-rose-300">{publishError}</p>}
@@ -726,8 +726,8 @@ export default function PortfolioPage() {
                   <p className="text-sm font-semibold text-white">AI Guide</p>
                   <p className="text-[11px] text-slate-500 truncate">
                     {portfolio.story?.generatedAt
-                      ? `마지막 생성: ${new Date(portfolio.story.generatedAt).toLocaleDateString('ko-KR')}`
-                      : '스토리 생성 후 활성화'}
+                      ? `Last generated: ${new Date(portfolio.story.generatedAt).toLocaleDateString('en-US')}`
+                      : 'Activate by generating a story'}
                   </p>
                 </div>
                 <span className={`inline-flex items-center gap-1 text-[10px] ${readiness?.aiReviewReady ? 'text-emerald-300' : 'text-slate-500'}`}>
@@ -736,10 +736,10 @@ export default function PortfolioPage() {
                 </span>
               </div>
               <p className="text-xs leading-relaxed text-slate-400">
-                {files.length}개 파일
+                {files.length} files
                 {readiness?.aiReviewReady
-                  ? ' · AI 리뷰 완료. 방문자가 어떤 질문을 해도 근거를 인용해 답변합니다.'
-                  : ' · 스토리 생성 및 공개 설정 후 AI 리뷰를 진행하세요.'}
+                  ? ' · AI review complete. Visitors can ask evidence-grounded questions.'
+                  : ' · Generate a story, publish, then run AI review.'}
               </p>
               <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
                 <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-400 transition-all duration-700"
@@ -749,7 +749,7 @@ export default function PortfolioPage() {
                 onClick={() => setTab('story')}
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] py-2 text-xs text-slate-300 transition-colors hover:bg-white/[0.07]">
                 <Sparkles className="size-3.5" />
-                스토리 편집
+                Edit story
               </button>
             </div>
           </div>
@@ -758,9 +758,9 @@ export default function PortfolioPage() {
         {/* ── Tab bar ── */}
         <div className="mt-6 flex w-fit gap-1 rounded-xl border border-white/10 bg-[#0b1020]/90 p-1 backdrop-blur-xl">
           {([
-            { key: 'story', label: '스토리', Icon: Layers },
-            { key: 'files', label: '파일', Icon: FileStack },
-            { key: 'activity', label: '활동', Icon: Compass },
+            { key: 'story', label: 'Story', Icon: Layers },
+            { key: 'files', label: 'Files', Icon: FileStack },
+            { key: 'activity', label: 'Activity', Icon: Compass },
           ] as const).map(({ key, label, Icon }) => (
             <button key={key} onClick={() => setTab(key)}
               className={`inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
@@ -783,11 +783,11 @@ export default function PortfolioPage() {
                 <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-6 backdrop-blur-xl">
                   <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-violet-200">포트폴리오 스토리</p>
-                      <h3 className="mt-1 text-base font-semibold text-white">프로젝트 파일을 면접용 증거 스토리로 정리하세요</h3>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-violet-200">Portfolio Story</p>
+                      <h3 className="mt-1 text-base font-semibold text-white">Turn project files into an interview-ready evidence story</h3>
                       {portfolio.story?.generatedAt && (
                         <p className="mt-1 text-xs text-slate-500">
-                          마지막 생성: {new Date(portfolio.story.generatedAt).toLocaleString('ko-KR')}
+                          Last generated: {new Date(portfolio.story.generatedAt).toLocaleString('en-US')}
                         </p>
                       )}
                     </div>
@@ -795,12 +795,12 @@ export default function PortfolioPage() {
                       <button onClick={generateStory} disabled={storyGenerating || files.length === 0}
                         className="inline-flex items-center gap-2 rounded-lg bg-violet-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-400 disabled:opacity-45">
                         {storyGenerating ? <Loader2 className="size-4 animate-spin" /> : <Bot className="size-4" />}
-                        {portfolio.story ? '다시 생성' : '스토리 생성'}
+                        {portfolio.story ? 'Regenerate' : 'Generate story'}
                       </button>
                       <button onClick={saveStory} disabled={storySaving}
                         className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:bg-white/[0.07] disabled:opacity-45">
                         {storySaving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-                        저장
+                        Save
                       </button>
                     </div>
                   </div>
@@ -811,12 +811,12 @@ export default function PortfolioPage() {
                     </p>
                   )}
                   <div className="grid gap-3 lg:grid-cols-2">
-                    {storyField('summary', '요약', '이 프로젝트를 한 문단으로 설명하세요.')}
-                    {storyField('role', '내 역할', '본인이 맡은 역할과 책임을 적으세요.')}
-                    {storyField('problem', '문제', '해결하려던 문제나 맥락을 적으세요.')}
-                    {storyField('solution', '해결', '접근 방식과 핵심 결정을 적으세요.')}
+                    {storyField('summary', 'Summary', 'Explain this project in one paragraph.')}
+                    {storyField('role', 'My role', 'Describe your responsibilities and contribution.')}
+                    {storyField('problem', 'Problem', 'Describe the problem or context you addressed.')}
+                    {storyField('solution', 'Solution', 'Describe your approach and key decisions.')}
                     <div className="lg:col-span-2">
-                      {storyField('impact', '임팩트', '결과, 배운 점, 측정 가능한 임팩트를 적으세요.')}
+                      {storyField('impact', 'Impact', 'Describe results, learnings, or measurable impact.')}
                     </div>
                   </div>
                 </div>
@@ -824,9 +824,9 @@ export default function PortfolioPage() {
                 {/* Evidence highlights + interview questions */}
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-5 backdrop-blur-xl">
-                    <p className="mb-3 text-sm font-semibold text-white">핵심 근거</p>
+                    <p className="mb-3 text-sm font-semibold text-white">Evidence highlights</p>
                     {storyForm.evidenceHighlights.length === 0 ? (
-                      <p className="text-xs text-slate-500">스토리를 생성하면 핵심 증거 파일이 여기에 표시됩니다.</p>
+                      <p className="text-xs text-slate-500">Generate a story to show key evidence files here.</p>
                     ) : (
                       <div className="space-y-2">
                         {storyForm.evidenceHighlights.map((item: any) => (
@@ -844,9 +844,9 @@ export default function PortfolioPage() {
                     )}
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-5 backdrop-blur-xl">
-                    <p className="mb-3 text-sm font-semibold text-white">면접 질문</p>
+                    <p className="mb-3 text-sm font-semibold text-white">Interview questions</p>
                     {storyForm.interviewQuestions.length === 0 ? (
-                      <p className="text-xs text-slate-500">생성된 면접 질문이 여기에 표시됩니다.</p>
+                      <p className="text-xs text-slate-500">Generated interview questions will appear here.</p>
                     ) : (
                       <div className="space-y-2">
                         {storyForm.interviewQuestions.map((q, idx) => (
@@ -889,7 +889,7 @@ export default function PortfolioPage() {
                   <div className="rounded-2xl border border-dashed border-white/10 bg-[#0b1020]/70 p-4">
                     <div className="mb-4 text-center">
                       <UploadCloud className="mx-auto mb-3 size-10 text-slate-600" />
-                      <p className="text-sm text-slate-400">원하는 분야 칸에서 파일을 바로 추가하세요.</p>
+                      <p className="text-sm text-slate-400">Add files directly into the category you want.</p>
                     </div>
                     <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
                       {filesByCategory.map((category, categoryIndex) => (
@@ -936,7 +936,7 @@ export default function PortfolioPage() {
               <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 backdrop-blur-xl overflow-hidden">
                 {activityItems.length === 0 ? (
                   <div className="py-16 text-center text-slate-500">
-                    <p className="text-sm">활동 기록이 없습니다.</p>
+                    <p className="text-sm">No activity yet.</p>
                   </div>
                 ) : (
                   activityItems.map((item, i) => (
@@ -959,13 +959,13 @@ export default function PortfolioPage() {
           <div className="space-y-4">
             {/* Meta summary */}
             <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-5 backdrop-blur-xl">
-              <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500">요약</p>
+              <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500">Summary</p>
               <div className="space-y-3">
                 {[
-                  ['파일', `${files.length}개`],
-                  ['통계', `조회 ${stats.viewCount} · 다운 ${stats.downloadCount}`],
-                  ['오늘 조회', `${stats.todayViews}회`],
-                  ...(portfolio.shareCode ? [['공유 링크', `/p/${portfolio.shareCode}`]] : []),
+                  ['Files', `${files.length}`],
+                  ['Stats', `Views ${stats.viewCount} · Downloads ${stats.downloadCount}`],
+                  ['Today', `${stats.todayViews} views`],
+                  ...(portfolio.shareCode ? [['Share link', `/p/${portfolio.shareCode}`]] : []),
                 ].map(([k, v]) => (
                   <div key={k} className="flex items-start justify-between gap-3 text-xs">
                     <span className="shrink-0 uppercase tracking-[0.18em] text-slate-500">{k}</span>
@@ -977,7 +977,7 @@ export default function PortfolioPage() {
 
             {/* AI organize */}
             <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-5 backdrop-blur-xl">
-              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500">AI 분류</p>
+              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500">AI classification</p>
               <div className={`flex items-center gap-2.5 rounded-xl border px-3 py-3 text-sm ${
                 organizeStatus.status === 'done'   ? 'border-emerald-300/15 bg-emerald-300/[0.04] text-emerald-200' :
                 organizeStatus.status === 'failed' ? 'border-rose-300/15 bg-rose-300/[0.04] text-rose-200' :
@@ -995,28 +995,28 @@ export default function PortfolioPage() {
                 <button onClick={startOrganize} disabled={isOrganizing}
                   className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#6d28d9] bg-violet-900/30 py-2.5 text-xs text-violet-200 transition-colors hover:bg-violet-900/50 disabled:opacity-40">
                   <Bot className="size-3.5" />
-                  {isOrganizing ? '분석 중...' : organizeStatus.status === 'done' ? 'AI로 다시 분류' : 'AI 분류 시작'}
+                  {isOrganizing ? 'Analyzing...' : organizeStatus.status === 'done' ? 'Reclassify with AI' : 'Start AI classification'}
                 </button>
               )}
             </div>
 
             {/* Danger zone */}
             <div className="rounded-2xl border border-white/10 bg-[#0b1020]/90 p-5 backdrop-blur-xl">
-              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500">위험한 영역</p>
+              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500">Danger zone</p>
               <p className="mb-4 text-xs leading-relaxed text-slate-500">
-                포트폴리오를 비공개로 전환하거나 영구 삭제합니다.
+                Unpublish or permanently delete this portfolio.
               </p>
               <div className="flex gap-2">
                 {portfolio.published && (
                   <button onClick={unpublish} disabled={publishBusy}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-slate-300 transition-colors hover:bg-white/[0.07] disabled:opacity-50">
-                    비공개로 전환
+                    Unpublish
                   </button>
                 )}
                 <button onClick={() => setDeleteConfirm('__portfolio__')}
                   className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-rose-300 transition-colors hover:bg-rose-400/10">
                   <Trash2 className="size-3.5" />
-                  삭제
+                  Delete
                 </button>
               </div>
             </div>
@@ -1028,11 +1028,11 @@ export default function PortfolioPage() {
       {deleteConfirm && deleteConfirm !== '__portfolio__' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
           <div className="mx-4 w-full max-w-sm animate-spring-in rounded-2xl border border-white/10 bg-[#1e293b] p-6">
-            <h3 className="mb-2 text-base font-bold text-white">파일 삭제</h3>
-            <p className="mb-5 text-sm text-slate-400">이 파일을 삭제하면 복구할 수 없습니다. 계속하시겠습니까?</p>
+            <h3 className="mb-2 text-base font-bold text-white">Delete file</h3>
+            <p className="mb-5 text-sm text-slate-400">This file cannot be recovered after deletion. Continue?</p>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setDeleteConfirm(null)} className="rounded-lg px-4 py-2 text-sm text-slate-500 hover:bg-white/[0.05] transition-colors">취소</button>
-              <button onClick={() => deleteFile(deleteConfirm)} className="rounded-lg bg-rose-500 px-4 py-2 text-sm text-white transition-colors hover:bg-rose-400">삭제</button>
+              <button onClick={() => setDeleteConfirm(null)} className="rounded-lg px-4 py-2 text-sm text-slate-500 hover:bg-white/[0.05] transition-colors">Cancel</button>
+              <button onClick={() => deleteFile(deleteConfirm)} className="rounded-lg bg-rose-500 px-4 py-2 text-sm text-white transition-colors hover:bg-rose-400">Delete</button>
             </div>
           </div>
         </div>

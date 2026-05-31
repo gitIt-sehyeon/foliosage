@@ -76,11 +76,11 @@ export default function PublicDefensePanel({
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
               <ShieldCheck className="size-4" />
-              AI 리뷰 평가표
+              AI Review Scorecard
             </p>
-            <p className="text-xs text-[#64748b]">이 포트폴리오 근거를 바탕으로 한 리뷰</p>
+            <p className="text-xs text-[#64748b]">Review based on this portfolio's evidence</p>
           </div>
-          <button onClick={onClose} className="rounded-lg p-2 text-[#64748b] hover:bg-white/[0.06] hover:text-white" aria-label="닫기">
+          <button onClick={onClose} className="rounded-lg p-2 text-[#64748b] hover:bg-white/[0.06] hover:text-white" aria-label="Close">
             <X className="size-4" />
           </button>
         </div>
@@ -89,22 +89,22 @@ export default function PublicDefensePanel({
           {loading ? (
             <div className="flex items-center gap-2 text-sm text-[#94a3b8]">
               <Loader2 className="size-4 animate-spin" />
-              AI 리뷰 결과를 불러오는 중...
+              Loading AI review results...
             </div>
           ) : !data?.available || !data.session?.scorecard ? (
             <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm text-[#94a3b8]">
-              아직 공개된 AI 리뷰 결과가 없습니다.
+              No public AI review result is available yet.
             </div>
           ) : (
             <div className="space-y-4">
               <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[0.07] p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
                   <Award className="size-4" />
-                  종합 점수 {data.session.scorecard.overallScore}
+                  Overall score {data.session.scorecard.overallScore}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[#cbd5e1]">{cleanDisplayText(data.session.scorecard.summary)}</p>
                 <p className="mt-2 text-xs text-[#64748b]">
-                  인용 파일 {data.citedFileCount}개 · 근거 매칭 {data.totalEvidenceCount}개
+                  {data.citedFileCount} cited files · {data.totalEvidenceCount} evidence matches
                 </p>
               </div>
 

@@ -53,15 +53,15 @@ export default function FileUploadZone({ portfolioId, onUploaded, compact = fals
         >
           <FolderPlus className="size-5 text-[#a78bfa]" />
           <span className="text-[#64748b] text-sm flex-1">
-            {uploading ? `업로드 중 ${progress.current}/${progress.total}` : '파일 추가 (클릭 또는 드래그)'}
+            {uploading ? `Uploading ${progress.current}/${progress.total}` : 'Add files (click or drag)'}
           </span>
-          <span className="text-[#6d28d9] text-xs font-medium">+ 추가</span>
+          <span className="text-[#6d28d9] text-xs font-medium">+ Add</span>
           <input ref={fileRef} type="file" multiple className="hidden"
                  onChange={e => handleFiles(e.target.files)} />
         </div>
         {error && <p className="text-[#f87171] text-xs mt-1">{error}</p>}
         {!uploading && !error && (
-          <p className="mt-1 text-[11px] text-[#475569]">업로드 후 각 파일 설명을 추가하면 공개 페이지의 증거 맥락이 좋아집니다.</p>
+          <p className="mt-1 text-[11px] text-[#475569]">Add file descriptions after upload to improve public evidence context.</p>
         )}
       </div>
     )

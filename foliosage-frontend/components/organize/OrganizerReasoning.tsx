@@ -15,7 +15,7 @@ export default function OrganizerReasoning({ reasoning }: Props) {
         <Bot size={20} />
       </span>
       <p style={{ margin: 0, fontSize: 13, color: '#e2e8f0', lineHeight: 1.6 }}>
-        <strong style={{ color: '#fff', fontWeight: 600 }}>왜 이렇게 묶였나요?</strong>
+        <strong style={{ color: '#fff', fontWeight: 600 }}>Why were these grouped this way?</strong>
         {' '}
         <span style={{ color: '#94a3b8' }}>{reasoning}</span>
       </p>

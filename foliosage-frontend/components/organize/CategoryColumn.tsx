@@ -54,7 +54,7 @@ export default function CategoryColumn({ categoryKey, label, subtitle, files }: 
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
               <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#fff' }}>{label}</p>
-              <span style={{ fontSize: 11, color: '#64748b' }}>{files.length}개 파일</span>
+              <span style={{ fontSize: 11, color: '#64748b' }}>{files.length} files</span>
             </div>
             <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748b' }}>{subtitle}</p>
           </div>
@@ -63,7 +63,7 @@ export default function CategoryColumn({ categoryKey, label, subtitle, files }: 
             padding: '3px 8px', borderRadius: 9999, fontSize: 10.5,
             background: 'rgba(167,139,250,0.12)', color: '#c4b5fd',
           }}>
-            <Sparkles size={10} />자동
+            <Sparkles size={10} />Auto
           </span>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function CategoryColumn({ categoryKey, label, subtitle, files }: 
           {files.map(f => <FileChip key={f.fileId} {...f} />)}
           {files.length === 0 && (
             <p style={{ margin: '12px 0', fontSize: 12, color: '#334155', textAlign: 'center' }}>
-              여기로 드래그
+              Drag files here
             </p>
           )}
         </div>

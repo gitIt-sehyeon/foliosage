@@ -30,12 +30,12 @@ export default function OrganizerBanner({ totalFiles, classifiedFiles, progressP
           VaultSage Smart Organizer
         </p>
         <p style={{ margin: '4px 0 0', fontSize: 18, fontWeight: 600, color: '#fff' }}>
-          {totalFiles}개 파일을 의미 기반 4개 카테고리로 분류합니다
+          Classifying {totalFiles} files into four evidence categories
         </p>
         <p style={{ margin: '4px 0 0', fontSize: 12, color: '#94a3b8' }}>
           {isRunning
-            ? '파일 내용을 분석 중입니다. 잠시만 기다려 주세요...'
-            : '잘못 분류된 파일은 드래그로 옮길 수 있어요.'}
+            ? 'Analyzing file context. Please wait...'
+            : 'Drag files to correct any category.'}
         </p>
       </div>
       <div style={{ width: 160 }}>
@@ -47,7 +47,7 @@ export default function OrganizerBanner({ totalFiles, classifiedFiles, progressP
           }} />
         </div>
         <p style={{ margin: '8px 0 0', fontSize: 11, color: '#94a3b8', textAlign: 'right' }}>
-          {classifiedFiles} / {totalFiles} 분류됨
+          {classifiedFiles} / {totalFiles} classified
         </p>
       </div>
     </div>

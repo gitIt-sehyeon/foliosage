@@ -60,7 +60,7 @@ export default function DashboardPage() {
     if (!isLoggedIn()) { router.push('/login'); return }
     api.get('/api/portfolios')
       .then(r => setPortfolios(r.data))
-      .catch(() => setError('포트폴리오를 불러오지 못했습니다.'))
+      .catch(() => setError('Could not load portfolios.'))
     api.get('/api/users/me')
       .then(r => {
         setProfile(r.data)
@@ -87,7 +87,7 @@ export default function DashboardPage() {
       setProfileSaved(true)
       setTimeout(() => setProfileSaved(false), 2000)
     } catch (e: any) {
-      setProfileError(e?.response?.data?.message ?? e?.response?.data?.error ?? '저장 실패')
+      setProfileError(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Save failed')
     } finally {
       setProfileSaving(false)
     }
@@ -148,20 +148,20 @@ export default function DashboardPage() {
               className="hidden items-center gap-2 text-[#94a3b8] text-xs px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:text-white transition-colors sm:inline-flex"
             >
               <ExternalLink className="size-3.5" />
-              내 프로필
+              My profile
             </Link>
           )}
           <Link href="/portfolios/new"
             className="inline-flex items-center gap-2 bg-white hover:bg-cyan-100 text-slate-950 text-xs font-semibold px-3 py-2 rounded-lg transition-colors">
             <Plus className="size-3.5" />
-            새 포트폴리오
+            New portfolio
           </Link>
           <button
             onClick={() => { removeToken(); router.push('/login') }}
             className="inline-flex items-center gap-2 text-[#64748b] text-xs px-3 py-2 rounded-lg hover:bg-white/[0.05] hover:text-white transition-colors"
           >
             <LogOut className="size-3.5" />
-            로그아웃
+            Log out
           </button>
         </div>
         </div>
@@ -174,24 +174,24 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h1 className="text-3xl font-semibold text-white sm:text-4xl">
-                  {profile?.name ? `${profile.name}의 포트폴리오` : 'Portfolio workspace'}
+                  {profile?.name ? `${profile.name}'s portfolios` : 'Portfolio workspace'}
                 </h1>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-                  프로젝트 파일을 업로드하고 면접에서 바로 설명할 수 있는 증거 포트폴리오로 정리하세요.
+                  Upload project files and turn them into evidence-backed portfolios you can explain in interviews.
                 </p>
               </div>
               <Link href="/portfolios/new"
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-violet-500 px-4 text-sm font-semibold text-white transition-colors hover:bg-violet-400">
                 <Plus className="size-4" />
-                새 포트폴리오 만들기
+                Create portfolio
               </Link>
             </div>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-3">
               {[
-                { label: '포트폴리오', value: portfolios.length, icon: BriefcaseBusiness, color: 'text-violet-200' },
-                { label: '공개 중', value: publishedCount, icon: Globe2, color: 'text-emerald-200' },
-                { label: '파일', value: totalFiles, icon: FileStack, color: 'text-cyan-200' },
+                { label: 'Portfolios', value: portfolios.length, icon: BriefcaseBusiness, color: 'text-violet-200' },
+                { label: 'Published', value: publishedCount, icon: Globe2, color: 'text-emerald-200' },
+                { label: 'Files', value: totalFiles, icon: FileStack, color: 'text-cyan-200' },
               ].map(item => (
                 <div key={item.label} className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
                   <item.icon className={`mb-5 size-5 ${item.color}`} />
@@ -211,22 +211,22 @@ export default function DashboardPage() {
                     <UserRound className="size-5" />
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-white">{profile?.username ? `@${profile.username}` : '프로필 미설정'}</p>
-                    <p className="text-xs text-slate-500">{profile?.bio || '공개 프로필에 소개를 추가하세요.'}</p>
+                    <p className="truncate text-sm font-semibold text-white">{profile?.username ? `@${profile.username}` : 'Profile not set'}</p>
+                    <p className="text-xs text-slate-500">{profile?.bio || 'Add a short intro to your public profile.'}</p>
                   </div>
                 </div>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
                 <div className="mb-2 flex items-center gap-2 text-xs text-slate-500">
                   <CalendarDays className="size-3.5" />
-                  최근 작업
+                  Recent work
                 </div>
                 <p className="truncate text-sm font-medium text-slate-200">
-                  {latestPortfolio ? latestPortfolio.title : '아직 포트폴리오가 없습니다.'}
+                  {latestPortfolio ? latestPortfolio.title : 'No portfolios yet.'}
                 </p>
                 {latestPortfolio && (
                   <p className="mt-1 text-xs text-slate-600">
-                    {new Date(latestPortfolio.createdAt).toLocaleDateString('ko-KR')}
+                    {new Date(latestPortfolio.createdAt).toLocaleDateString('en-US')}
                   </p>
                 )}
               </div>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
             >
               <span className="inline-flex items-center gap-2">
                 {t === 'portfolios' ? <BriefcaseBusiness className="size-4" /> : <UserRound className="size-4" />}
-                {t === 'portfolios' ? '포트폴리오' : '프로필'}
+                {t === 'portfolios' ? 'Portfolios' : 'Profile'}
               </span>
             </button>
           ))}
@@ -259,12 +259,12 @@ export default function DashboardPage() {
             {portfolios.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-white/10 bg-[#0b1020]/70 text-center py-20">
                 <Palette className="mx-auto mb-4 size-10 text-[#475569]" />
-                <p className="text-slate-300 font-medium mb-2">포트폴리오가 없습니다.</p>
-                <p className="text-[#64748b] text-sm mb-5">첫 작업 공간을 만들고 파일 업로드 후 Portfolio Story를 생성하세요.</p>
+                <p className="text-slate-300 font-medium mb-2">No portfolios yet.</p>
+                <p className="text-[#64748b] text-sm mb-5">Create your first workspace, upload files, and generate a Portfolio Story.</p>
                 <Link href="/portfolios/new"
                   className="inline-flex items-center gap-2 bg-white hover:bg-cyan-100 text-slate-950 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors">
                   <Plus className="size-4" />
-                  첫 포트폴리오 만들기
+                  Create first portfolio
                 </Link>
               </div>
             ) : (
@@ -283,16 +283,16 @@ export default function DashboardPage() {
                           p.published ? 'bg-[#064e3b] text-[#34d399]' : 'bg-white/[0.035] border border-white/10 text-[#64748b]'
                         }`}>
                           <span className={`size-1.5 rounded-full ${p.published ? 'bg-[#34d399]' : 'bg-[#64748b]'}`} />
-                          {p.published ? '공개' : '비공개'}
+                          {p.published ? 'Published' : 'Private'}
                         </div>
                       </div>
                       <h3 className="mt-5 line-clamp-2 font-semibold text-white text-base group-hover:text-violet-100 transition-colors">{p.title}</h3>
                       <div className="mt-5 flex items-center justify-between text-xs text-slate-500">
                         <span className="inline-flex items-center gap-1.5">
                           <FileStack className="size-3.5" />
-                          {p.fileCount}개 파일
+                          {p.fileCount} files
                         </span>
-                        <span>{new Date(p.createdAt).toLocaleDateString('ko-KR')}</span>
+                        <span>{new Date(p.createdAt).toLocaleDateString('en-US')}</span>
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
                         <span className={`rounded-full border px-2 py-1 text-[11px] ${
@@ -308,7 +308,7 @@ export default function DashboardPage() {
                         )}
                       </div>
                       <div className="mt-4 flex items-center gap-1 text-xs text-violet-200 opacity-0 transition-opacity group-hover:opacity-100">
-                        열기
+                        Open
                         <ArrowUpRight className="size-3.5" />
                       </div>
                     </div>
@@ -326,24 +326,24 @@ export default function DashboardPage() {
               <div className="bg-[#0b1020]/90 border border-white/10 rounded-2xl p-6 space-y-4 backdrop-blur-xl">
                 <div className="mb-2 flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="text-white text-xl font-semibold">프로필 편집</h2>
-                    <p className="mt-1 text-sm text-slate-500">공개 프로필과 포트폴리오 소유자 정보를 정리하세요.</p>
+                    <h2 className="text-white text-xl font-semibold">Edit profile</h2>
+                    <p className="mt-1 text-sm text-slate-500">Manage your public profile and portfolio owner information.</p>
                   </div>
                   {profile?.username && (
                     <button
                       onClick={() => setProfileEditing(false)}
                       className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-slate-400 transition-colors hover:text-white"
                     >
-                      닫기
+                      Close
                     </button>
                   )}
                 </div>
 
-                {field('사용자명 (username)', 'username', 'minjoonsage (영문, 숫자, -, _)')}
-                {field('한 줄 소개 (bio)', 'bio', '나를 소개하는 한 줄을 적어보세요')}
-                {field('위치', 'location', '서울, 대한민국')}
-                {field('링크드인 URL', 'linkedinUrl', 'https://linkedin.com/in/username', 'url')}
-                {field('깃허브 URL', 'githubUrl', 'https://github.com/username', 'url')}
+                {field('Username', 'username', 'minjoonsage (letters, numbers, -, _)')}
+                {field('Bio', 'bio', 'Write a short introduction')}
+                {field('Location', 'location', 'Seoul, South Korea')}
+                {field('LinkedIn URL', 'linkedinUrl', 'https://linkedin.com/in/username', 'url')}
+                {field('GitHub URL', 'githubUrl', 'https://github.com/username', 'url')}
 
                 {profileError && (
                   <div className="rounded-xl border border-rose-300/20 bg-rose-300/[0.06] px-3 py-2 text-xs text-rose-200">
@@ -357,12 +357,12 @@ export default function DashboardPage() {
                     disabled={profileSaving}
                     className="bg-[#6d28d9] hover:bg-[#7c3aed] disabled:opacity-40 text-white text-sm px-5 py-2.5 rounded-xl transition-colors"
                   >
-                    {profileSaving ? '저장 중...' : '저장'}
+                    {profileSaving ? 'Saving...' : 'Save'}
                   </button>
                   {profileSaved && (
                     <span className="inline-flex items-center gap-1.5 text-[#34d399] text-sm">
                       <CheckCircle2 className="size-4" />
-                      저장됨
+                      Saved
                     </span>
                   )}
                 </div>
@@ -388,7 +388,7 @@ export default function DashboardPage() {
                       {(profile?.linkedinUrl || profile?.githubUrl) && (
                         <span className="inline-flex items-center gap-1.5">
                           <LinkIcon className="size-3.5" />
-                          외부 링크 연결됨
+                          External links connected
                         </span>
                       )}
                     </div>
@@ -439,7 +439,7 @@ export default function DashboardPage() {
                   {(profileForm.linkedinUrl || profileForm.githubUrl) && (
                     <p className="flex items-center gap-2">
                       <LinkIcon className="size-3.5" />
-                      외부 링크 연결됨
+                      External links connected
                     </p>
                   )}
                 </div>

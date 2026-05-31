@@ -24,10 +24,10 @@ public class SmartOrganizerService {
     private record CategoryDef(String key, String label, String subtitle) {}
 
     private static final List<CategoryDef> CATEGORY_DEFS = List.of(
-        new CategoryDef("system",      "시스템", "토큰 · 가이드 · 컴포넌트"),
-        new CategoryDef("visual",      "비주얼", "키 비주얼 · 무드 · 마이크로사이트"),
-        new CategoryDef("document",    "문서",   "노트 · 리서치 · 의사결정"),
-        new CategoryDef("deliverable", "산출물", "최종 산출물 · 납품")
+        new CategoryDef("system",      "System", "Code · configuration · components"),
+        new CategoryDef("visual",      "Visual", "Images · video · design assets"),
+        new CategoryDef("document",    "Document", "Notes · research · decisions"),
+        new CategoryDef("deliverable", "Deliverable", "Final outputs · handoff files")
     );
 
     @Transactional(readOnly = true)
@@ -77,12 +77,12 @@ public class SmartOrganizerService {
         file.setCategory(newCategory);
         file.setCategoryLocked(true);
         file.setCategoryConfidence(100);
-        file.setCategoryReasoning("사용자가 직접 지정한 카테고리입니다.");
+        file.setCategoryReasoning("This category was manually selected by the creator.");
         fileRepository.save(file);
 
         return new OrganizerResultDto.FileClassificationDto(
             file.getId(), file.getName(), file.getFileSize(),
-            100, "사용자가 직접 지정한 카테고리입니다.", true
+            100, "This category was manually selected by the creator.", true
         );
     }
 
@@ -170,11 +170,11 @@ public class SmartOrganizerService {
 
     String generateReasoning(String name, String ext, String category) {
         return switch (category) {
-            case "system"      -> "." + ext + " 파일은 코드·설정·토큰으로 시스템 카테고리에 분류됩니다.";
-            case "visual"      -> "." + ext + " 파일은 이미지·디자인 에셋으로 비주얼 카테고리에 분류됩니다.";
-            case "document"    -> "." + ext + " 파일은 문서·노트로 문서 카테고리에 분류됩니다.";
-            case "deliverable" -> "." + ext + " 파일은 최종 납품물로 산출물 카테고리에 분류됩니다.";
-            default            -> "파일명과 확장자를 기반으로 분류되었습니다.";
+            case "system"      -> "." + ext + " files are classified as System because they contain code, configuration, or implementation details.";
+            case "visual"      -> "." + ext + " files are classified as Visual because they are image, video, or design assets.";
+            case "document"    -> "." + ext + " files are classified as Document because they contain notes, research, or planning material.";
+            case "deliverable" -> "." + ext + " files are classified as Deliverable because they represent final outputs or handoff artifacts.";
+            default            -> "This file was classified from its filename and extension.";
         };
     }
 
@@ -205,8 +205,8 @@ public class SmartOrganizerService {
 
     private String buildReasoning(Map<String, List<PortfolioFile>> byCategory) {
         return String.format(
-            "이번 분류에서 시스템 %d개, 비주얼 %d개, 문서 %d개, 산출물 %d개로 구성되었습니다. " +
-            "잘못된 분류는 드래그로 수정할 수 있어요.",
+            "This classification contains %d system files, %d visual files, %d document files, and %d deliverables. " +
+            "You can drag files to correct any category.",
             byCategory.getOrDefault("system",      List.of()).size(),
             byCategory.getOrDefault("visual",      List.of()).size(),
             byCategory.getOrDefault("document",    List.of()).size(),

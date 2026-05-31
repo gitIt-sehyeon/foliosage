@@ -70,7 +70,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
         background: 'rgba(7,11,21,0.85)', backdropFilter: 'blur(12px)',
         padding: '12px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <p style={{ margin: 0, fontSize: 14, color: '#64748b' }}>AI 파일 정리</p>
+        <p style={{ margin: 0, fontSize: 14, color: '#64748b' }}>AI file organizer</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {isRunning && (
             <span style={{
@@ -79,7 +79,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
               background: 'rgba(167,139,250,0.12)', color: '#c4b5fd',
             }}>
               <Loader2 size={11} style={{ animation: 'spin 1s linear infinite' }} />
-              AI 분류 중 · {data?.progressPercent ?? 0}%
+              AI classification · {data?.progressPercent ?? 0}%
             </span>
           )}
           {isDone && (
@@ -88,14 +88,14 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
               padding: '4px 10px', borderRadius: 9999, fontSize: 12,
               background: 'rgba(167,139,250,0.12)', color: '#c4b5fd',
             }}>
-              AI 분류 완료 · 100%
+              AI classification complete · 100%
             </span>
           )}
           <button
             style={{ fontSize: 13, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
             onClick={() => router.push(`/portfolios/${portfolioId}`)}
           >
-            건너뛰기
+            Skip
           </button>
           <button
             disabled={!isDone || isConfirming}
@@ -108,7 +108,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
               cursor: isDone ? 'pointer' : 'not-allowed',
             }}
           >
-            분류 결과 확정 <ArrowRight size={14} />
+            Confirm classification <ArrowRight size={14} />
           </button>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
 
         {isIdle && data?.totalFiles === 0 && (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <p style={{ color: '#64748b', fontSize: 15 }}>업로드된 파일이 없습니다.</p>
+            <p style={{ color: '#64748b', fontSize: 15 }}>No files have been uploaded.</p>
             <button
               onClick={() => router.push(`/portfolios/${portfolioId}`)}
               style={{
@@ -158,14 +158,14 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
                 border: 'none', cursor: 'pointer',
               }}
             >
-              파일 업로드 페이지로
+              Go to file upload
             </button>
           </div>
         )}
 
         {isIdle && data !== null && (data?.totalFiles ?? 0) > 0 && (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <p style={{ color: '#64748b', marginBottom: 24 }}>아직 AI 분류가 실행되지 않았습니다.</p>
+            <p style={{ color: '#64748b', marginBottom: 24 }}>AI classification has not run yet.</p>
             <button
               onClick={startOrganize}
               style={{
@@ -174,7 +174,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
                 color: '#fff', border: 'none', cursor: 'pointer',
               }}
             >
-              AI 정리 시작
+              Start AI organizer
             </button>
           </div>
         )}
@@ -208,7 +208,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
           <div style={{ textAlign: 'center', padding: data.status === 'failed' ? '60px 0' : '20px 0' }}>
             {data.status === 'failed' && (
               <p style={{ color: '#fca5a5', fontSize: 15, marginBottom: 16 }}>
-                AI 분류 중 오류가 발생했습니다.
+                AI classification failed.
               </p>
             )}
             <button
@@ -219,7 +219,7 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
                 border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer',
               }}
             >
-              다시 시도
+              Try again
             </button>
           </div>
         )}

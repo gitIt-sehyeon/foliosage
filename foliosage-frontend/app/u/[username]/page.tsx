@@ -16,7 +16,7 @@ export async function generateMetadata({
     if (!res.ok) return {}
     const data = await res.json()
     const title = `${data.name} (@${data.username}) — FolioSage`
-    const description = data.bio ?? `${data.name}의 포트폴리오`
+    const description = data.bio ?? `${data.name}'s portfolio`
     return {
       title,
       description,

@@ -3,15 +3,15 @@ import { MockAppNavbar, MockEyebrow, MockPill } from './mockup-primitives'
 
 export function LandingMockStory({ active }: { active: boolean }) {
   const story = [
-    { tag: 'My Role',  txt: 'Lead designer · brand + art direction. 캠페인 시각 시스템 총괄.' },
-    { tag: 'Problem',  txt: '캠페인이 채널마다 분기되며 톤이 달랐고, 인용할 산출물이 흩어져 있었음.' },
-    { tag: 'Solution', txt: '8주간 토큰화 → 자산 가이드 4개 → 런칭 마이크로사이트로 통합.' },
-    { tag: 'Impact',   txt: '공유 자산 사용률 92%, CTR 18% 상승. 면접에서 매번 인용되는 케이스.' },
+    { tag: 'My Role', txt: 'Lead designer · brand and art direction for the visual system.' },
+    { tag: 'Problem', txt: 'The campaign tone split across channels and evidence was scattered.' },
+    { tag: 'Solution', txt: 'Tokenized the system, built four asset guides, and launched a microsite.' },
+    { tag: 'Impact', txt: '92% shared asset adoption and an 18% CTR lift.' },
   ]
 
   return (
     <div style={{ background: '#070b15', minHeight: 480 }}>
-      <MockAppNavbar right={<MockPill tone="violet" size="sm" dot>Story 생성 완료</MockPill>} />
+      <MockAppNavbar right={<MockPill tone="violet" size="sm" dot>Story generated</MockPill>} />
       <div style={{ padding: '18px 22px', display: 'grid', gridTemplateColumns: '1fr 220px', gap: 14 }}>
         <div>
           {/* Summary card */}
@@ -23,9 +23,9 @@ export function LandingMockStory({ active }: { active: boolean }) {
           }}>
             <MockEyebrow color="#c4b5fd" tracking="0.22em">Summary · Generated</MockEyebrow>
             <p style={{ margin: '6px 0 0', fontSize: 15, fontWeight: 600, color: '#fff', lineHeight: 1.45 }}>
-              봄 2026 캠페인 비주얼 시스템.<br />
-              9주의 스프린트, 18개 파일,{' '}
-              <span style={{ color: '#a5f3fc' }}>인용 가능한 4개 핵심 결정</span>.
+              Spring 2026 campaign visual system.<br />
+              Nine-week sprint, 18 files,{' '}
+              <span style={{ color: '#a5f3fc' }}>four citable key decisions</span>.
             </p>
           </div>
 
@@ -71,9 +71,9 @@ export function LandingMockStory({ active }: { active: boolean }) {
           }}>
             <MockEyebrow color="#fde68a" tracking="0.22em">Interview Questions</MockEyebrow>
             <div style={{ marginTop: 8, display: 'grid', gap: 6, fontSize: 10.5, color: '#e2e8f0', lineHeight: 1.55 }}>
-              <p style={{ margin: 0 }}>&ldquo;가장 어려웠던 의사결정은?&rdquo;</p>
-              <p style={{ margin: 0 }}>&ldquo;CTR 18% 향상의 근거는?&rdquo;</p>
-              <p style={{ margin: 0 }}>&ldquo;시스템 토큰을 8주에 정리한 비결?&rdquo;</p>
+              <p style={{ margin: 0 }}>&ldquo;What was the hardest decision?&rdquo;</p>
+              <p style={{ margin: 0 }}>&ldquo;What proves the 18% CTR lift?&rdquo;</p>
+              <p style={{ margin: 0 }}>&ldquo;How did you structure the design tokens?&rdquo;</p>
             </div>
           </div>
         </div>

@@ -41,7 +41,7 @@ export function useOrganizerResult(portfolioId: string) {
         if (intervalRef.current) clearInterval(intervalRef.current)
       }
     } catch {
-      setError('결과를 불러오지 못했습니다.')
+      setError('Could not load the organizer result.')
     }
   }, [portfolioId])
 

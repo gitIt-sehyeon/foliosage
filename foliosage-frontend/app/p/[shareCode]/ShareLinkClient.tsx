@@ -78,14 +78,14 @@ function creatorInitials(name: string | null | undefined) {
 }
 
 const FILE_CATEGORIES = [
-  { key: 'system', label: '시스템' },
-  { key: 'visual', label: '비주얼' },
-  { key: 'document', label: '문서' },
-  { key: 'deliverable', label: '산출물' },
+  { key: 'system', label: 'System' },
+  { key: 'visual', label: 'Visual' },
+  { key: 'document', label: 'Document' },
+  { key: 'deliverable', label: 'Deliverable' },
 ] as const
 
 function categoryLabel(category: string | null | undefined) {
-  return FILE_CATEGORIES.find(item => item.key === category)?.label ?? '문서'
+  return FILE_CATEGORIES.find(item => item.key === category)?.label ?? 'Document'
 }
 
 function normalizeCategory(category: string | null | undefined, mimeType?: string): string {
@@ -113,7 +113,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
         setLoading(false)
       })
       .catch(() => {
-        setError('포트폴리오를 찾을 수 없습니다.')
+        setError('Portfolio not found.')
         setLoading(false)
       })
   }, [shareCode])
@@ -144,16 +144,16 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
   const suggestedQuestions = portfolio?.story?.interviewQuestions?.length
     ? portfolio.story.interviewQuestions
     : portfolio ? [
-      `이 포트폴리오에서 ${portfolio.ownerName ?? '작성자'}의 역할은 무엇인가요?`,
-      '가장 강한 증거 파일 3개를 근거와 함께 설명해 주세요.',
-      '심사자 관점에서 보완하면 좋을 증거는 무엇인가요?',
+      `What was ${portfolio.ownerName ?? 'the creator'}'s role in this portfolio?`,
+      'Which three files provide the strongest evidence, and why?',
+      'What evidence should be improved from a reviewer perspective?',
     ] : []
   const story = portfolio?.story
   const storySections = portfolio ? [
-    { label: '역할', value: story?.role },
-    { label: '문제', value: story?.problem },
-    { label: '해결', value: story?.solution },
-    { label: '임팩트', value: story?.impact },
+    { label: 'Role', value: story?.role },
+    { label: 'Problem', value: story?.problem },
+    { label: 'Solution', value: story?.solution },
+    { label: 'Impact', value: story?.impact },
   ].filter(item => item.value && item.value.trim()) : []
 
   const BENTO_PATTERNS = [
@@ -218,7 +218,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
             <div className="h-4 w-40 animate-pulse rounded bg-white/10" />
           ) : (
             <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-slate-500">
-              방문자 화면 · {portfolio?.ownerName ?? ''}의 포트폴리오
+              Visitor view · {portfolio?.ownerName ?? ''}'s portfolio
             </p>
           )}
         </div>
@@ -226,7 +226,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
           {!loading && portfolio && (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-emerald-200">
               <CheckCircle2 className="size-3" />
-              FolioSage 검증
+              FolioSage verified
             </span>
           )}
           {portfolio && portfolio.viewCount > 0 && (
@@ -238,7 +238,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
           <button onClick={handleDownload} disabled={!selectedFile || loading}
             className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-slate-300 transition-colors hover:bg-white/[0.07] hover:text-white disabled:opacity-40">
             <Download className="size-3.5" />
-            다운로드
+            Download
           </button>
           <button
             onClick={() => { setDefenseOpen(v => !v); if (!defenseOpen) setChatOpen(false) }}
@@ -246,7 +246,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
               defenseOpen ? 'border-emerald-300/25 bg-emerald-600 text-white' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.07] hover:text-white'
             }`}>
             <ClipboardCheck className="size-3.5" />
-            AI 리뷰
+            AI Review
           </button>
           <button
             onClick={() => { setChatOpen(v => !v); if (!chatOpen) setDefenseOpen(false) }}
@@ -254,7 +254,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
               chatOpen ? 'border-violet-300/25 bg-[#6d28d9] text-white' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.07] hover:text-white'
             }`}>
             <MessageSquareText className="size-3.5" />
-            AI 채팅
+            AI Chat
           </button>
         </div>
       </header>
@@ -283,20 +283,20 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-300/20 bg-violet-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-violet-200">
                     <span className="size-1.5 rounded-full bg-violet-300" />
-                    공개 중
+                    Published
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-cyan-200">
                     <Sparkles className="size-3" />
-                    AI 리뷰 완료
+                    AI review ready
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/[0.07] px-2.5 py-1 text-[11px] font-medium text-emerald-200">
                     <ShieldCheck className="size-3" />
-                    인증 파일 {portfolio.files.filter(f => f.certifiedAt).length}개
+                    {portfolio.files.filter(f => f.certifiedAt).length} certified files
                   </span>
                 </div>
 
                 <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-slate-500">
-                  포트폴리오 · {portfolio.ownerName ?? ''}
+                  Portfolio · {portfolio.ownerName ?? ''}
                 </p>
 
                 <h1 className="mt-3 text-6xl font-semibold leading-none sm:text-7xl"
@@ -312,7 +312,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                 </h1>
 
                 <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-300">
-                  {story?.summary || portfolio.description || '이 포트폴리오에서 작업의 맥락, 증거 파일, AI 가이드를 확인하세요.'}
+                  {story?.summary || portfolio.description || 'Explore the project context, evidence files, and AI guide for this portfolio.'}
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center gap-6 text-sm text-slate-400">
@@ -320,13 +320,13 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                     <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-cyan-400 text-xs font-bold text-white">
                       {creatorInitials(portfolio.ownerName)}
                     </span>
-                    <span className="font-semibold text-slate-200">{portfolio.ownerName ?? '작성자'}</span>
+                    <span className="font-semibold text-slate-200">{portfolio.ownerName ?? 'Creator'}</span>
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Eye className="size-3.5" />
-                    조회 {portfolio.viewCount.toLocaleString()}회
+                    {portfolio.viewCount.toLocaleString()} views
                   </span>
-                  <span>{portfolio.files.length}개 파일</span>
+                  <span>{portfolio.files.length} files</span>
                 </div>
               </div>
 
@@ -335,7 +335,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
               {/* ── Story section ── */}
               {storySections.length > 0 && (
                 <section className="mt-14">
-                  <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">스토리</p>
+                  <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">Story</p>
                   <div className="space-y-3">
                     {storySections.map(({ label, value }, i) => (
                       <div key={label}
@@ -357,8 +357,8 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
               {portfolio.files.length > 0 && (
                 <section className="mt-14">
                   <div className="mb-4 flex items-baseline justify-between">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">근거 파일 · {portfolio.files.length}개</p>
-                    <span className="text-[11px] text-slate-600">모두 해시 + 타임스탬프 인증</span>
+                    <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">Evidence files · {portfolio.files.length}</p>
+                    <span className="text-[11px] text-slate-600">Hash and timestamp certified</span>
                   </div>
                   {categoryCounts.length > 0 && (
                     <div className="mb-4 flex flex-wrap gap-2">
@@ -400,7 +400,7 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-white">{f.name.replace(/\.[^.]+$/, '')}</p>
-                              <p className="mt-1 line-clamp-2 text-xs text-slate-400">{f.description || '인증된 원본 파일'}</p>
+                              <p className="mt-1 line-clamp-2 text-xs text-slate-400">{f.description || 'Certified source file'}</p>
                             </div>
                           </div>
                         </button>
@@ -413,12 +413,12 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
               {/* ── Closing CTA ── */}
               <section className="mt-16 rounded-2xl border border-violet-300/[0.18] p-12 text-center"
                 style={{ background: 'linear-gradient(140deg, rgba(124,58,237,0.20), rgba(11,16,32,0.70) 70%)' }}>
-                <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">이 포트폴리오에 대해</p>
+                <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">About this portfolio</p>
                 <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-                  AI 가이드에게 무엇이든 물어보세요
+                  Ask the AI guide anything
                 </h2>
                 <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-400">
-                  {portfolio.files.length}개 파일을 기반으로 답변하며, 인용한 소스를 항상 표기합니다.
+                  Answers are grounded in {portfolio.files.length} files and include cited sources when available.
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
                   {suggestedQuestions.slice(0, 4).map(q => (
@@ -440,14 +440,14 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
       {chatOpen && (
         <>
           <button
-            aria-label="AI 채팅 닫기 배경"
+            aria-label="Close AI chat backdrop"
             className="fixed inset-0 z-20 bg-black/30 backdrop-blur-[2px] sm:hidden"
             onClick={() => setChatOpen(false)}
           />
           <aside className="fixed inset-x-3 bottom-3 top-20 z-30 overflow-hidden rounded-2xl border border-white/12 bg-[#070b15]/95 shadow-[0_24px_80px_rgba(0,0,0,0.45),0_0_0_1px_rgba(167,139,250,0.06)] backdrop-blur-2xl sm:inset-x-auto sm:right-5 sm:top-24 sm:bottom-5 sm:w-[390px] lg:right-8">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(124,58,237,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_18%)]" />
             <button
-              aria-label="AI 채팅 닫기"
+              aria-label="Close AI chat"
               onClick={() => setChatOpen(false)}
               className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-lg border border-white/10 bg-[#0b1020]/80 text-slate-400 transition-colors hover:bg-white/[0.07] hover:text-white"
             >

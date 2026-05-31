@@ -4,10 +4,10 @@ import { MockEyebrow, MockPill } from './mockup-primitives'
 export function LandingZoomReadiness({ active }: { active: boolean }) {
   const score = 87
   const checks = [
-    { l: 'Story 작성',       d: '4/4 섹션',    ok: true  },
-    { l: 'Evidence 연결',    d: '18개 인증됨', ok: true  },
-    { l: 'AI Review 통과',   d: '점수 79/100', ok: true  },
-    { l: 'Public Link 발급', d: '대기 중',      ok: false },
+    { l: 'Story written', d: '4/4 sections', ok: true },
+    { l: 'Evidence linked', d: '18 certified', ok: true },
+    { l: 'AI Review passed', d: 'score 79/100', ok: true },
+    { l: 'Public Link issued', d: 'pending', ok: false },
   ]
 
   return (
@@ -18,7 +18,7 @@ export function LandingZoomReadiness({ active }: { active: boolean }) {
       background: 'linear-gradient(160deg, rgba(124,58,237,0.22), rgba(11,16,32,0.95) 65%)',
       boxShadow: '0 30px 80px rgba(0,0,0,0.55), 0 0 56px rgba(124,58,237,0.20)',
     }}>
-      <MockEyebrow color="#c4b5fd" tracking="0.24em">Readiness · 제출 준비도</MockEyebrow>
+      <MockEyebrow color="#c4b5fd" tracking="0.24em">Readiness · submission status</MockEyebrow>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 14 }}>
         {/* SVG gauge */}
@@ -58,9 +58,9 @@ export function LandingZoomReadiness({ active }: { active: boolean }) {
 
         {/* Right blurb */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#fff' }}>제출 가능</p>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#fff' }}>Ready to submit</p>
           <p style={{ margin: '4px 0 0', fontSize: 12, color: '#94a3b8', lineHeight: 1.55 }}>
-            공개 링크만 발급하면 끝. AI Guide도 학습 완료.
+            Only the public link is left. The AI Guide is ready.
           </p>
           <div style={{ marginTop: 10, display: 'flex', gap: 5, flexWrap: 'wrap' }}>
             <MockPill tone="emerald" size="sm">Story</MockPill>

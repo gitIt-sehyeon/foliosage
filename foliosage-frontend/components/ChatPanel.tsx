@@ -7,9 +7,43 @@ interface EvidenceChip { fileId: string; vaultsageFileId: string; name: string }
 interface Message { id: number; role: 'user' | 'assistant'; content: string; evidence?: EvidenceChip[] }
 interface Props { shareCode: string; dark?: boolean; suggestedQuestions?: string[] }
 
+function AssistantContent({ content }: { content: string }) {
+  const lines = content
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map(line => line.trim())
+  const blocks: { type: 'p' | 'li'; text: string }[] = []
+
+  for (const line of lines) {
+    if (!line) continue
+    const bullet = line.match(/^[-*]\s+(.+)$/)
+    const numbered = line.match(/^\d+[.)]\s+(.+)$/)
+    if (bullet || numbered) {
+      blocks.push({ type: 'li', text: bullet?.[1] ?? numbered?.[1] ?? line })
+    } else {
+      blocks.push({ type: 'p', text: line })
+    }
+  }
+
+  if (blocks.length === 0) return null
+
+  return (
+    <div className="space-y-2">
+      {blocks.map((block, index) => block.type === 'li' ? (
+        <div key={`${index}-${block.text}`} className="flex gap-2 leading-6">
+          <span className="mt-2 size-1.5 shrink-0 rounded-full bg-current opacity-55" />
+          <span>{block.text}</span>
+        </div>
+      ) : (
+        <p key={`${index}-${block.text}`} className="leading-6">{block.text}</p>
+      ))}
+    </div>
+  )
+}
+
 export default function ChatPanel({ shareCode, dark = false, suggestedQuestions = [] }: Props) {
   const [messages, setMessages] = useState<Message[]>([
-    { id: 0, role: 'assistant', content: '안녕하세요. 이 포트폴리오에 대해 무엇이든 물어보세요.' }
+    { id: 0, role: 'assistant', content: 'Hi. Ask me anything about this portfolio.' }
   ])
   const nextId = useRef(1)
   const [input, setInput] = useState('')
@@ -45,7 +79,7 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
       setMessages(prev => [...prev, {
         id: nextId.current++,
         role: 'assistant',
-        content: '답변을 가져오는 데 문제가 발생했습니다. 다시 시도해 주세요.',
+        content: 'I could not load an answer. Please try again.',
       }])
     } finally { setLoading(false) }
   }
@@ -61,8 +95,8 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
               <MessageSquareText className="size-5" />
             </span>
             <div>
-              <p className="text-[#c4b5fd] font-semibold text-sm">AI 가이드</p>
-              <p className="text-[#64748b] text-xs">이 포트폴리오 근거로 답변합니다</p>
+              <p className="text-[#c4b5fd] font-semibold text-sm">AI Guide</p>
+              <p className="text-[#64748b] text-xs">Answers from this portfolio's evidence</p>
             </div>
           </div>
         </div>
@@ -70,7 +104,7 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
         <div className="flex-1 overflow-y-auto p-5 space-y-3 min-h-0">
           {suggestedQuestions.length > 0 && messages.length === 1 && (
             <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#64748b]">추천 질문</p>
+              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#64748b]">Suggested questions</p>
               <div className="space-y-1.5">
                 {suggestedQuestions.slice(0, 3).map(question => (
                   <button
@@ -87,12 +121,12 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
           )}
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
+              <div className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm ${
                 msg.role === 'user'
                   ? 'bg-[#6d28d9] text-white rounded-br-sm'
-                  : 'bg-white/[0.055] border border-white/10 text-[#cbd5e1] rounded-bl-sm'
+                  : 'bg-white/[0.065] border border-white/10 text-[#dbe4f0] rounded-bl-sm shadow-[0_12px_40px_rgba(0,0,0,0.18)]'
               }`}>
-                {msg.content}
+                {msg.role === 'assistant' ? <AssistantContent content={msg.content} /> : msg.content}
                 {msg.evidence && msg.evidence.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {msg.evidence.map(item => (
@@ -125,7 +159,7 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && send()}
-            placeholder="질문을 입력하세요..."
+            placeholder="Ask a question..."
             className="flex-1 bg-white/[0.04] border border-white/10 text-white text-sm rounded-xl px-3 py-2.5 outline-none focus:border-[#6d28d9] placeholder:text-[#475569]"
             disabled={loading}
           />
@@ -147,20 +181,20 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
       <div className="px-4 py-3 border-b bg-gradient-to-r from-purple-600 to-pink-500">
         <p className="flex items-center gap-2 text-white font-semibold text-sm">
           <MessageSquareText className="size-4" />
-          이 포트폴리오에 대해 질문하기
+          Ask about this portfolio
         </p>
-        <p className="text-purple-100 text-xs">VaultSage AI 기반 답변</p>
+        <p className="text-purple-100 text-xs">Answers powered by VaultSage AI</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${
+            <div className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm ${
               msg.role === 'user'
                 ? 'bg-purple-600 text-white rounded-br-sm'
-                : 'bg-slate-100 text-slate-800 rounded-bl-sm'
+                : 'bg-slate-100 text-slate-800 rounded-bl-sm shadow-sm'
             }`}>
-              {msg.content}
+              {msg.role === 'assistant' ? <AssistantContent content={msg.content} /> : msg.content}
               {msg.evidence && msg.evidence.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {msg.evidence.map(item => (
@@ -193,7 +227,7 @@ export default function ChatPanel({ shareCode, dark = false, suggestedQuestions 
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder="질문을 입력하세요..."
+          placeholder="Ask a question..."
           className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-400"
           disabled={loading}
         />

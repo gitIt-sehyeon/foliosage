@@ -37,7 +37,7 @@ export function LandingZoomCertificate({ active }: { active: boolean }) {
           </span>
           <div>
             <MockEyebrow color="#a7f3d0" tracking="0.24em">Creation certificate</MockEyebrow>
-            <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94a3b8' }}>fs:proof:v1 · 위·변조 방지</p>
+            <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94a3b8' }}>fs:proof:v1 · tamper-resistant</p>
           </div>
         </div>
 
@@ -45,7 +45,7 @@ export function LandingZoomCertificate({ active }: { active: boolean }) {
           Brand system.pdf
         </p>
         <p style={{ margin: '4px 0 18px', fontSize: 12, color: '#94a3b8' }}>
-          해시 + 타임스탬프 + 작성자 서명 — 면접 5년 후에도 증명됩니다.
+          Hash, timestamp, and creator signature - proof that still works years later.
         </p>
 
         <div style={{

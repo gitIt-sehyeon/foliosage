@@ -204,12 +204,12 @@ public class DefenseService {
                         || containsFilenameToken(joinedHints, name);
             }
             if (matched && seen.add(file.getId())) {
-                matches.add(toEvidenceChip(file, reason.isBlank() ? "AI 포트폴리오 리뷰에서 참조한 근거입니다." : reason));
+                matches.add(toEvidenceChip(file, reason.isBlank() ? "Evidence referenced by the AI portfolio review." : reason));
             }
         }
         if (fallbackToFirstFile && matches.isEmpty() && !files.isEmpty()) {
             PortfolioFile file = files.get(0);
-            matches.add(toEvidenceChip(file, "AI 응답이 포트폴리오 파일을 참조했지만 정확한 인용 파일을 반환하지 않았습니다."));
+            matches.add(toEvidenceChip(file, "The AI response referenced portfolio files but did not return an exact cited file."));
         }
         return matches.size() > 4 ? matches.subList(0, 4) : matches;
     }
@@ -233,18 +233,18 @@ public class DefenseService {
                         clampScore(node.path("overallScore").asInt(node.path("overall_score").asInt(average(categories)))),
                         categories,
                         readStringList(node.path("missingProof").isMissingNode() ? node.path("missing_proof") : node.path("missingProof")),
-                        node.path("summary").asText("AI 리뷰가 완료되었습니다.")
+                        node.path("summary").asText("AI review is complete.")
                 );
             }
         }
         List<ScoreCategoryDto> categories = List.of(
-                new ScoreCategoryDto("독창성", 78, "창작 의도는 설명되어 있으나 본인만의 기여를 더 직접적으로 증명할 필요가 있습니다."),
-                new ScoreCategoryDto("기술 깊이", 76, "기술적 선택은 드러나지만 구현 산출물로 더 강화할 수 있습니다."),
-                new ScoreCategoryDto("근거 강도", 72, "업로드된 파일이 스토리를 뒷받침하지만 과정 증거를 더 보강할 여지가 있습니다."),
-                new ScoreCategoryDto("스토리 명확성", 80, "전체 서사는 일관적이며 공개 검토에 활용할 수 있습니다."),
-                new ScoreCategoryDto("부족한 증거", 68, "원본 파일, 초안, 결과 지표를 추가하면 증거 공백을 줄일 수 있습니다.")
+                new ScoreCategoryDto("Originality", 78, "The creative intent is explained, but the creator's unique contribution needs stronger direct proof."),
+                new ScoreCategoryDto("Technical Depth", 76, "Technical choices are visible, but implementation artifacts would make the case stronger."),
+                new ScoreCategoryDto("Evidence Strength", 72, "The uploaded files support the story, with room to add more process evidence."),
+                new ScoreCategoryDto("Story Clarity", 80, "The overall narrative is coherent and usable for public review."),
+                new ScoreCategoryDto("Missing Proof", 68, "Adding source files, drafts, and outcome metrics would reduce evidence gaps.")
         );
-        return new DefenseScorecardDto(average(categories), categories, List.of("작업 과정 산출물이나 측정 가능한 결과를 더 추가하세요."), raw);
+        return new DefenseScorecardDto(average(categories), categories, List.of("Add process artifacts or measurable results."), raw);
     }
 
     private DefenseSessionResponse toSessionResponse(PortfolioDefenseSession session) {
@@ -283,7 +283,7 @@ public class DefenseService {
         } catch (WebClientResponseException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_GATEWAY,
-                    "VaultSage AI 리뷰 요청에 실패했습니다. 포트폴리오 공개 링크가 유효한지 확인해 주세요.");
+                    "VaultSage AI review request failed. Check that the public portfolio link is valid.");
         }
         try {
             JsonNode node = MAPPER.readTree(raw);
@@ -300,19 +300,19 @@ public class DefenseService {
     String buildQuestionPrompt(Portfolio portfolio, List<PortfolioFile> files) {
         return """
                 %s
-                당신은 AI 포트폴리오 심사위원입니다. 이 포트폴리오에 대한 방어 질문을 정확히 5개 생성하세요.
-                JSON만 반환하세요: {"questions":["..."]}.
-                질문은 작성자 본인성, 디자인/기술 의사결정, 측정 가능한 임팩트, 근거 강도, 독창성, 부족한 증거를 다뤄야 합니다.
-                질문을 고를 때 전체 파일 목록을 사용하세요. 첫 번째 파일에만 집중하지 말고, 가능하면 서로 다른 파일 3개 이상을 다루세요.
-                질문 안에 관련 파일명을 언급해 작성자가 여러 업로드 파일의 근거를 방어하게 하세요.
-                포트폴리오: %s
-                설명: %s
-                생성된 스토리:
+                You are an AI portfolio reviewer. Generate exactly 5 defense questions for this portfolio.
+                Return JSON only: {"questions":["..."]}.
+                Cover authorship, design or technical decisions, measurable impact, evidence strength, originality, and missing proof.
+                Use the full file list when choosing questions. Do not focus only on the first file; cover at least three different files when possible.
+                Mention relevant filenames in the questions so the creator has to defend claims with uploaded evidence.
+                Portfolio: %s
+                Description: %s
+                Generated story:
                 %s
-                파일:
+                Files:
                 %s
                 """.formatted(
-                AiLanguageInstructions.KOREAN_ONLY,
+                AiLanguageInstructions.ENGLISH_ONLY,
                 portfolio.getTitle(),
                 nullToEmpty(portfolio.getDescription()),
                 storyContext(portfolio),
@@ -322,16 +322,16 @@ public class DefenseService {
     private String buildEvaluationPrompt(String question, String answer, Portfolio portfolio, List<PortfolioFile> files) {
         return """
                 %s
-                공유된 포트폴리오 파일을 기준으로 작성자의 답변을 평가하세요.
-                JSON만 반환하세요: {"feedback":"...", "evidenceFiles":["exact filename or file id"], "missingProof":"..."}.
-                질문: %s
-                답변: %s
-                생성된 스토리:
+                Evaluate the creator's answer against the shared portfolio files.
+                Return JSON only: {"feedback":"...", "evidenceFiles":["exact filename or file id"], "missingProof":"..."}.
+                Question: %s
+                Answer: %s
+                Generated story:
                 %s
-                사용 가능한 파일:
+                Available files:
                 %s
                 """.formatted(
-                AiLanguageInstructions.KOREAN_ONLY,
+                AiLanguageInstructions.ENGLISH_ONLY,
                 question,
                 answer,
                 storyContext(portfolio),
@@ -347,17 +347,17 @@ public class DefenseService {
         }
         return """
                 %s
-                최종 포트폴리오 방어 평가표를 만드세요.
-                JSON만 반환하세요: {"overallScore":0-100,"categories":[{"name":"독창성","score":0-100,"rationale":"..."}],"missingProof":["..."],"summary":"..."}.
-                필수 카테고리: 독창성, 기술 깊이, 근거 강도, 스토리 명확성, 부족한 증거.
-                대화 기록:
+                Create the final portfolio defense scorecard.
+                Return JSON only: {"overallScore":0-100,"categories":[{"name":"Originality","score":0-100,"rationale":"..."}],"missingProof":["..."],"summary":"..."}.
+                Required categories: Originality, Technical Depth, Evidence Strength, Story Clarity, Missing Proof.
+                Conversation:
                 %s
-                생성된 스토리:
+                Generated story:
                 %s
-                파일:
+                Files:
                 %s
                 """.formatted(
-                AiLanguageInstructions.KOREAN_ONLY,
+                AiLanguageInstructions.ENGLISH_ONLY,
                 transcript,
                 storyContext(portfolio),
                 fileManifest(files));
@@ -485,11 +485,11 @@ public class DefenseService {
 
     private List<String> defaultQuestions() {
         return List.of(
-                "여러 업로드 파일 중 최소 3개를 근거로, 이 프로젝트에서 본인이 직접 수행한 핵심 역할을 설명해 주세요.",
-                "첫 번째 파일에만 의존하지 말고 디자인 또는 기술 결정의 근거를 서로 다른 산출물로 연결해 설명해 주세요.",
-                "결과나 임팩트를 증명하는 파일과 과정 증거를 보여주는 파일을 구분해 설명해 주세요.",
-                "AI 생성물이 아니라 본인의 창작 과정임을 보여주는 증거를 두 개 이상의 파일에서 찾아 설명해 주세요.",
-                "전체 파일 묶음을 봤을 때 심사위원이 의심할 수 있는 가장 큰 증거 공백은 무엇이며 어떻게 보완하겠습니까?"
+                "Using at least three uploaded files, explain the core role you personally performed in this project.",
+                "Connect your design or technical decisions to different artifacts instead of relying on only the first file.",
+                "Separate the files that prove process from the files that prove final results or impact.",
+                "Find evidence in at least two files that shows this was your own creation process, not only AI-generated output.",
+                "Looking at the full file set, what is the biggest evidence gap a reviewer might question, and how would you address it?"
         );
     }
 

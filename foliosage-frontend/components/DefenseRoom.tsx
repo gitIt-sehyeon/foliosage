@@ -101,13 +101,13 @@ function FeedbackText({ value }: { value: string | null }) {
       {main && <p className="whitespace-pre-wrap text-sm leading-6 text-[#cbd5e1]">{main}</p>}
       {evidenceFiles.length > 0 && (
         <div className="rounded-lg border border-emerald-300/15 bg-emerald-300/[0.045] px-3 py-2">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-200">근거 파일</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-200">Evidence files</p>
           <p className="mt-1 text-xs leading-5 text-emerald-100">{evidenceFiles.join(', ')}</p>
         </div>
       )}
       {missingProof.length > 0 && (
         <div className="rounded-lg border border-amber-300/15 bg-amber-300/[0.045] px-3 py-2">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">부족한 증거</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">Missing proof</p>
           <p className="mt-1 text-xs leading-5 text-amber-100">{missingProof.join(', ')}</p>
         </div>
       )}
@@ -122,7 +122,7 @@ function ReviewTurnHistory({ turns }: { turns: DefenseTurn[] }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#94a3b8]">리뷰 대화 기록</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#94a3b8]">Review conversation</p>
         <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] text-[#64748b]">
           {answeredTurns.length} answers
         </span>
@@ -132,11 +132,11 @@ function ReviewTurnHistory({ turns }: { turns: DefenseTurn[] }) {
           <p className="text-xs font-medium text-[#c4b5fd]">Q{turn.questionIndex + 1}. {turn.question}</p>
           {turn.answer && (
             <div className="mt-3 rounded-lg border border-violet-300/15 bg-violet-300/[0.045] px-3 py-2">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-violet-200">내 답변</p>
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-violet-200">My answer</p>
               <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#e2e8f0]">{turn.answer}</p>
             </div>
           )}
-          <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.16em] text-[#94a3b8]">AI 피드백</p>
+          <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.16em] text-[#94a3b8]">AI feedback</p>
           <FeedbackText value={turn.feedback} />
           {turn.evidence.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
@@ -158,9 +158,9 @@ type WorkingStage = 'thinking' | 'reading' | 'scoring'
 
 function AIWorkingMascot({ stage }: { stage: WorkingStage }) {
   const copy = {
-    thinking: '파일을 읽고 질문을 만드는 중...',
-    reading: '답변에서 근거 파일을 찾는 중...',
-    scoring: 'AI 리뷰 결과를 정리하는 중...',
+    thinking: 'Reading files and creating questions...',
+    reading: 'Finding evidence files in your answer...',
+    scoring: 'Preparing the AI review results...',
   }[stage]
 
   return (
@@ -180,7 +180,7 @@ function AIWorkingMascot({ stage }: { stage: WorkingStage }) {
         </div>
         <div>
           <p className="text-sm font-semibold text-cyan-100">{copy}</p>
-          <p className="mt-1 text-xs leading-5 text-slate-400">VaultSage가 파일 근거와 답변 맥락을 함께 확인하고 있습니다.</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">VaultSage is checking file evidence and answer context together.</p>
         </div>
       </div>
       <style jsx>{`
@@ -239,7 +239,7 @@ export default function DefenseRoom({
       setSession(data)
       setAnswer('')
     } catch (e: any) {
-      setError(e?.response?.data?.message ?? e?.response?.data?.error ?? 'AI 리뷰를 시작할 수 없습니다.')
+      setError(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Could not start AI review.')
     } finally {
       setLoading(false)
       setWorkingStage(null)
@@ -259,7 +259,7 @@ export default function DefenseRoom({
       setSession(data)
       setAnswer('')
     } catch (e: any) {
-      setError(e?.response?.data?.message ?? e?.response?.data?.error ?? '답변 평가에 실패했습니다.')
+      setError(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Could not evaluate the answer.')
     } finally {
       setLoading(false)
       setWorkingStage(null)
@@ -272,13 +272,13 @@ export default function DefenseRoom({
         <div>
           <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#a78bfa]">
             <Gavel className="size-3.5" />
-            AI 포트폴리오 리뷰
+            AI Portfolio Review
           </p>
-          <h3 className="mt-1 text-base font-semibold text-white">AI가 심사 질문을 만들고 증거 기반 피드백을 정리합니다</h3>
+          <h3 className="mt-1 text-base font-semibold text-white">AI creates review questions and evidence-based feedback</h3>
         </div>
         {session && (
           <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-[#94a3b8]">
-            {session.status === 'completed' ? '완료' : `${Math.min(session.currentQuestionIndex + 1, session.totalQuestions)}/${session.totalQuestions}`}
+            {session.status === 'completed' ? 'Complete' : `${Math.min(session.currentQuestionIndex + 1, session.totalQuestions)}/${session.totalQuestions}`}
           </span>
         )}
       </div>
@@ -286,10 +286,10 @@ export default function DefenseRoom({
       {!published ? (
         <div className="flex items-start gap-3 rounded-xl border border-amber-300/20 bg-amber-300/[0.06] p-3 text-sm text-amber-100">
           <ShieldAlert className="mt-0.5 size-4 flex-shrink-0" />
-          <p>AI 리뷰는 공개된 포트폴리오 링크를 기준으로 파일 근거를 읽습니다. 먼저 포트폴리오를 공개하세요.</p>
+          <p>AI review reads evidence through the public portfolio link. Publish the portfolio first.</p>
         </div>
       ) : fileCount === 0 ? (
-        <div className="rounded-xl border border-white/10 bg-[#0b1020] p-3 text-sm text-[#94a3b8]">파일을 먼저 업로드하세요.</div>
+        <div className="rounded-xl border border-white/10 bg-[#0b1020] p-3 text-sm text-[#94a3b8]">Upload files first.</div>
       ) : !session ? (
         <>
           {workingStage && <AIWorkingMascot stage={workingStage} />}
@@ -299,7 +299,7 @@ export default function DefenseRoom({
             className="inline-flex items-center gap-2 rounded-lg bg-[#6d28d9] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-45"
           >
             {loading ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
-            AI 리뷰 시작
+            Start AI review
           </button>
         </>
       ) : session.status === 'completed' && session.scorecard ? (
@@ -308,7 +308,7 @@ export default function DefenseRoom({
           <div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[0.06] p-4">
             <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
               <Award className="size-4" />
-              근거 점수 {session.scorecard.overallScore}
+              Evidence score {session.scorecard.overallScore}
             </p>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#cbd5e1]">
               {cleanDisplayText(session.scorecard.summary)}
@@ -325,7 +325,7 @@ export default function DefenseRoom({
           </div>
           {session.scorecard.missingProof.length > 0 && (
             <div className="rounded-xl border border-amber-300/15 bg-amber-300/[0.045] p-3">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">부족한 증거</p>
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">Missing proof</p>
               <ul className="mt-2 space-y-1 text-xs leading-5 text-amber-100">
                 {session.scorecard.missingProof.map(item => <li key={item}>- {item}</li>)}
               </ul>
@@ -338,7 +338,7 @@ export default function DefenseRoom({
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-[#94a3b8] hover:text-white disabled:opacity-45"
           >
             {loading ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
-            {loading ? '새 리뷰 준비 중...' : '새 AI 리뷰 시작'}
+            {loading ? 'Preparing new review...' : 'Start new AI review'}
           </button>
         </div>
       ) : (
@@ -348,14 +348,14 @@ export default function DefenseRoom({
             <div className="rounded-xl border border-violet-300/20 bg-[#1e0a3c]/55 p-4">
               <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#c4b5fd]">
                 <Bot className="size-4" />
-                면접 질문 {currentTurn.questionIndex + 1}
+                Interview question {currentTurn.questionIndex + 1}
               </p>
               <p className="text-sm leading-6 text-white">{currentTurn.question}</p>
               <div className="mt-4 flex gap-2">
                 <textarea
                   value={answer}
                   onChange={e => setAnswer(e.target.value)}
-                  placeholder="답변을 입력하세요..."
+                  placeholder="Enter your answer..."
                   rows={3}
                   className="min-h-[92px] flex-1 resize-none rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white outline-none placeholder:text-[#64748b] focus:border-[#6d28d9]"
                   disabled={loading}
@@ -364,7 +364,7 @@ export default function DefenseRoom({
                   onClick={submit}
                   disabled={loading || !answer.trim()}
                   className="self-stretch rounded-xl bg-[#6d28d9] px-4 text-white transition-colors hover:bg-[#7c3aed] disabled:opacity-45"
-                  aria-label="답변 제출"
+                  aria-label="Submit answer"
                 >
                   {loading ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
                 </button>

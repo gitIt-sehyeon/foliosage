@@ -3,10 +3,10 @@ import { MockAppNavbar, MockEyebrow, MockPill } from './mockup-primitives'
 
 export function LandingMockReview({ active }: { active: boolean }) {
   const rubric = [
-    { k: '명확성',    v: 92, tone: 'emerald' as const },
-    { k: '근거 인용', v: 88, tone: 'emerald' as const },
-    { k: '결과 측정', v: 74, tone: 'amber'   as const },
-    { k: '대안 비교', v: 62, tone: 'amber'   as const },
+    { k: 'Clarity', v: 92, tone: 'emerald' as const },
+    { k: 'Evidence', v: 88, tone: 'emerald' as const },
+    { k: 'Impact', v: 74, tone: 'amber' as const },
+    { k: 'Trade-offs', v: 62, tone: 'amber' as const },
   ]
 
   return (
@@ -14,13 +14,13 @@ export function LandingMockReview({ active }: { active: boolean }) {
       <MockAppNavbar right={
         <>
           <MockPill tone="violet" size="sm" icon={<Sparkles size={10} />}>AI Review</MockPill>
-          <MockPill tone="emerald" size="sm" icon={<ShieldCheck size={10} />}>업로드 파일 근거</MockPill>
+          <MockPill tone="emerald" size="sm" icon={<ShieldCheck size={10} />}>Uploaded evidence</MockPill>
         </>
       } />
       <div style={{ padding: '16px 22px', display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 14 }}>
         {/* Q/A column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-          <MockEyebrow color="#c4b5fd" tracking="0.24em">Defense room · 면접 시뮬레이션</MockEyebrow>
+          <MockEyebrow color="#c4b5fd" tracking="0.24em">Defense room · interview simulation</MockEyebrow>
 
           {/* Question */}
           <div style={{
@@ -30,10 +30,10 @@ export function LandingMockReview({ active }: { active: boolean }) {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
               <Bot size={13} style={{ color: '#c4b5fd' }} />
-              <p style={{ margin: 0, fontSize: 10.5, color: '#c4b5fd', fontWeight: 600 }}>AI 심사관 · Q.3</p>
+              <p style={{ margin: 0, fontSize: 10.5, color: '#c4b5fd', fontWeight: 600 }}>AI reviewer · Q.3</p>
             </div>
             <p style={{ margin: 0, fontSize: 13, color: '#fff', lineHeight: 1.55 }}>
-              CTR 18% 상승은 어떤 변수의 영향이라고 보시나요? 근거 파일은요?
+              What variable drove the 18% CTR increase? Which file proves it?
             </p>
           </div>
 
@@ -46,8 +46,8 @@ export function LandingMockReview({ active }: { active: boolean }) {
             boxShadow: '0 8px 20px rgba(109,40,217,0.30)',
             animation: active ? 'slide-up 0.5s ease 0.4s both' : 'none',
           }}>
-            메인 비주얼의 일관성과 페이지 진입 카피의 명확성이 가장 컸어요.{' '}
-            <span style={{ color: '#cffafe' }}>Research notes.md</span> 12-18주차 노트에서 측정값 확인할 수 있습니다.
+            The consistent key visual and clearer landing copy had the largest effect.{' '}
+            <span style={{ color: '#cffafe' }}>Research notes.md</span> shows the measurements from weeks 12-18.
           </div>
 
           {/* AI feedback */}
@@ -58,11 +58,11 @@ export function LandingMockReview({ active }: { active: boolean }) {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
               <Sparkles size={12} style={{ color: '#fde68a' }} />
-              <p style={{ margin: 0, fontSize: 10.5, color: '#fde68a', fontWeight: 600 }}>피드백</p>
+              <p style={{ margin: 0, fontSize: 10.5, color: '#fde68a', fontWeight: 600 }}>Feedback</p>
             </div>
             <p style={{ margin: 0, fontSize: 12, color: '#e2e8f0', lineHeight: 1.6 }}>
-              근거 인용은 명확합니다.{' '}
-              <strong style={{ color: '#fff' }}>대안 비교가 부족</strong>해요 — "왜 A/B 테스트가 아닌 이 결정?"에 대한 노트를 추가하면 점수가 올라갑니다.
+              The evidence citation is clear.{' '}
+              <strong style={{ color: '#fff' }}>The trade-off comparison is weak</strong> - add notes explaining why this decision beat the A/B alternative.
             </p>
             <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <MockPill tone="emerald" size="sm" icon={<ShieldCheck size={10} />}>Research notes.md</MockPill>
@@ -82,7 +82,7 @@ export function LandingMockReview({ active }: { active: boolean }) {
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 6 }}>
               <p style={{ margin: 0, fontSize: 40, fontWeight: 600, color: '#fff', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>79</p>
               <p style={{ margin: 0, fontSize: 13, color: '#94a3b8' }}>/ 100</p>
-              <span style={{ marginLeft: 'auto' }}><MockPill tone="emerald" size="sm">제출 가능</MockPill></span>
+              <span style={{ marginLeft: 'auto' }}><MockPill tone="emerald" size="sm">Ready</MockPill></span>
             </div>
           </div>
 

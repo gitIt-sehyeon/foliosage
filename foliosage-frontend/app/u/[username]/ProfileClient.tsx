@@ -61,7 +61,7 @@ export default function ProfileClient({ username }: { username: string }) {
     fetch(`${API_URL}/api/public/users/${username}`)
       .then(r => { if (!r.ok) throw new Error('not found'); return r.json() })
       .then(setProfile)
-      .catch(() => setError('사용자를 찾을 수 없습니다.'))
+      .catch(() => setError('User not found.'))
   }, [username])
 
   const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/u/${username}` : ''
@@ -87,7 +87,7 @@ export default function ProfileClient({ username }: { username: string }) {
           <UserRound className="mx-auto mb-4 size-12 text-[#475569]" />
           <p className="text-[#94a3b8]">{error}</p>
           <Link href="/" className="text-[#a78bfa] text-sm mt-4 inline-block hover:underline">
-            FolioSage 홈으로 →
+            Back to FolioSage →
           </Link>
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function ProfileClient({ username }: { username: string }) {
         </Link>
         <Link href="/login"
           className="bg-white/[0.035] border border-white/10 text-[#94a3b8] text-xs px-3 py-2 rounded-lg hover:bg-white/[0.07] hover:text-white transition-colors">
-          로그인 / 가입
+          Log in / Sign up
         </Link>
       </div>
 
@@ -145,7 +145,7 @@ export default function ProfileClient({ username }: { username: string }) {
                         className="inline-flex items-center gap-1.5 bg-white/[0.035] backdrop-blur-sm border border-white/10 text-[#94a3b8] text-xs px-3 py-2 rounded-lg hover:bg-white/[0.07] hover:text-white transition-all"
                       >
                         {copiedProfile ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
-                        {copiedProfile ? '복사됨' : '프로필 링크'}
+                        {copiedProfile ? 'Copied' : 'Profile link'}
                       </button>
                       {profile.linkedinUrl && (
                         <a
@@ -156,7 +156,7 @@ export default function ProfileClient({ username }: { username: string }) {
                         >
                           <span className="inline-flex items-center gap-1.5">
                             <LinkIcon className="size-3.5" />
-                            링크드인
+                            LinkedIn
                           </span>
                         </a>
                       )}
@@ -169,7 +169,7 @@ export default function ProfileClient({ username }: { username: string }) {
                         >
                           <span className="inline-flex items-center gap-1.5">
                             <LinkIcon className="size-3.5" />
-                            깃허브
+                            GitHub
                           </span>
                         </a>
                       )}
@@ -187,7 +187,7 @@ export default function ProfileClient({ username }: { username: string }) {
                       target={profile.portfolios.length}
                       className="text-3xl font-semibold text-white block"
                     />
-                    <p className="text-[#64748b] text-xs mt-1">포트폴리오</p>
+                    <p className="text-[#64748b] text-xs mt-1">Portfolios</p>
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
                     <Eye className="mb-6 size-5 text-emerald-200" />
@@ -195,13 +195,13 @@ export default function ProfileClient({ username }: { username: string }) {
                       target={profile.totalViews}
                       className="text-3xl font-semibold text-white block"
                     />
-                    <p className="text-[#64748b] text-xs mt-1">총 조회</p>
+                    <p className="text-[#64748b] text-xs mt-1">Total views</p>
                   </div>
                 </div>
                 <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.035] p-4">
                   <p className="text-sm font-medium text-white">Shareable creator card</p>
                   <p className="mt-1 text-xs leading-5 text-slate-500">
-                    공개 포트폴리오, 파일 근거, AI 리뷰 결과를 한 곳에서 공유합니다.
+                    Share public portfolios, evidence files, and AI review results in one place.
                   </p>
                 </div>
               </aside>
@@ -224,14 +224,14 @@ export default function ProfileClient({ username }: { username: string }) {
       {/* ── Portfolio grid ── */}
       <section>
         <p className="text-[#64748b] text-xs font-bold uppercase tracking-[0.24em] mb-4">
-          공개 포트폴리오
+          Public portfolios
         </p>
 
         {profile ? (
           profile.portfolios.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-white/10 bg-[#0b1020]/70 text-center py-16">
               <BriefcaseBusiness className="mx-auto mb-3 size-10 text-[#475569]" />
-              <p className="text-[#64748b] text-sm">공개된 포트폴리오가 없습니다.</p>
+              <p className="text-[#64748b] text-sm">No public portfolios yet.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -263,7 +263,7 @@ export default function ProfileClient({ username }: { username: string }) {
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
                           <span className="inline-flex items-center gap-1">
                             <FileText className="size-3.5" />
-                            {p.fileCount}개 파일
+                            {p.fileCount} files
                           </span>
                           <span className="inline-flex items-center gap-1">
                             <Eye className="size-3.5" />
@@ -272,7 +272,7 @@ export default function ProfileClient({ username }: { username: string }) {
                           {p.defenseCompleted && (
                             <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-300/[0.08] px-2 py-0.5 text-emerald-200">
                               <ShieldCheck className="size-3" />
-                              AI Review {p.defenseOverallScore ?? '완료'}
+                              AI Review {p.defenseOverallScore ?? 'Complete'}
                             </span>
                           )}
                         </div>
@@ -287,7 +287,7 @@ export default function ProfileClient({ username }: { username: string }) {
                     {p.description ? (
                       <p className="text-[#64748b] text-sm leading-6 line-clamp-2">{p.description}</p>
                     ) : (
-                      <p className="text-[#475569] text-sm">설명이 없는 공개 포트폴리오입니다.</p>
+                      <p className="text-[#475569] text-sm">This public portfolio has no description.</p>
                     )}
                     {p.defenseSummary && (
                       <p className="mt-3 rounded-xl border border-emerald-300/15 bg-emerald-300/[0.045] px-3 py-2 text-xs leading-5 text-emerald-100 line-clamp-2">
@@ -299,7 +299,7 @@ export default function ProfileClient({ username }: { username: string }) {
                         href={`/p/${p.shareCode}`}
                         className="inline-flex items-center gap-1.5 rounded-lg bg-violet-500 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-violet-400"
                       >
-                        보기
+                        View
                         <ArrowUpRight className="size-3.5" />
                       </Link>
                       <button
@@ -307,7 +307,7 @@ export default function ProfileClient({ username }: { username: string }) {
                         className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-slate-300 transition-colors hover:text-white"
                       >
                         {copiedPortfolio === p.id ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
-                        {copiedPortfolio === p.id ? '복사됨' : '링크 복사'}
+                        {copiedPortfolio === p.id ? 'Copied' : 'Copy link'}
                       </button>
                     </div>
                   </div>
@@ -327,7 +327,7 @@ export default function ProfileClient({ username }: { username: string }) {
         <div className="text-center mt-12 pt-6 border-t border-white/10">
           <p className="text-[#475569] text-xs">
             <Link href="/signup" className="font-bold text-violet-200 hover:text-white">FolioSage</Link>
-            <span className="ml-1">로 나만의 포트폴리오 만들기</span>
+            <span className="ml-1">to create your own portfolio</span>
           </p>
         </div>
       </section>

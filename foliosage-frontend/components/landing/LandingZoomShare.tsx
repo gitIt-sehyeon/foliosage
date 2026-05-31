@@ -22,13 +22,13 @@ export function LandingZoomShare({ active }: { active: boolean }) {
         <div>
           <MockEyebrow color="#a7f3d0" tracking="0.24em">Live</MockEyebrow>
           <p style={{ margin: '4px 0 0', fontSize: 18, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
-            포트폴리오가 공개되었습니다
+            Portfolio is published
           </p>
         </div>
       </div>
 
       <p style={{ margin: '14px 0 0', fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
-        누구나 링크로 작품을 보고, AI Guide에게 질문할 수 있어요.
+        Anyone with the link can inspect the work and ask the AI Guide questions.
       </p>
 
       <div style={{
@@ -44,18 +44,18 @@ export function LandingZoomShare({ active }: { active: boolean }) {
         }}>
           foliosage.com/p/9k7m2-launch
         </p>
-        <MockBtn variant="outline" size="sm" icon={<Copy size={12} />}>복사</MockBtn>
+        <MockBtn variant="outline" size="sm" icon={<Copy size={12} />}>Copy</MockBtn>
       </div>
 
       <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <MockBtn variant="primary" size="md" icon={<ExternalLink size={14} />} fullWidth>라이브 페이지</MockBtn>
-        <MockBtn variant="outline" size="md" icon={<Share2 size={14} />} fullWidth>공유</MockBtn>
+        <MockBtn variant="primary" size="md" icon={<ExternalLink size={14} />} fullWidth>Live page</MockBtn>
+        <MockBtn variant="outline" size="md" icon={<Share2 size={14} />} fullWidth>Share</MockBtn>
       </div>
 
       <div style={{ marginTop: 16, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         <MockPill tone="emerald" size="md" icon={<CheckCircle2 size={11} />}>18 verified</MockPill>
         <MockPill tone="violet"  size="md" icon={<Sparkles size={11} />}>AI Guide</MockPill>
-        <MockPill tone="cyan"    size="md" icon={<Eye size={11} />}>SEO 자동</MockPill>
+        <MockPill tone="cyan"    size="md" icon={<Eye size={11} />}>Auto SEO</MockPill>
       </div>
     </div>
   )
