@@ -12,7 +12,7 @@ Hi everyone, my name is sehyeon, and today I will give a quick demo of FolioSage
 
 FolioSage is an AI portfolio platform for creators, developers, designers, and job seekers. The main idea is simple: instead of showing only a polished final result, FolioSage helps users prove how their work was made with real evidence files.
 
-In this demo, I will show four parts: the creator dashboard, evidence organization, AI portfolio review, and the public portfolio with visitor AI chat.
+In this demo, I will show four parts: the creator dashboard, the public profile page, evidence organization, and the public portfolio with AI review and visitor AI chat.
 
 ### 0:30-1:00 Problem
 
@@ -22,7 +22,7 @@ For example: What exactly was the creator's role? Which files prove the process?
 
 FolioSage solves this by connecting project files, AI-generated storytelling, review feedback, public sharing, and evidence-based AI Q&A in one workflow.
 
-### 1:00-1:40 Dashboard
+### 1:00-1:40 Dashboard and Public Profile
 
 First, this is the creator dashboard.
 
@@ -30,9 +30,15 @@ Here, the user can see all portfolios, how many are published, and how many evid
 
 This matters because the dashboard is not just a file list. It shows the readiness of each portfolio, so the creator knows what still needs to be done before sharing it with a reviewer, recruiter, or judge.
 
-Now I will open one portfolio.
+But instead of sending one portfolio link directly, the creator can share their public profile link. I will open the profile page now.
+
+On this profile, a recruiter or interviewer can see multiple public portfolios from the same creator. This is more useful than a single project link because it shows the creator's broader body of work in one place.
+
+Now I will choose one public portfolio from this profile. This is the entry point I would give to an interviewer.
 
 ### 1:40-2:30 Evidence Organization
+
+Before we inspect the public page in detail, I will switch back to the creator side and show how this portfolio is built.
 
 This is the evidence organization screen.
 
@@ -68,9 +74,11 @@ This helps the creator improve the portfolio before sending it to someone else.
 
 ### 4:00-4:40 Public Portfolio
 
-After the portfolio is ready, the creator can publish a public share link.
+After the portfolio is ready, the creator can publish it and make it visible from their public profile.
 
-This public page does not require login. Visitors can read the story, browse the evidence grid, preview or download files, and see review information.
+This means the creator can give one profile link to a recruiter or interviewer, and that person can browse all public portfolios before opening the one they want to inspect.
+
+Inside each public portfolio page, visitors do not need to log in. They can read the story, browse the evidence grid, preview or download files, and see review information.
 
 The most important feature here is the visitor AI guide. A visitor can ask questions like, "What was the creator's role?", "Which files best prove the final result?", or "What should be improved from a judge's perspective?"
 
@@ -96,29 +104,32 @@ Next, FolioSage generates a structured portfolio story with Summary, Role, Probl
 
 After that, the creator can run AI Portfolio Review. The system asks defense questions, reviews the creator's answers, cites evidence files, shows missing proof, and provides a scorecard.
 
-Finally, the creator publishes a public link. Visitors can read the story, inspect evidence files, and ask the AI guide questions grounded in the shared files.
+Finally, the creator publishes the portfolio to their public profile. Instead of sending only one project URL, the creator can share a profile link where visitors can browse multiple public portfolios, open one project, inspect evidence files, and ask the AI guide questions grounded in the shared files.
 
 In short, FolioSage changes a portfolio from a static showcase into an interactive, evidence-backed explanation of real work. Thank you.
 
 ## Useful Phrases During Screen Sharing
 
 - Let me start from the dashboard.
-- I will open this portfolio as an example.
+- From the dashboard, I will open the public profile.
+- This profile works like a public portfolio hub.
+- I will open this public portfolio from the profile page.
 - Here, you can see the uploaded evidence files.
 - I will move this file into another category.
 - As you can see, the story is generated from the portfolio context.
 - This feedback is grounded in the uploaded files.
-- Now I will open the public share link.
+- Now I will open the public profile link.
+- From here, a recruiter can choose which portfolio to review.
 - Visitors can ask questions without logging in.
 - If the live demo is slow, I will use the prepared screenshots.
 
 ## Demo Order
 
 1. Open the dashboard.
-2. Open an existing portfolio.
-3. Show uploaded files and four evidence lanes.
-4. Show generated story sections.
-5. Run or show AI Portfolio Review.
-6. Publish or open the public share link.
-7. Ask one visitor AI question.
-
+2. Open the creator's public profile from the dashboard.
+3. Show that the profile lists multiple public portfolios.
+4. Open one public portfolio from the profile page.
+5. Return to the editor or prepared tab to show uploaded files and four evidence lanes.
+6. Show generated story sections.
+7. Run or show AI Portfolio Review.
+8. Show the public portfolio page and ask one visitor AI question.
