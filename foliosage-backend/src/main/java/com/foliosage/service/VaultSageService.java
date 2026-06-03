@@ -278,12 +278,17 @@ public class VaultSageService {
         return extractStatus(response);
     }
 
-    public com.foliosage.dto.portfolio.OrganizerTreeDto fetchOrganizerTree(String organizerId) {
-        java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> roots = fetchNodes(organizerId, null);
+    public com.foliosage.dto.portfolio.OrganizerTreeDto fetchOrganizerTree(
+            String organizerId,
+            Map<String, com.foliosage.dto.portfolio.OrganizerTreeDto.FileDto> filesByVaultsageId) {
+        java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> roots =
+                fetchNodes(organizerId, null, filesByVaultsageId);
         return new com.foliosage.dto.portfolio.OrganizerTreeDto(roots);
     }
 
-    private java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> fetchNodes(String organizerId, String parentId) {
+    private java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> fetchNodes(
+            String organizerId, String parentId,
+            Map<String, com.foliosage.dto.portfolio.OrganizerTreeDto.FileDto> filesByVaultsageId) {
         try {
             String response = parentId == null
                     ? vaultSageClient.get()
@@ -308,14 +313,51 @@ public class VaultSageService {
                 int fileCount = item.path("file_count").asInt(0);
                 int childCount = item.path("child_count").asInt(0);
                 java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto> children =
-                        childCount > 0 ? fetchNodes(organizerId, id) : java.util.List.of();
-                nodes.add(new com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto(id, name, fileCount, childCount, children));
+                        childCount > 0 ? fetchNodes(organizerId, id, filesByVaultsageId) : java.util.List.of();
+                java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.FileDto> files =
+                        fileCount > 0 ? resolveNodeFiles(organizerId, id, filesByVaultsageId) : java.util.List.of();
+                nodes.add(new com.foliosage.dto.portfolio.OrganizerTreeDto.NodeDto(
+                        id, name, fileCount, childCount, children, files));
             }
             return nodes;
         } catch (Exception e) {
             log.warn("Failed to fetch organizer tree for organizerId={}", organizerId, e);
             return java.util.List.of();
         }
+    }
+
+    private java.util.List<com.foliosage.dto.portfolio.OrganizerTreeDto.FileDto> resolveNodeFiles(
+            String organizerId, String nodeId,
+            Map<String, com.foliosage.dto.portfolio.OrganizerTreeDto.FileDto> filesByVaultsageId) {
+        return getNodeFileIds(organizerId, nodeId).stream()
+                .map(fid -> filesByVaultsageId.getOrDefault(fid,
+                        new com.foliosage.dto.portfolio.OrganizerTreeDto.FileDto(fid, "Untitled", null, null)))
+                .toList();
+    }
+
+    /** Lists all VaultSage file IDs assigned to a node, following cursor pagination. */
+    public List<String> getNodeFileIds(String organizerId, String nodeId) {
+        List<String> all = new java.util.ArrayList<>();
+        String cursor = null;
+        for (int page = 0; page < 100; page++) { // safety cap against runaway pagination
+            final String c = cursor;
+            String response = vaultSageClient.get()
+                    .uri(u -> {
+                        org.springframework.web.util.UriBuilder b = u
+                                .path("/api/v1/smart-organizers/{orgId}/nodes/{nodeId}/files")
+                                .queryParam("limit", 100);
+                        if (c != null) b.queryParam("cursor", c);
+                        return b.build(organizerId, nodeId);
+                    })
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            if (response == null) break;
+            all.addAll(extractFileIds(response));
+            cursor = extractNextCursor(response);
+            if (cursor == null) break;
+        }
+        return all;
     }
 
     public String createNode(String organizerId, String name) {
@@ -444,12 +486,38 @@ public class VaultSageService {
         catch (Exception e) { throw new RuntimeException("Failed to parse job_id", e); }
     }
 
+    List<String> extractFileIds(String json) {
+        try {
+            JsonNode arr = objectMapper.readTree(json).path("file_ids");
+            List<String> ids = new java.util.ArrayList<>();
+            for (JsonNode n : arr) ids.add(n.asText());
+            return ids;
+        } catch (Exception e) {
+            log.warn("Failed to parse node file_ids from: {}", json, e);
+            return List.of();
+        }
+    }
+
+    private String extractNextCursor(String json) {
+        try {
+            JsonNode c = objectMapper.readTree(json).path("next_cursor");
+            return (c.isMissingNode() || c.isNull()) ? null : c.asText();
+        } catch (Exception e) { return null; }
+    }
+
     private String extractStatus(String json) {
         try {
             JsonNode node = objectMapper.readTree(json);
             String status = node.path("status").asText("");
             if (!status.isEmpty()) return status.toLowerCase();
-            // apply/progress may not have "status" — check for completion via progress fields
+            // apply/progress has no "status" — it reports batch completion instead:
+            // {"phase":"apply","total_batches":1,"completed_batches":1,"completed_batch_indexes":[0]}
+            if (node.has("total_batches")) {
+                int total = node.path("total_batches").asInt(0);
+                int completed = node.path("completed_batches").asInt(0);
+                return (total > 0 && completed >= total) ? "completed" : "pending";
+            }
+            // generic progress/total fallback for any other shape
             if (node.has("progress") && node.has("total")) {
                 int progress = node.path("progress").asInt(0);
                 int total = node.path("total").asInt(1); // default 1 prevents false 0>=0 completion when total is absent

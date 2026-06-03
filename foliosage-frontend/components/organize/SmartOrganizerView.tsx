@@ -5,7 +5,9 @@ import { ArrowRight, Loader2 } from 'lucide-react'
 import OrganizerBanner from './OrganizerBanner'
 import CategoryColumn from './CategoryColumn'
 import OrganizerReasoning from './OrganizerReasoning'
+import OrganizerGraph from './OrganizerGraph'
 import { useOrganizerResult } from './useOrganizerResult'
+import { useOrganizerTree } from './useOrganizerTree'
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import api from '@/lib/api'
 
@@ -19,6 +21,9 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
   const isDone = data?.status === 'done'
   const isRunning = data?.status === 'running'
   const isIdle = !data || data.status === 'idle'
+
+  // The VaultSage-generated folder tree is only available once organization completes.
+  const { tree, loading: treeLoading } = useOrganizerTree(portfolioId, isDone)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
@@ -201,6 +206,39 @@ export default function SmartOrganizerView({ portfolioId }: Props) {
               </div>
             </DndContext>
             <OrganizerReasoning reasoning={data.reasoning} />
+
+            {isDone && (
+              <div style={{ marginTop: 28 }}>
+                <div style={{ marginBottom: 12 }}>
+                  <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#e2e8f0' }}>
+                    AI folder structure
+                  </h2>
+                  <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748b' }}>
+                    How VaultSage grouped your files into folders — separate from the category summary above.
+                  </p>
+                </div>
+                {treeLoading && !tree && (
+                  <div style={{
+                    height: 520, borderRadius: 18, border: '1px solid rgba(255,255,255,0.06)',
+                    background: 'rgba(255,255,255,0.02)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', color: '#475569', fontSize: 13,
+                  }}>
+                    <Loader2 size={16} style={{ animation: 'spin 1s linear infinite', marginRight: 8 }} />
+                    Building folder graph…
+                  </div>
+                )}
+                {tree && tree.nodes.length > 0 && <OrganizerGraph tree={tree} />}
+                {tree && tree.nodes.length === 0 && (
+                  <div style={{
+                    height: 200, borderRadius: 18, border: '1px solid rgba(255,255,255,0.06)',
+                    background: 'rgba(255,255,255,0.02)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', color: '#475569', fontSize: 13,
+                  }}>
+                    No folder structure was generated.
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
 

@@ -43,30 +43,24 @@ public class OrganizeService {
     public void startAsync(String userEmail, UUID portfolioId, boolean force) {
         getPortfolioForUser(userEmail, portfolioId);
         persistStatus(portfolioId, "generating");
-        self.runClassification(portfolioId, force);
-    }
-
-    @Async
-    public void runClassification(UUID portfolioId, boolean force) {
-        try {
-            log.info("Smart organizer classification started for portfolio={} force={}", portfolioId, force);
-            persistStatus(portfolioId, "generating");
-            smartOrganizerService.classify(portfolioId, force);
-            persistStatus(portfolioId, "done");
-            log.info("Smart organizer classification completed for portfolio={}", portfolioId);
-        } catch (Exception e) {
-            log.error("Smart organizer classification failed for portfolio={}", portfolioId, e);
-            persistStatus(portfolioId, "failed");
-        }
+        self.runPipeline(portfolioId, force);
     }
 
     @Async
     public void runPipeline(UUID portfolioId) {
+        runPipeline(portfolioId, false);
+    }
+
+    @Async
+    public void runPipeline(UUID portfolioId, boolean force) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow();
-        String orgId = portfolio.getOrganizerId();
+        String orgId = resolveOrganizerId(portfolio);
         try {
             List<PortfolioFile> files = fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio);
-            List<String> fileIds = files.stream().map(PortfolioFile::getVaultsageFileId).toList();
+            List<String> fileIds = files.stream()
+                    .map(PortfolioFile::getVaultsageFileId)
+                    .filter(java.util.Objects::nonNull)
+                    .toList();
 
             persistStatus(portfolioId, "generating");
 
@@ -86,13 +80,38 @@ public class OrganizeService {
             String materializeJobId = vaultSageService.materialize(orgId);
             pollUntilDone(() -> vaultSageService.getMaterializeStatus(orgId, materializeJobId), "materializing", portfolioId);
 
-            smartOrganizerService.classify(portfolioId);
+            // Mirror the resulting structure into our local 4-category view used by /organize/result.
+            smartOrganizerService.classify(portfolioId, force);
             persistStatus(portfolioId, "done");
             log.info("Organize pipeline completed for portfolio={}", portfolioId);
         } catch (Exception e) {
             log.error("Organize pipeline failed at status={} for portfolio={}", statusCache.get(portfolioId), portfolioId, e);
             persistStatus(portfolioId, "failed");
         }
+    }
+
+    /**
+     * Portfolios created before an organizer was provisioned (legacy data, or a failed
+     * creation call) have no organizerId. Create one on the fly so the VaultSage pipeline
+     * can still run, and persist it so subsequent runs reuse the same organizer.
+     */
+    private String resolveOrganizerId(Portfolio portfolio) {
+        String orgId = portfolio.getOrganizerId();
+        if (orgId != null && !orgId.isBlank()) return orgId;
+
+        log.info("Portfolio={} has no organizer; creating one on the fly", portfolio.getId());
+        orgId = vaultSageService.createOrganizer(portfolio.getTitle(), portfolio.getDirectoryId());
+        self.attachOrganizer(portfolio.getId(), orgId);
+        portfolio.setOrganizerId(orgId);
+        return orgId;
+    }
+
+    @Transactional
+    public void attachOrganizer(UUID portfolioId, String organizerId) {
+        portfolioRepository.findById(portfolioId).ifPresent(p -> {
+            p.setOrganizerId(organizerId);
+            portfolioRepository.save(p);
+        });
     }
 
     public OrganizeStatusResponse getStatus(String userEmail, UUID portfolioId) {
@@ -152,6 +171,14 @@ public class OrganizeService {
         throw new RuntimeException("Files did not finish processing within timeout for portfolio=" + portfolioId);
     }
 
+    // VaultSage reports finished jobs as "succeeded" (and a few synonyms); failures as
+    // "failed"/"error"/"cancelled". Match defensively so a vocabulary difference can't
+    // strand the pipeline until the 10-minute timeout.
+    private static final java.util.Set<String> SUCCESS_STATUSES =
+            java.util.Set.of("done", "completed", "complete", "success", "succeeded", "finished");
+    private static final java.util.Set<String> FAILURE_STATUSES =
+            java.util.Set.of("failed", "error", "errored", "cancelled", "canceled");
+
     private void pollUntilDone(java.util.function.Supplier<String> statusFn,
                                String currentStep, UUID portfolioId) throws InterruptedException {
         int maxAttempts = 200;
@@ -159,8 +186,9 @@ public class OrganizeService {
             String s = statusFn.get();
             if (i % 10 == 0) log.debug("Polling step={} attempt={} status={} portfolio={}", currentStep, i, s, portfolioId);
             if (s == null) { Thread.sleep(3000); continue; }
-            if (s.equals("done") || s.equals("completed") || s.equals("success") || s.equals("complete")) return;
-            if (s.equals("failed") || s.equals("error") || s.equals("cancelled") || s.equals("canceled"))
+            String norm = s.toLowerCase();
+            if (SUCCESS_STATUSES.contains(norm)) return;
+            if (FAILURE_STATUSES.contains(norm))
                 throw new RuntimeException("Step " + currentStep + " failed with status: " + s);
             Thread.sleep(3000);
         }

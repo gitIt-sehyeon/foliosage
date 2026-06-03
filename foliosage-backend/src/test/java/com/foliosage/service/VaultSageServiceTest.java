@@ -49,4 +49,22 @@ class VaultSageServiceTest {
         VaultSageService service = new VaultSageService(null);
         assertThat(service.unwrapSingleFileDownload(pdf, "file-abc123")).isEqualTo(pdf);
     }
+
+    @Test
+    void extractFileIds_parsesNodeFilesResponse() {
+        String json = """
+            {"node_id": "node-1", "file_ids": ["f1", "f2", "f3"], "next_cursor": null}
+            """;
+        VaultSageService service = new VaultSageService(null);
+        assertThat(service.extractFileIds(json)).containsExactly("f1", "f2", "f3");
+    }
+
+    @Test
+    void extractFileIds_returnsEmptyWhenNoFileIds() {
+        String json = """
+            {"node_id": "node-1", "file_ids": []}
+            """;
+        VaultSageService service = new VaultSageService(null);
+        assertThat(service.extractFileIds(json)).isEmpty();
+    }
 }

@@ -40,6 +40,8 @@ import {
 import { isLoggedIn } from '@/lib/auth'
 import FileUploadZone from '@/components/FileUploadZone'
 import DefenseRoom from '@/components/DefenseRoom'
+import OrganizerGraph from '@/components/organize/OrganizerGraph'
+import { useOrganizerTree } from '@/components/organize/useOrganizerTree'
 import CountUpNumber from '@/components/ui/CountUpNumber'
 import api from '@/lib/api'
 
@@ -304,6 +306,8 @@ export default function PortfolioPage() {
   const [stats, setStats] = useState({ viewCount: 0, downloadCount: 0, todayViews: 0 })
   const [organizeStatus, setOrganizeStatus] = useState({ status: 'idle', message: 'Not classified yet' })
   const [isOrganizing, setIsOrganizing] = useState(false)
+  // VaultSage-generated folder tree, available once organization completes.
+  const { tree: organizerTree, loading: treeLoading } = useOrganizerTree(id, organizeStatus.status === 'done')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [editingDesc, setEditingDesc] = useState<{ id: string; value: string } | null>(null)
   const [publishError, setPublishError] = useState('')
@@ -927,6 +931,31 @@ export default function PortfolioPage() {
                       ))}
                     </div>
                   </DndContext>
+                )}
+
+                {/* ── AI folder structure (VaultSage smart organizer tree) ── */}
+                {organizeStatus.status === 'done' && (
+                  <div className="rounded-2xl border border-white/10 bg-[#0b1020]/70 p-4">
+                    <h2 className="text-sm font-semibold text-slate-200">AI folder structure</h2>
+                    <p className="mt-1 text-xs text-slate-500">
+                      How VaultSage grouped your files into folders — separate from the category summary above.
+                    </p>
+                    <div className="mt-3">
+                      {treeLoading && !organizerTree && (
+                        <div className="flex h-[420px] items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.02] text-xs text-slate-500">
+                          <Loader2 className="mr-2 size-4 animate-spin" /> Building folder graph…
+                        </div>
+                      )}
+                      {organizerTree && organizerTree.nodes.length > 0 && (
+                        <OrganizerGraph tree={organizerTree} height={420} />
+                      )}
+                      {organizerTree && organizerTree.nodes.length === 0 && (
+                        <div className="flex h-[160px] items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.02] text-xs text-slate-500">
+                          No folder structure was generated.
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             )}

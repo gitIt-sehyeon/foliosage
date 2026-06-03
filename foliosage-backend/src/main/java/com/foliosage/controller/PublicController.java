@@ -70,6 +70,26 @@ public class PublicController {
                 storyRepository.findByPortfolio(portfolio).map(portfolioStoryService::toResponse).orElse(null));
     }
 
+    @GetMapping("/{shareCode}/organize/tree")
+    public OrganizerTreeDto getPublicOrganizerTree(@PathVariable String shareCode) {
+        Portfolio portfolio = portfolioRepository.findByShareCode(shareCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+        if (!portfolio.isPublished())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found");
+        if (portfolio.getOrganizerId() == null)
+            return new OrganizerTreeDto(List.of());
+
+        java.util.Map<String, OrganizerTreeDto.FileDto> filesByVaultsageId =
+                fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio).stream()
+                        .filter(f -> f.getVaultsageFileId() != null)
+                        .collect(java.util.stream.Collectors.toMap(
+                                PortfolioFile::getVaultsageFileId,
+                                f -> new OrganizerTreeDto.FileDto(f.getVaultsageFileId(), f.getName(), f.getFileSize(), f.getCategory()),
+                                (a, b) -> a));
+
+        return vaultSageService.fetchOrganizerTree(portfolio.getOrganizerId(), filesByVaultsageId);
+    }
+
     @PostMapping("/{shareCode}/chat")
     public ChatResponse chat(@PathVariable String shareCode,
                              @Valid @RequestBody ChatRequest req) {

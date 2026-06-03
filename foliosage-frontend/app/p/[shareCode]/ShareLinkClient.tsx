@@ -23,6 +23,8 @@ import ChatPanel from '@/components/ChatPanel'
 import FileLightbox from '@/components/FileLightbox'
 import PublicDefensePanel from '@/components/PublicDefensePanel'
 import CountUpNumber from '@/components/ui/CountUpNumber'
+import OrganizerGraph from '@/components/organize/OrganizerGraph'
+import { useOrganizerTree } from '@/components/organize/useOrganizerTree'
 import publicApi from '@/lib/publicApi'
 
 type FileItem = {
@@ -103,6 +105,8 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
   const [defenseOpen, setDefenseOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  // AI-organized folder graph (public, share-code based endpoint)
+  const { tree: organizerTree } = useOrganizerTree(shareCode, !!portfolio, true)
 
   useEffect(() => {
     publicApi
@@ -421,6 +425,17 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
                       )
                     })}
                   </div>
+                </section>
+              )}
+
+              {/* ── AI folder structure (VaultSage smart organizer) ── */}
+              {organizerTree && organizerTree.nodes.length > 0 && (
+                <section className="mt-14">
+                  <div className="mb-4 flex items-baseline justify-between">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-slate-500">Project map · AI organized</p>
+                    <span className="text-[11px] text-slate-600">Structured by VaultSage</span>
+                  </div>
+                  <OrganizerGraph tree={organizerTree} height={460} />
                 </section>
               )}
 

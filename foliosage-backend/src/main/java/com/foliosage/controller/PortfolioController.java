@@ -126,13 +126,22 @@ public class PortfolioController {
     }
 
     @GetMapping("/{id}/organize/tree")
-    public com.foliosage.dto.portfolio.OrganizerTreeDto organizeTree(
+    public OrganizerTreeDto organizeTree(
             @AuthenticationPrincipal UserDetails user,
             @PathVariable UUID id) {
         com.foliosage.entity.Portfolio portfolio = portfolioService.getPortfolioEntity(user.getUsername(), id);
         if (portfolio.getOrganizerId() == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Portfolio not organized yet");
-        return vaultSageService.fetchOrganizerTree(portfolio.getOrganizerId());
+
+        java.util.Map<String, OrganizerTreeDto.FileDto> filesByVaultsageId =
+                fileRepository.findByPortfolioOrderByCreatedAtAsc(portfolio).stream()
+                        .filter(f -> f.getVaultsageFileId() != null)
+                        .collect(java.util.stream.Collectors.toMap(
+                                com.foliosage.entity.PortfolioFile::getVaultsageFileId,
+                                f -> new OrganizerTreeDto.FileDto(f.getVaultsageFileId(), f.getName(), f.getFileSize(), f.getCategory()),
+                                (a, b) -> a));
+
+        return vaultSageService.fetchOrganizerTree(portfolio.getOrganizerId(), filesByVaultsageId);
     }
 
     @PostMapping("/{id}/publish")
