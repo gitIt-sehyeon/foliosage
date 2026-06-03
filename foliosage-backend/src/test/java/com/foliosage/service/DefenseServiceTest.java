@@ -30,7 +30,7 @@ class DefenseServiceTest {
         List<String> questions = service.parseQuestions("not json");
 
         assertThat(questions).hasSize(5);
-        assertThat(questions.get(0)).contains("최소 3개");
+        assertThat(questions.get(0)).contains("Using at least three uploaded files");
     }
 
     @Test
@@ -47,9 +47,8 @@ class DefenseServiceTest {
 
         String prompt = service.buildQuestionPrompt(portfolio, files);
 
-        assertThat(prompt).contains("사용자에게 보이는 모든 응답은 반드시 자연스러운 한국어로만 작성하세요");
-        assertThat(prompt).contains("영어로 번역하거나 영어 문장으로 답하지 마세요");
-        assertThat(prompt).contains("첫 번째 파일에만 집중하지 말고");
+        assertThat(prompt).contains("Write every user-facing response in clear, natural English");
+        assertThat(prompt).contains("Do not focus only on the first file");
         assertThat(prompt).contains("[1/3] Brand system.pdf");
         assertThat(prompt).contains("[2/3] Research notes.md");
         assertThat(prompt).contains("[3/3] Prototype demo.mov");
