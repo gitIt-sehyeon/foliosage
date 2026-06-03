@@ -53,12 +53,13 @@ FolioSage connects portfolio storytelling, AI review, public Q&A, file hashes, t
 **Smart Organizer** — Files are organized into four evidence lanes (System, Visual, Document, Deliverable). AI reclassifies files automatically; manual lock preserves creator intent.
 
 ![Smart organizer with file lanes for System and Visual categories and AI reclassification](docs/screenshots/02-smart-organizer.png)
+![](docs/screenshots/02-smart-organizer2.png)
 
 ---
 
 **AI Folder Structure** — The VaultSage Smart Organizer pipeline generates a project folder tree, materializes it, and displays the result as an interactive force graph in both the editor and the public portfolio page.
 
-Screenshot slot: `docs/screenshots/07-ai-folder-structure.png`
+![](docs/screenshots/02-smart-organizer3.png)
 
 ---
 
@@ -332,12 +333,13 @@ FolioSage는 포트폴리오 스토리텔링, AI 리뷰, 공개 Q&A, 파일 해�
 **AI 파일 정리 (Smart Organizer)** — 파일을 시스템·비주얼·문서·산출물 4개 레인으로 정리합니다. AI가 자동 재분류하고, 수동 고정으로 작성자 의도를 보존합니다.
 
 ![시스템·비주얼 레인에 파일을 배치하고 AI 재분류가 실행 중인 Smart Organizer 화면](docs/screenshots/02-smart-organizer.png)
+![](docs/screenshots/02-smart-organizer2.png)
 
 ---
 
 **AI 폴더 구조** — VaultSage Smart Organizer 파이프라인이 프로젝트 폴더 트리를 생성·적용·materialize하고, 그 결과를 편집 화면과 공개 포트폴리오에서 인터랙티브 그래프로 보여줍니다.
 
-스크린샷 경로: `docs/screenshots/07-ai-folder-structure.png`
+![](docs/screenshots/02-smart-organizer3.png)
 
 ---
 
