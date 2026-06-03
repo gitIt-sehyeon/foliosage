@@ -123,8 +123,8 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
 
   const pdfViewerUrl = (file: FileItem) => `${rawUrl(file)}#toolbar=1&navpanes=0&view=FitH`
 
-  const previewUrl = (file: FileItem) =>
-    `/api/public/${encodeURIComponent(shareCode)}/preview/${encodeURIComponent(file.vaultsageFileId)}`
+  const previewUrl = (file: FileItem, renderPng = false) =>
+    `/api/public/${encodeURIComponent(shareCode)}/preview/${encodeURIComponent(file.vaultsageFileId)}${renderPng ? '?render=png' : ''}`
 
   const handleDownload = () => {
     if (!selectedFile) return
@@ -191,6 +191,20 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
     f.mimeType?.toLowerCase().includes('pdf') || f.name.toLowerCase().endsWith('.pdf')
 
   const isImageFile = (f: FileItem) => f.mimeType?.toLowerCase().includes('image')
+
+  const isRenderableDocument = (f: FileItem) => {
+    const name = f.name.toLowerCase()
+    const mime = f.mimeType?.toLowerCase() ?? ''
+    return [
+      '.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.txt', '.md',
+    ].some(ext => name.endsWith(ext))
+      || mime.includes('word')
+      || mime.includes('presentation')
+      || mime.includes('spreadsheet')
+      || mime.includes('excel')
+      || mime.includes('text/plain')
+      || mime.includes('markdown')
+  }
 
   const openModal = (file: FileItem) => {
     setSelectedFile(file)
@@ -466,7 +480,8 @@ export default function ShareLinkClient({ shareCode }: { shareCode: string }) {
           name={selectedFile.name}
           fileHash={selectedFile.fileHash}
           pdfUrl={isPdfFile(selectedFile) ? pdfViewerUrl(selectedFile) : null}
-          imageUrl={isImageFile(selectedFile) ? previewUrl(selectedFile) : null}
+          imageUrl={isImageFile(selectedFile) ? previewUrl(selectedFile) : isRenderableDocument(selectedFile) ? previewUrl(selectedFile, true) : null}
+          downloadUrl={rawUrl(selectedFile, true)}
           onClose={() => setModalOpen(false)}
         />
       )}

@@ -119,6 +119,19 @@ public class VaultSageService {
                 .block();
     }
 
+    public byte[] downloadPngPreviewAnonymous(String shareCode, String fileId) {
+        byte[] zipBytes = vaultSageClient.get()
+                .uri(u -> u.path("/api/v1/files/png-preview-download-anonymous")
+                        .queryParam("share_code", shareCode)
+                        .queryParam("file_id", fileId)
+                        .build())
+                .retrieve()
+                .bodyToMono(byte[].class)
+                .block();
+        if (zipBytes == null) return null;
+        return extractFirstPngFromZip(zipBytes, fileId);
+    }
+
     public byte[] downloadFile(String fileId) {
         try {
             byte[] bytes = vaultSageClient.post()

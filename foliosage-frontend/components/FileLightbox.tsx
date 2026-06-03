@@ -1,15 +1,16 @@
 'use client'
-import { XCircle, ShieldCheck } from 'lucide-react'
+import { Download, XCircle, ShieldCheck } from 'lucide-react'
 
 interface Props {
   name: string
   fileHash: string
   pdfUrl: string | null   // non-null → show iframe
   imageUrl: string | null // non-null → show img
+  downloadUrl?: string
   onClose: () => void
 }
 
-export default function FileLightbox({ name, fileHash, pdfUrl, imageUrl, onClose }: Props) {
+export default function FileLightbox({ name, fileHash, pdfUrl, imageUrl, downloadUrl, onClose }: Props) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
@@ -36,8 +37,21 @@ export default function FileLightbox({ name, fileHash, pdfUrl, imageUrl, onClose
               <img src={imageUrl} alt={name} className="max-h-full max-w-full rounded-xl object-contain" />
             </div>
           ) : (
-            <div className="flex h-full items-center justify-center text-slate-500">
-              <p className="text-sm">Preview is not available for this file type.</p>
+            <div className="flex h-full items-center justify-center p-6 text-center text-slate-500">
+              <div>
+                <p className="text-sm text-slate-300">Preview is not available for this file type.</p>
+                <p className="mt-2 text-xs text-slate-500">Download the original file to inspect it.</p>
+                {downloadUrl && (
+                  <a
+                    href={downloadUrl}
+                    download={name}
+                    className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-slate-200 transition-colors hover:bg-white/[0.08] hover:text-white"
+                  >
+                    <Download className="size-3.5" />
+                    Download
+                  </a>
+                )}
+              </div>
             </div>
           )}
         </div>

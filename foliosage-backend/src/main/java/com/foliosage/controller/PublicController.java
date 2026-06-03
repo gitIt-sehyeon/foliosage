@@ -95,7 +95,8 @@ public class PublicController {
 
     @GetMapping("/{shareCode}/preview/{vaultsageFileId}")
     public ResponseEntity<byte[]> preview(@PathVariable String shareCode,
-                                          @PathVariable String vaultsageFileId) {
+                                          @PathVariable String vaultsageFileId,
+                                          @RequestParam(defaultValue = "false") boolean render) {
         Portfolio portfolio = portfolioRepository.findByShareCode(shareCode)
                 .filter(Portfolio::isPublished)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
@@ -105,11 +106,13 @@ public class PublicController {
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
 
-        byte[] bytes = vaultSageService.streamPreviewAnonymous(shareCode, vaultsageFileId);
+        byte[] bytes = render
+                ? vaultSageService.downloadPngPreviewAnonymous(shareCode, vaultsageFileId)
+                : vaultSageService.streamPreviewAnonymous(shareCode, vaultsageFileId);
         if (bytes == null || bytes.length == 0)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Preview not available");
 
-        String mimeType = file.getMimeType() != null ? file.getMimeType() : "application/octet-stream";
+        String mimeType = render ? "image/png" : file.getMimeType() != null ? file.getMimeType() : "application/octet-stream";
         org.springframework.http.MediaType mediaType;
         try {
             mediaType = org.springframework.http.MediaType.parseMediaType(mimeType);

@@ -3,14 +3,16 @@ import { NextRequest } from 'next/server'
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ shareCode: string; vaultsageFileId: string }> },
 ) {
   const { shareCode, vaultsageFileId } = await params
+  const render = request.nextUrl.searchParams.get('render')
   const upstreamUrl = new URL(
     `/api/public/${encodeURIComponent(shareCode)}/preview/${encodeURIComponent(vaultsageFileId)}`,
     API_URL,
   )
+  if (render === 'png') upstreamUrl.searchParams.set('render', 'true')
 
   const upstream = await fetch(upstreamUrl, { cache: 'no-store' })
   const headers = new Headers()
