@@ -42,7 +42,7 @@ The user can upload PDFs, images, presentation decks, source code, ZIP files, pl
 
 FolioSage organizes files into four evidence lanes: System, Visual, Document, and Deliverable.
 
-The creator can move files manually, upload into a lane, or ask AI to reclassify files. If needed, they can lock the category.
+The creator can move files manually, upload into a lane, or ask AI to reclassify files.
 
 Each file keeps trust signals: metadata, timestamp, SHA-256 hash, and a VaultSage file ID. So the portfolio is backed by source files, not only written claims.
 
