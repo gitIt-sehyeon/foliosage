@@ -10,7 +10,6 @@
 
 <a id="english"></a>
 
-
 ## English
 
 [English](#english) | [한국어](#korean)
